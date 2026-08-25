@@ -1,4 +1,4 @@
-// Модуль 3: Тепловая карта расхода по объектам
+// Модуль 3: Рейтинг расхода химии расхода по объектам
 const express = require('express');
 const router = express.Router();
 const db = require('../db');

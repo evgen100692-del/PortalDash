@@ -1,8 +1,8 @@
-// Модуль 3: Тепловая карта расхода по объектам
+// Модуль 3: Рейтинг расхода химии расхода по объектам
 async function renderHeatmap() {
   const content = document.getElementById('content');
   content.innerHTML = `
-    <div class="page-title">Тепловая карта расхода</div>
+    <div class="page-title">Рейтинг расхода химии</div>
     <div class="panel filters-row">
       <input type="date" id="hm-from">
       <input type="date" id="hm-to">
