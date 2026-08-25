@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PortalDash — Химия</title>
+<link rel="stylesheet" href="css/theme.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+<div id="app-shell">
+  <aside id="sidebar">
+    <div class="logo">PortalDash</div>
+    <nav>
+      <a data-page="objectCard" class="active">Карточка объекта</a>
+      <a data-page="analytics">Сводная аналитика</a>
+      <a data-page="heatmap">Тепловая карта</a>
+      <a data-page="suppliers">Поставщики</a>
+      <a data-page="alerts">Уведомления</a>
+      <a data-page="finance">Финансы</a>
+      <a data-page="exportPanel">Экспорт</a>
+    </nav>
+  </aside>
+  <main id="content"></main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/objectCard.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/heatmap.js"></script>
+<script src="js/suppliers.js"></script>
+<script src="js/alerts.js"></script>
+<script src="js/finance.js"></script>
+<script src="js/exportPanel.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
