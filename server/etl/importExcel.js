@@ -9,7 +9,7 @@
  *  - "Khimiia-Portal.xlsx" — справочник номенклатуры химии и поставщиков (лист "Химия", лист "Поставщики")
  *
  * ВАЖНО: конкретные индексы столбцов/строк уникальны для каждого файла — перед запуском
- * сверьте разбор ниже с реальным файлом.
+ * сверьте COLUMN_MAP и HEADER_ROW ниже с реальным файлом (см. `npm run import -- --dry-run`).
  */
 const path = require('path');
 const fs = require('fs');
@@ -63,6 +63,12 @@ function ensureChemicalType(name, category = null) {
   return getChemicalTypeId.get(name)?.id || null;
 }
 
+/**
+ * Разбирает один лист «широкой» таблицы закупок.
+ * Ожидается: столбец A = ФИО ответственного (заполнен на первой строке блока),
+ * столбец B = название объекта, C = ТУ, D = адрес, E = телефон,
+ * далее блоки по 3-6 столбцов на каждую неделю (дата в заголовке блока).
+ */
 function importOrdersSheet(sheet, sheetName) {
   const rows = xlsx.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
   if (rows.length < 3) return 0;

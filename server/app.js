@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 
-const db = require('./db'); // инициализирует БД и схему при старте
+const db = require('./db');
 
 const objectsRoutes = require('./routes/objects');
 const analyticsRoutes = require('./routes/analytics');
