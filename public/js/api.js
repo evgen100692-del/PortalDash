@@ -1,17 +1,3 @@
-// Обёртка над fetch к backend API
-const api = {
-  async get(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`GET ${url} → ${res.status}`);
-    return res.json();
-  },
-  async post(url, body) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error(`POST ${url} → ${res.status}`);
-    return res.json();
-  }
-};
+async function request(url, options = {}) { const response = await fetch(url, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || 'Ошибка запроса'); return data; }
+async function getObjects() { return request('/api/objects'); }
+async function createObject(formData) { return request('/api/objects', { method: 'POST', body: formData }); }

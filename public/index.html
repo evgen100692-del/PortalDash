@@ -1,37 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PortalDash — Химия</title>
-<link rel="stylesheet" href="css/theme.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PortalDash</title>
+  <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body>
-<div id="app-shell">
-  <aside id="sidebar">
-    <div class="logo">PortalDash</div>
-    <nav>
-      <a data-page="objectCard" class="active">Карточка объекта</a>
-      <a data-page="analytics">Сводная аналитика</a>
-      <a data-page="heatmap">Рейтинг расхода химии</a>
-      <a data-page="suppliers">Поставщики</a>
-      <a data-page="alerts">Уведомления</a>
-      <a data-page="finance">Финансы</a>
-      <a data-page="exportPanel">Экспорт</a>
-    </nav>
-  </aside>
-  <main id="content"></main>
-</div>
-
-<script src="js/api.js"></script>
-<script src="js/objectCard.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/heatmap.js"></script>
-<script src="js/suppliers.js"></script>
-<script src="js/alerts.js"></script>
-<script src="js/finance.js"></script>
-<script src="js/exportPanel.js"></script>
-<script src="js/main.js"></script>
+  <main class="app-shell">
+    <header class="page-header"><h1>PortalDash</h1></header>
+    <section id="object-card-section" class="object-section">
+      <div class="section-heading"><h2>Карточка объекта</h2><button id="add-object-button" class="button button-primary" type="button">+ Добавить объект</button></div>
+      <div id="object-cards" class="object-cards" aria-live="polite"></div><p id="objects-empty" class="empty-state">Объекты пока не добавлены.</p>
+    </section>
+  </main>
+  <div id="object-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title"><div class="modal-header"><h2 id="object-modal-title">Добавить объект</h2><button id="modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="object-form" novalidate><div class="form-grid">
+    <label class="field field-full">Фотография объекта <span>*</span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Прикрепите фотографию в формате PNG, JPG или JPEG.</small></label>
+    <label class="field field-full">Адрес объекта <span>*</span><input name="address" type="text" autocomplete="street-address" required><small class="field-error">Укажите адрес объекта.</small></label>
+    <label class="field">Количество боксов/роботов <span>*</span><select name="boxes" required><option value="">Выберите количество</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><small class="field-error">Выберите количество.</small></label>
+    <label class="field">Управляющий <span>*</span><input name="manager" type="text" required><small class="field-error">Укажите управляющего.</small></label>
+    <div class="field field-full"><span class="field-label">Роботы <span>*</span></span><div id="robots-fields" class="repeatable-fields"></div><button class="add-field" data-target="robots-fields" data-name="robots" type="button">+ Добавить модель</button><small class="field-error">Укажите установленные роботы.</small></div>
+    <div class="field field-full"><span class="field-label">Химия <span>*</span></span><div id="chemistry-fields" class="repeatable-fields"></div><button class="add-field" data-target="chemistry-fields" data-name="chemistry" type="button">+ Добавить вид химии</button><small class="field-error">Укажите установленную химию.</small></div>
+    <label class="field">Водоотведение <span>*</span><select name="drainage" required><option value="">Выберите вариант</option><option>Нет</option><option>Есть</option><option>УКО</option></select><small class="field-error">Выберите вариант.</small></label>
+  </div><div class="modal-actions"><button id="cancel-object" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
+  <div id="confirm-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title"><h2 id="confirm-title">Отменить добавление?</h2><p>Все не сохраненные данные будут удалены</p><div class="modal-actions"><button id="confirm-cancel" class="button button-secondary" type="button">Отмена</button><button id="confirm-ok" class="button button-primary" type="button">Ок</button></div></section></div>
+  <script src="/js/api.js"></script><script src="/js/objectCard.js"></script>
 </body>
 </html>

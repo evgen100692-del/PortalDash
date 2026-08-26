@@ -1,73 +1,17 @@
-// Модуль 1: Карточка объекта
-async function renderObjectCard() {
-  const content = document.getElementById('content');
-  const objects = await api.get('/api/objects');
-
-  content.innerHTML = `
-    <div class="page-title">Карточка объекта</div>
-    <div class="panel filters-row">
-      <select id="oc-object-select">
-        <option value="">Выберите объект…</option>
-        ${objects.map(o => `<option value="${o.id}">${o.name} (${o.city})</option>`).join('')}
-      </select>
-      <input type="date" id="oc-from">
-      <input type="date" id="oc-to">
-      <button id="oc-load">Показать историю</button>
-    </div>
-    <div id="oc-profile"></div>
-    <div id="oc-history"></div>
-  `;
-
-  document.getElementById('oc-object-select').addEventListener('change', loadObjectProfile);
-  document.getElementById('oc-load').addEventListener('click', loadObjectHistory);
-}
-
-async function loadObjectProfile() {
-  const id = document.getElementById('oc-object-select').value;
-  const profileEl = document.getElementById('oc-profile');
-  if (!id) { profileEl.innerHTML = ''; return; }
-
-  const obj = await api.get(`/api/objects/${id}`);
-  profileEl.innerHTML = `
-    <div class="panel">
-      <div class="kpi-grid">
-        <div class="kpi-card"><div class="label">Адрес</div><div class="value" style="font-size:14px">${obj.address || '—'}</div></div>
-        <div class="kpi-card"><div class="label">Ответственный ТУ</div><div class="value" style="font-size:14px">${obj.responsible_tu || '—'}</div></div>
-        <div class="kpi-card"><div class="label">Телефон</div><div class="value" style="font-size:14px">${obj.phone || '—'}</div></div>
-        <div class="kpi-card"><div class="label">Город</div><div class="value" style="font-size:14px">${obj.city || '—'}</div></div>
-      </div>
-      <h3 style="color:var(--orange)">Текущие остатки по видам химии</h3>
-      <table>
-        <thead><tr><th>Вид химии</th><th>Остаток</th><th>Дата обновления</th></tr></thead>
-        <tbody>
-          ${obj.current_balances.map(b => `<tr><td>${b.chemical_type}</td><td>${b.balance}</td><td>${b.week_start_date}</td></tr>`).join('') || '<tr><td colspan="3">Нет данных</td></tr>'}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-async function loadObjectHistory() {
-  const id = document.getElementById('oc-object-select').value;
-  if (!id) return;
-  const from = document.getElementById('oc-from').value;
-  const to = document.getElementById('oc-to').value;
-
-  const params = new URLSearchParams();
-  if (from) params.set('from', from);
-  if (to) params.set('to', to);
-
-  const history = await api.get(`/api/objects/${id}/history?${params}`);
-  const historyEl = document.getElementById('oc-history');
-  historyEl.innerHTML = `
-    <div class="panel">
-      <h3 style="color:var(--orange)">История поставок / списаний</h3>
-      <table>
-        <thead><tr><th>Неделя</th><th>Вид химии</th><th>Списание</th><th>Остаток</th><th>Заказ ТУ</th><th>Доставка факт</th><th>Стоимость</th></tr></thead>
-        <tbody>
-          ${history.map(h => `<tr><td>${h.week_start_date}</td><td>${h.chemical_type}</td><td>${h.writeoff}</td><td>${h.balance}</td><td>${h.delivery_order}</td><td>${h.delivery_fact}</td><td>${h.cost} ₽</td></tr>`).join('') || '<tr><td colspan="7">Нет данных за период</td></tr>'}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
+(() => {
+  const modal=document.querySelector('#object-modal'), confirmModal=document.querySelector('#confirm-modal'), form=document.querySelector('#object-form'), photoInput=document.querySelector('#object-photo'), preview=document.querySelector('#photo-preview'), robots=document.querySelector('#robots-fields'), chemistry=document.querySelector('#chemistry-fields');
+  const robotOptions=['Рязань','RCV'], chemistryOptions=['Эмульсия «365»','JD','Эмульсион «Вуаль»'];
+  const escapeHtml=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  const options=values=>`<option value="">Выберите значение</option>${values.map(value=>`<option>${escapeHtml(value)}</option>`).join('')}`;
+  const addRow=(container,name,values)=>{const row=document.createElement('div');row.className='repeatable-row';row.innerHTML=`<select name="${name}" required>${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;row.querySelector('button').onclick=()=>{if(container.children.length>1)row.remove();};container.append(row);};
+  const resetForm=()=>{form.reset();preview.hidden=true;preview.removeAttribute('src');robots.innerHTML='';chemistry.innerHTML='';addRow(robots,'robots',robotOptions);addRow(chemistry,'chemistry',chemistryOptions);form.querySelectorAll('.field').forEach(field=>field.classList.remove('invalid'));};
+  const closeForm=()=>{modal.hidden=true;confirmModal.hidden=true;document.body.style.overflow='';};
+  const validate=()=>{let valid=true;form.querySelectorAll('[required]').forEach(input=>{const field=input.closest('.field');const bad=!input.value.trim();field&&field.classList.toggle('invalid',bad);if(bad)valid=false;});const file=photoInput.files[0],fileBad=!file||!/^image\/(png|jpe?g)$/.test(file.type);photoInput.closest('.field').classList.toggle('invalid',fileBad);return valid;};
+  const render=list=>{const cards=document.querySelector('#object-cards');cards.innerHTML='';document.querySelector('#objects-empty').hidden=!!list.length;list.forEach(object=>{const card=document.createElement('article');card.className='object-card';card.innerHTML=`<img src="${escapeHtml(object.photo_url)}" alt=""><div class="object-card__address"></div>`;card.querySelector('img').alt=object.address;card.querySelector('div').textContent=object.address;cards.append(card);});};
+  photoInput.onchange=()=>{const file=photoInput.files[0];if(file){preview.src=URL.createObjectURL(file);preview.hidden=false;}};
+  document.querySelector('#add-object-button').onclick=()=>{resetForm();modal.hidden=false;document.body.style.overflow='hidden';};
+  const askCancel=()=>{confirmModal.hidden=false;}; document.querySelector('#modal-close').onclick=askCancel;document.querySelector('#cancel-object').onclick=askCancel;document.querySelector('#confirm-cancel').onclick=()=>{confirmModal.hidden=true;};document.querySelector('#confirm-ok').onclick=closeForm;
+  document.querySelectorAll('.add-field').forEach(button=>button.onclick=()=>addRow(document.querySelector(`#${button.dataset.target}`),button.dataset.name,button.dataset.name==='robots'?robotOptions:chemistryOptions));
+  form.onsubmit=async event=>{event.preventDefault();if(!validate())return;const data=new FormData(form);data.delete('robots');data.delete('chemistry');data.append('robots',JSON.stringify([...form.querySelectorAll('[name="robots"]')].map(input=>input.value)));data.append('chemistry',JSON.stringify([...form.querySelectorAll('[name="chemistry"]')].map(input=>input.value)));try{await createObject(data);render(await getObjects());closeForm();}catch(error){alert(error.message);}};
+  getObjects().then(render).catch(()=>render([]));resetForm();
+})();
