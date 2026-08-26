@@ -1,1 +1,2 @@
-CREATE TABLE IF NOT EXISTS objects (id INTEGER PRIMARY KEY AUTOINCREMENT,photo_url TEXT NOT NULL,address TEXT NOT NULL,boxes INTEGER NOT NULL CHECK (boxes BETWEEN 1 AND 5),robots TEXT NOT NULL,chemistry TEXT NOT NULL,manager TEXT NOT NULL,drainage TEXT NOT NULL,created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+-- Хранилище объектов переведено с better-sqlite3 на JSON-файл для запуска без native addons на Node.js 24.
+-- Файл данных создаётся автоматически в server/data/objects.json.
