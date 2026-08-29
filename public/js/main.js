@@ -1,13 +1,17 @@
 // Роутинг между разделами дашборда.
-// Раздел «Карточка объекта» реализован (см. objectCard.js), остальные пока заглушки.
+// «Карточка объекта» и «Химия» реализованы, остальные пункты — заглушки.
 const PAGE_TITLES = {
-  objectCard: 'Карточка объекта',
   analytics: 'Сводная аналитика',
   heatmap: 'Рейтинг расхода химии',
-  suppliers: 'Поставщики',
   alerts: 'Уведомления',
   finance: 'Финансы',
   exportPanel: 'Экспорт'
+};
+
+// pageKey -> id секции с реализованным содержимым.
+const REAL_PAGES = {
+  objectCard: 'page-objectCard',
+  chemicals: 'page-chemicals'
 };
 
 function navigate(pageKey) {
@@ -21,12 +25,14 @@ function navigate(pageKey) {
     history.replaceState(null, '', location.pathname + location.search);
   }
 
-  const isObjectCard = pageKey === 'objectCard';
-  document.getElementById('page-objectCard').hidden = !isObjectCard;
+  const targetId = REAL_PAGES[pageKey] || null;
+  Object.values(REAL_PAGES).forEach(id => {
+    document.getElementById(id).hidden = id !== targetId;
+  });
 
   const placeholder = document.getElementById('page-placeholder');
-  placeholder.hidden = isObjectCard;
-  if (!isObjectCard) {
+  placeholder.hidden = !!targetId;
+  if (!targetId) {
     placeholder.querySelector('.placeholder-title').textContent = PAGE_TITLES[pageKey] || 'Раздел';
   }
 }
