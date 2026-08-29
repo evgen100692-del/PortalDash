@@ -107,7 +107,11 @@
   };
 
   // ---------- Страница объекта ----------
-  const asList = value => (Array.isArray(value) ? value : []);
+  const asList = value => {
+    if (Array.isArray(value)) return value;
+    try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : []; }
+    catch { return []; }
+  };
 
   const formatDate = value => {
     const date = new Date(value);
