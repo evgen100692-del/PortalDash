@@ -1,21 +1,28 @@
-// Роутинг между модулями дашборда
-const pages = {
-  objectCard: renderObjectCard,
-  analytics: renderAnalytics,
-  heatmap: renderHeatmap,
-  suppliers: renderSuppliers,
-  alerts: renderAlerts,
-  finance: renderFinance,
-  exportPanel: renderExportPanel
+// Роутинг между разделами дашборда.
+// Раздел «Карточка объекта» реализован (см. objectCard.js), остальные пока заглушки.
+const PAGE_TITLES = {
+  objectCard: 'Карточка объекта',
+  analytics: 'Сводная аналитика',
+  heatmap: 'Рейтинг расхода химии',
+  suppliers: 'Поставщики',
+  alerts: 'Уведомления',
+  finance: 'Финансы',
+  exportPanel: 'Экспорт'
 };
 
 function navigate(pageKey) {
   document.querySelectorAll('#sidebar nav a').forEach(a => {
     a.classList.toggle('active', a.dataset.page === pageKey);
   });
-  const content = document.getElementById('content');
-  content.innerHTML = '<div class="panel">Загрузка…</div>';
-  (pages[pageKey] || (() => { content.innerHTML = '<div class="panel">Раздел в разработке</div>'; }))();
+
+  const isObjectCard = pageKey === 'objectCard';
+  document.getElementById('page-objectCard').hidden = !isObjectCard;
+
+  const placeholder = document.getElementById('page-placeholder');
+  placeholder.hidden = isObjectCard;
+  if (!isObjectCard) {
+    placeholder.querySelector('.placeholder-title').textContent = PAGE_TITLES[pageKey] || 'Раздел';
+  }
 }
 
 document.querySelectorAll('#sidebar nav a').forEach(a => {
