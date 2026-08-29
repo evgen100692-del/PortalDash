@@ -6,3 +6,7 @@ data/*.xlsx
 .DS_Store
 npm-debug.log*
 dist/
+
+# Runtime data / uploads (created by the app at runtime)
+/server/data/
+/public/uploads/
