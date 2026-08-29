@@ -1,6 +1,7 @@
 // Точка входа Express-приложения
 const express = require('express');
 const path = require('path');
+const os = require('os');
 
 const db = require('./db');
 
@@ -14,6 +15,9 @@ const exportRoutes = require('./routes/export');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// 0.0.0.0 — слушать на всех интерфейсах, чтобы можно было подключаться по IP из локальной сети.
+// Переопределяется переменной окружения HOST (например HOST=127.0.0.1 — только локально).
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -30,6 +34,20 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`PortalDash запущен: http://localhost:${PORT}`);
+function lanAddresses() {
+  return Object.values(os.networkInterfaces())
+    .flat()
+    .filter(iface => iface && iface.family === 'IPv4' && !iface.internal)
+    .map(iface => iface.address);
+}
+
+app.listen(PORT, HOST, () => {
+  console.log(`PortalDash запущен на ${HOST}:${PORT}`);
+  console.log(`  локально:      http://localhost:${PORT}`);
+  for (const address of lanAddresses()) {
+    console.log(`  в этой сети:   http://${address}:${PORT}`);
+  }
+  if (HOST === '0.0.0.0') {
+    console.log('Если с другого устройства не открывается — разрешите порт во входящих правилах брандмауэра Windows.');
+  }
 });
