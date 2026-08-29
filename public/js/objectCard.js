@@ -5,7 +5,7 @@
   const form = document.querySelector('#object-form');
   const photoInput = document.querySelector('#object-photo');
   const photoField = photoInput.closest('.field');
-  const photoRequiredMark = photoField.querySelector('span');
+  const photoRequiredMark = photoField.querySelector('.req');
   const photoEditHint = document.querySelector('#photo-edit-hint');
   const preview = document.querySelector('#photo-preview');
   const robots = document.querySelector('#robots-fields');
@@ -33,6 +33,20 @@
 
   const options = values =>
     `<option value="">Выберите значение</option>${values.map(value => `<option>${escapeHtml(value)}</option>`).join('')}`;
+
+  // Ссылка-иконка на Яндекс.Карты с адресом объекта.
+  const buildMapLink = address => {
+    const link = document.createElement('a');
+    link.className = 'map-link';
+    link.href = 'https://yandex.ru/maps/?text=' + encodeURIComponent(address || '');
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.title = 'Показать на Яндекс.Картах';
+    link.setAttribute('aria-label', 'Показать адрес на Яндекс.Картах');
+    link.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+    link.addEventListener('click', event => event.stopPropagation());
+    return link;
+  };
 
   const addRow = (container, name, values, selectedValue) => {
     const row = document.createElement('div');
@@ -107,11 +121,12 @@
       card.className = 'object-card';
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
-      card.innerHTML = `<img alt=""><div class="object-card__address"></div>`;
+      card.innerHTML = `<img alt=""><div class="object-card__address"><span class="object-card__address-text"></span></div>`;
       const img = card.querySelector('img');
       img.src = object.photo_url;
       img.alt = object.address;
-      card.querySelector('.object-card__address').textContent = object.address;
+      card.querySelector('.object-card__address-text').textContent = object.address;
+      card.querySelector('.object-card__address').append(buildMapLink(object.address));
       card.onclick = () => { location.hash = `#object-${object.id}`; };
       card.onkeydown = event => {
         if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); location.hash = `#object-${object.id}`; }
