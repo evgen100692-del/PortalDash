@@ -1,8 +1,12 @@
 (() => {
   const modal = document.querySelector('#object-modal');
+  const modalTitle = document.querySelector('#object-modal-title');
   const confirmModal = document.querySelector('#confirm-modal');
   const form = document.querySelector('#object-form');
   const photoInput = document.querySelector('#object-photo');
+  const photoField = photoInput.closest('.field');
+  const photoRequiredMark = photoField.querySelector('span');
+  const photoEditHint = document.querySelector('#photo-edit-hint');
   const preview = document.querySelector('#photo-preview');
   const robots = document.querySelector('#robots-fields');
   const chemistry = document.querySelector('#chemistry-fields');
@@ -20,6 +24,8 @@
 
   let previewUrl = null;
   let objectsById = {};
+  let editingId = null;
+  let currentDetailObject = null;
 
   const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -28,10 +34,11 @@
   const options = values =>
     `<option value="">Выберите значение</option>${values.map(value => `<option>${escapeHtml(value)}</option>`).join('')}`;
 
-  const addRow = (container, name, values) => {
+  const addRow = (container, name, values, selectedValue) => {
     const row = document.createElement('div');
     row.className = 'repeatable-row';
     row.innerHTML = `<select name="${name}" required>${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;
+    if (selectedValue) row.querySelector('select').value = selectedValue;
     row.querySelector('button').onclick = () => {
       if (container.children.length > 1) row.remove();
     };
@@ -52,12 +59,18 @@
     addRow(robots, 'robots', robotOptions);
     addRow(chemistry, 'chemistry', chemistryOptions);
     form.querySelectorAll('.field').forEach(field => field.classList.remove('invalid'));
+    editingId = null;
+    modalTitle.textContent = 'Добавить объект';
+    photoInput.required = true;
+    photoRequiredMark.hidden = false;
+    photoEditHint.hidden = true;
   };
 
   const closeForm = () => {
     modal.hidden = true;
     confirmModal.hidden = true;
     document.body.style.overflow = '';
+    editingId = null;
   };
 
   // Помечает .field как invalid, если хотя бы один обязательный контрол внутри не заполнен.
@@ -67,7 +80,8 @@
     let bad = controls.some(control => !String(control.value).trim());
     if (field.contains(photoInput)) {
       const file = photoInput.files[0];
-      bad = !file || !imageTypeRe.test(file.type);
+      if (editingId != null && !file) bad = false;          // при редактировании фото можно не менять
+      else bad = !file || !imageTypeRe.test(file.type);
     }
     field.classList.toggle('invalid', bad);
     return !bad;
@@ -155,6 +169,7 @@
     if (!object) {
       try { object = await getObject(id); } catch { location.hash = ''; return; }
     }
+    currentDetailObject = object;
     renderDetail(object);
     showDetailPage();
   };
@@ -172,6 +187,40 @@
 
   window.addEventListener('hashchange', route);
   document.querySelector('#detail-back').onclick = () => { location.hash = ''; };
+
+  // ---------- Редактирование объекта ----------
+  const openEditModal = object => {
+    resetForm();
+    editingId = object.id;
+    modalTitle.textContent = 'Редактировать объект';
+    photoInput.required = false;
+    photoRequiredMark.hidden = true;
+    photoEditHint.hidden = false;
+
+    form.address.value = object.address || '';
+    form.boxes.value = String(object.boxes || '');
+    form.manager.value = object.manager || '';
+    form.drainage.value = object.drainage || '';
+
+    robots.innerHTML = '';
+    chemistry.innerHTML = '';
+    const robotValues = asList(object.robots);
+    const chemistryValues = asList(object.chemistry);
+    (robotValues.length ? robotValues : ['']).forEach(value => addRow(robots, 'robots', robotOptions, value));
+    (chemistryValues.length ? chemistryValues : ['']).forEach(value => addRow(chemistry, 'chemistry', chemistryOptions, value));
+
+    if (object.photo_url) {
+      preview.src = object.photo_url;
+      preview.hidden = false;
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+
+  document.querySelector('#detail-edit').onclick = () => {
+    if (currentDetailObject) openEditModal(currentDetailObject);
+  };
 
   // ---------- Форма добавления ----------
   photoInput.onchange = () => {
@@ -222,10 +271,18 @@
     data.delete('chemistry');
     data.append('robots', JSON.stringify([...form.querySelectorAll('[name="robots"]')].map(input => input.value)));
     data.append('chemistry', JSON.stringify([...form.querySelectorAll('[name="chemistry"]')].map(input => input.value)));
+    if (!photoInput.files.length) data.delete('photo');
+    const savingId = editingId;
     try {
-      await createObject(data);
-      render(await getObjects());
+      if (savingId != null) await updateObject(savingId, data);
+      else await createObject(data);
+      const list = await getObjects();
+      render(list);
       closeForm();
+      if (savingId != null && location.hash === `#object-${savingId}`) {
+        currentDetailObject = objectsById[savingId] || currentDetailObject;
+        if (currentDetailObject) renderDetail(currentDetailObject);
+      }
     } catch (error) {
       alert(error.message);
     }

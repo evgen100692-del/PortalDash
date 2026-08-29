@@ -203,6 +203,9 @@ h1, h2 { margin: 0; }
 .field.invalid input, .field.invalid select { border-color: var(--danger); background: rgba(229, 72, 77, 0.12); }
 .field-error { display: none; color: var(--danger); font-size: 12px; }
 .field.invalid .field-error { display: block; }
+.field-hint { color: var(--gray); font-size: 12px; }
+
+.detail-actions { display: flex; gap: 10px; }
 
 .photo-preview {
   width: 180px;

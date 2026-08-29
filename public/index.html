@@ -39,7 +39,10 @@
       <section id="page-objectDetail" class="page" hidden>
         <div class="section-heading">
           <h2 class="page-title" id="detail-title">Объект</h2>
-          <button id="detail-back" class="button button-secondary" type="button">← Назад</button>
+          <div class="detail-actions">
+            <button id="detail-edit" class="button button-primary" type="button">Редактировать</button>
+            <button id="detail-back" class="button button-secondary" type="button">← Назад</button>
+          </div>
         </div>
         <div class="object-detail">
           <img id="detail-photo" class="object-detail__photo" alt="Фотография объекта">
@@ -50,7 +53,7 @@
   </div>
 
   <div id="object-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title"><div class="modal-header"><h2 id="object-modal-title">Добавить объект</h2><button id="modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="object-form" novalidate><div class="form-grid">
-    <label class="field field-full">Фотография объекта <span>*</span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Прикрепите фотографию в формате PNG, JPG или JPEG.</small></label>
+    <label class="field field-full">Фотография объекта <span>*</span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Прикрепите фотографию в формате PNG, JPG или JPEG.</small><small class="field-hint" id="photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фотографию.</small></label>
     <label class="field field-full">Адрес объекта <span>*</span><input name="address" type="text" autocomplete="street-address" required><small class="field-error">Укажите адрес объекта.</small></label>
     <label class="field">Количество боксов/роботов <span>*</span><select name="boxes" required><option value="">Выберите количество</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><small class="field-error">Выберите количество.</small></label>
     <label class="field">Управляющий <span>*</span><input name="manager" type="text" required><small class="field-error">Укажите управляющего.</small></label>
