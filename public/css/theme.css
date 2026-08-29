@@ -126,10 +126,40 @@ h1, h2 { margin: 0; }
   border-radius: 12px;
   background: var(--bg-panel);
   border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
 }
+.object-card:hover,
+.object-card:focus-visible { border-color: var(--orange); transform: translateY(-2px); outline: none; }
 .object-card img { display: block; width: 100%; height: 150px; object-fit: cover; background: var(--bg-panel-2); }
 .object-card__address { padding: 14px; font-weight: 600; color: var(--white); }
 .empty-state { color: var(--gray); }
+
+/* ---------- Страница объекта ---------- */
+.object-detail {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.object-detail__photo {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+  background: var(--bg-panel-2);
+}
+.object-detail__fields {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 12px 24px;
+}
+.object-detail__fields dt { color: var(--gray); font-size: 13px; }
+.object-detail__fields dd { margin: 0; color: var(--white); font-weight: 600; }
+@media (max-width: 700px) {
+  .object-detail { grid-template-columns: 1fr; }
+}
 
 /* ---------- Модальные окна ---------- */
 .modal-backdrop {

@@ -15,6 +15,12 @@ function navigate(pageKey) {
     a.classList.toggle('active', a.dataset.page === pageKey);
   });
 
+  // Уходим с карточки объекта — закрываем её страницу и чистим хэш без hashchange.
+  document.getElementById('page-objectDetail').hidden = true;
+  if (location.hash.startsWith('#object-')) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
   const isObjectCard = pageKey === 'objectCard';
   document.getElementById('page-objectCard').hidden = !isObjectCard;
 
@@ -29,4 +35,9 @@ document.querySelectorAll('#sidebar nav a').forEach(a => {
   a.addEventListener('click', () => navigate(a.dataset.page));
 });
 
-navigate('objectCard');
+// При прямой ссылке на страницу объекта (#object-<id>) её открывает objectCard.js.
+if (!/^#object-\d+$/.test(location.hash)) {
+  navigate('objectCard');
+} else {
+  document.querySelector('#sidebar nav a[data-page="objectCard"]').classList.add('active');
+}
