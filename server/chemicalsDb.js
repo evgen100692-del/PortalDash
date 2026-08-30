@@ -29,5 +29,23 @@ module.exports = {
     items.push(saved);
     write(items);
     return saved;
+  },
+  updateChemical(id, patch) {
+    const items = read();
+    const index = items.findIndex(item => Number(item.id) === Number(id));
+    if (index === -1) return null;
+    const current = items[index];
+    const merged = { ...current, ...patch, id: current.id, created_at: current.created_at };
+    items[index] = merged;
+    write(items);
+    return merged;
+  },
+  deleteChemical(id) {
+    const items = read();
+    const index = items.findIndex(item => Number(item.id) === Number(id));
+    if (index === -1) return null;
+    const [removed] = items.splice(index, 1);
+    write(items);
+    return removed;
   }
 };

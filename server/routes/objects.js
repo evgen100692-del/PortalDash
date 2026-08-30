@@ -4,6 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 const router = express.Router();
 const db = require('../db');
+const chemicalsDb = require('../chemicalsDb');
 
 const uploadDir = path.join(__dirname, '../../public/uploads/objects');
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -14,9 +15,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => cb(null, /^image\/(png|jpe?g)$/.test(file.mimetype))
 });
 
-const VALID_BOXES = ['1', '2', '3', '4', '5'];
 const VALID_ROBOTS = ['Рязань', 'RCV'];
-const VALID_CHEMISTRY = ['Эмульсия «365»', 'JD', 'Эмульсион «Вуаль»'];
 const VALID_DRAINAGE = ['Нет', 'Есть', 'УКО'];
 
 // Разбирает и проверяет поля формы объекта. Возвращает { data } либо { error }.
@@ -30,12 +29,23 @@ function parseObjectBody(body) {
     return { error: 'Некорректные списки роботов или химии' };
   }
 
+  const boxes = Number(body.boxes);
+  const knownChemistry = new Set(chemicalsDb.listChemicals().map(item => item.name));
+
+  if (Array.isArray(chemistry) && chemistry.length && chemistry.some(value => !knownChemistry.has(value))) {
+    return {
+      error: knownChemistry.size
+        ? 'Выбранная химия отсутствует в разделе «Химия»'
+        : 'Сначала добавьте химию в разделе «Химия»'
+    };
+  }
+
   const required = ['address', 'boxes', 'manager', 'drainage'];
   const invalid =
     required.some(key => !String(body[key] || '').trim()) ||
-    !VALID_BOXES.includes(String(body.boxes)) ||
+    !Number.isFinite(boxes) || boxes < 1 ||
     !Array.isArray(robots) || !robots.length || robots.some(value => !VALID_ROBOTS.includes(value)) ||
-    !Array.isArray(chemistry) || !chemistry.length || chemistry.some(value => !VALID_CHEMISTRY.includes(value)) ||
+    !Array.isArray(chemistry) || !chemistry.length ||
     !VALID_DRAINAGE.includes(body.drainage);
 
   if (invalid) return { error: 'Все поля обязательны и должны содержать допустимые значения' };
@@ -43,7 +53,7 @@ function parseObjectBody(body) {
   return {
     data: {
       address: body.address.trim(),
-      boxes: Number(body.boxes),
+      boxes,
       robots,
       chemistry,
       manager: body.manager.trim(),
@@ -99,6 +109,14 @@ router.put('/:id', upload.single('photo'), (req, res) => {
   const updated = db.updateObject(req.params.id, patch);
   if (req.file && existing.photo_url) removeUpload(existing.photo_url);
   res.json(updated);
+});
+
+router.delete('/:id', (req, res) => {
+  const existing = db.getObject(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Объект не найден' });
+  db.deleteObject(req.params.id);
+  if (existing.photo_url) removeUpload(existing.photo_url);
+  res.json({ ok: true });
 });
 
 module.exports = router;

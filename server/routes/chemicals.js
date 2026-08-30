@@ -15,6 +15,7 @@ const upload = multer({
 });
 
 const TEST_STAGES = [
+  'Тестирование не проводилось',
   'Этап №1 - Лабораторный',
   'Этап №2 - Полевой 1 день',
   'Этап №3 - Полевой долгосрочный',
@@ -22,12 +23,14 @@ const TEST_STAGES = [
 ];
 const RESULTS = [
   'Одобрено',
+  'Тестирование не проводилось',
   'Пройден 1 этап тестирования',
   'Пройден 2 этап тестирования',
   'Отправлено на доработку',
   'Отказ'
 ];
 const STAGE_LABELS = [
+  'Тестирование не проводилось',
   'Этап №1 - Лабораторный',
   'Этап №2 - Полевой 1 день',
   'Этап №3 - Полевой долгосрочный'
@@ -45,12 +48,14 @@ function parseChemicalBody(body) {
   const supplier = String(body.supplier || '').trim();
   const chem_type = String(body.chem_type || '').trim();
   const price = Number(body.price);
+  const volume = Number(body.volume);
   const test_stage = String(body.test_stage || '');
   const result = String(body.result || '');
   const has_docs = body.has_docs === 'true' || body.has_docs === 'on' || body.has_docs === true;
 
   if (!name || !supplier || !chem_type) return { error: 'Заполните наименование, поставщика и тип химии' };
   if (!Number.isFinite(price) || price < 0) return { error: 'Некорректная цена' };
+  if (!Number.isFinite(volume) || volume < 0) return { error: 'Некорректный объём' };
   if (!TEST_STAGES.includes(test_stage)) return { error: 'Некорректный этап тестирования' };
   if (!RESULTS.includes(result)) return { error: 'Некорректный результат тестирования' };
 
@@ -60,18 +65,18 @@ function parseChemicalBody(body) {
     if (mode !== 'none' && mode !== 'date') return { error: 'Некорректные данные этапа тестирования' };
 
     if (mode === 'none') {
-      stages.push({ stage: STAGE_LABELS[i - 1], date: null, comment: null });
+      stages.push({ stage: STAGE_LABELS[i], date: null, comment: null });
       continue;
     }
 
     const date = String(body[`stage${i}_date`] || '');
     const comment = String(body[`stage${i}_comment`] || '').trim();
-    if (!DATE_RE.test(date)) return { error: `Укажите дату тестирования: ${STAGE_LABELS[i - 1]}` };
-    if (!comment) return { error: `Добавьте комментарий к тестированию: ${STAGE_LABELS[i - 1]}` };
-    stages.push({ stage: STAGE_LABELS[i - 1], date, comment });
+    if (!DATE_RE.test(date)) return { error: `Укажите дату тестирования: ${STAGE_LABELS[i]}` };
+    if (!comment) return { error: `Добавьте комментарий к тестированию: ${STAGE_LABELS[i]}` };
+    stages.push({ stage: STAGE_LABELS[i], date, comment });
   }
 
-  return { data: { name, price, supplier, chem_type, has_docs, test_stage, result, stages } };
+  return { data: { name, price, volume, supplier, chem_type, has_docs, test_stage, result, stages } };
 }
 
 router.get('/', (req, res) => res.json(db.listChemicals()));
@@ -93,6 +98,35 @@ router.post('/', upload.single('photo'), (req, res) => {
   }
   const saved = db.insertChemical({ photo_url: '/uploads/chemicals/' + req.file.filename, ...parsed.data });
   res.status(201).json(saved);
+});
+
+router.put('/:id', upload.single('photo'), (req, res) => {
+  const existing = db.getChemical(req.params.id);
+  if (!existing) {
+    if (req.file) removeUpload(req.file.filename);
+    return res.status(404).json({ error: 'Химия не найдена' });
+  }
+
+  const parsed = parseChemicalBody(req.body);
+  if (parsed.error) {
+    if (req.file) removeUpload(req.file.filename);
+    return res.status(400).json({ error: parsed.error });
+  }
+
+  const patch = { ...parsed.data };
+  if (req.file) patch.photo_url = '/uploads/chemicals/' + req.file.filename;
+
+  const updated = db.updateChemical(req.params.id, patch);
+  if (req.file && existing.photo_url) removeUpload(existing.photo_url);
+  res.json(updated);
+});
+
+router.delete('/:id', (req, res) => {
+  const existing = db.getChemical(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Химия не найдена' });
+  db.deleteChemical(req.params.id);
+  if (existing.photo_url) removeUpload(existing.photo_url);
+  res.json({ ok: true });
 });
 
 module.exports = router;

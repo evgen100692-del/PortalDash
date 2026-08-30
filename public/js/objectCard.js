@@ -18,12 +18,35 @@
   const detailPhoto = document.querySelector('#detail-photo');
   const detailFields = document.querySelector('#detail-fields');
 
+  const filtersBar = document.querySelector('#object-filters');
+  const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
+  const filtersReset = document.querySelector('#object-filters-reset');
+
   const robotOptions = ['Рязань', 'RCV'];
-  const chemistryOptions = ['Эмульсия «365»', 'JD', 'Эмульсион «Вуаль»'];
+  const STAGE3 = 'Этап №3 - Полевой долгосрочный';
+  let chemistryOptions = [];        // названия из раздела «Химия» для формы
+  let testChemNames = new Set();      // названия химии на этапе тестирования №3
+  let rejectChemNames = new Set();    // названия химии с результатом «Отказ»
+  let approvedChemNames = new Set();  // названия химии с результатом «Одобрено»
   const imageTypeRe = /^image\/(png|jpe?g)$/;
+
+  // Подтягивает актуальные данные раздела «Химия»: названия для формы и наборы
+  // названий для фильтра «Вид химии» (этап №3 = «Тестовая», результат «Отказ» /
+  // «Одобрено» = «Действующая»).
+  const loadChemistryOptions = async () => {
+    try {
+      const list = await getChemicals();
+      chemistryOptions = [...new Set(list.map(item => item.name).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, 'ru'));
+      testChemNames = new Set(list.filter(item => item.test_stage === STAGE3).map(item => item.name));
+      rejectChemNames = new Set(list.filter(item => item.result === 'Отказ').map(item => item.name));
+      approvedChemNames = new Set(list.filter(item => item.result === 'Одобрено').map(item => item.name));
+    } catch { /* оставляем прежние значения */ }
+  };
 
   let previewUrl = null;
   let objectsById = {};
+  let allObjects = [];
   let editingId = null;
   let currentDetailObject = null;
 
@@ -52,7 +75,15 @@
     const row = document.createElement('div');
     row.className = 'repeatable-row';
     row.innerHTML = `<select name="${name}" required>${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;
-    if (selectedValue) row.querySelector('select').value = selectedValue;
+    const select = row.querySelector('select');
+    if (selectedValue) {
+      if (![...select.options].some(option => option.value === selectedValue)) {
+        const extra = document.createElement('option');
+        extra.textContent = selectedValue;
+        select.append(extra);
+      }
+      select.value = selectedValue;
+    }
     row.querySelector('button').onclick = () => {
       if (container.children.length > 1) row.remove();
     };
@@ -111,14 +142,20 @@
 
   // ---------- Список карточек ----------
   const render = list => {
-    objectsById = {};
     const cards = document.querySelector('#object-cards');
     cards.innerHTML = '';
-    document.querySelector('#objects-empty').hidden = !!list.length;
+    const empty = document.querySelector('#objects-empty');
+    empty.hidden = !!list.length;
+    empty.textContent = allObjects.length
+      ? 'По выбранным фильтрам ничего не найдено.'
+      : 'Объекты пока не добавлены.';
     list.forEach(object => {
-      objectsById[object.id] = object;
       const card = document.createElement('article');
       card.className = 'object-card';
+      // Объект с химией, у которой результат тестирования «Отказ» — красная рамка.
+      if (asList(object.chemistry).some(name => rejectChemNames.has(name))) {
+        card.classList.add('object-card--reject');
+      }
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
       card.innerHTML = `<img alt=""><div class="object-card__address"><span class="object-card__address-text"></span></div>`;
@@ -152,24 +189,35 @@
     detailPhoto.src = object.photo_url || '';
     detailPhoto.alt = object.address || 'Фотография объекта';
 
-    const rows = [
-      ['Адрес объекта', object.address || '—'],
-      ['Количество боксов/роботов', object.boxes || '—'],
-      ['Установленные роботы', asList(object.robots).join(', ') || '—'],
-      ['Установленная химия', asList(object.chemistry).join(', ') || '—'],
-      ['Управляющий', object.manager || '—'],
-      ['Водоотведение', object.drainage || '—'],
-      ['Добавлен', formatDate(object.created_at)]
-    ];
-
     detailFields.innerHTML = '';
-    rows.forEach(([label, value]) => {
+
+    const addRow = (label, fill) => {
       const dt = document.createElement('dt');
       dt.textContent = label;
       const dd = document.createElement('dd');
-      dd.textContent = value;
+      fill(dd);
       detailFields.append(dt, dd);
+    };
+    const text = value => dd => { dd.textContent = value; };
+
+    addRow('Адрес объекта', text(object.address || '—'));
+    addRow('Количество боксов/роботов', text(object.boxes || '—'));
+    addRow('Установленные роботы', text(asList(object.robots).join(', ') || '—'));
+    addRow('Установленная химия', dd => {
+      const names = asList(object.chemistry);
+      if (!names.length) { dd.textContent = '—'; return; }
+      names.forEach((name, index) => {
+        const span = document.createElement('span');
+        span.textContent = name;
+        // Химия с результатом тестирования «Отказ» — красным.
+        if (rejectChemNames.has(name)) span.className = 'chem-reject';
+        dd.append(span);
+        if (index < names.length - 1) dd.append(', ');
+      });
     });
+    addRow('Управляющий', text(object.manager || '—'));
+    addRow('Водоотведение', text(object.drainage || '—'));
+    addRow('Добавлен', text(formatDate(object.created_at)));
   };
 
   const showDetailPage = () => {
@@ -197,14 +245,90 @@
   const route = () => {
     const match = location.hash.match(/^#object-(\d+)$/);
     if (match) openDetail(match[1]);
-    else closeDetail();
+    else if (!detailPage.hidden) closeDetail();
   };
 
   window.addEventListener('hashchange', route);
   document.querySelector('#detail-back').onclick = () => { location.hash = ''; };
 
+  // ---------- Фильтры ----------
+  // Значения объекта для конкретного фильтра (всегда массив вариантов).
+  const objectFilterValues = (object, key) => {
+    if (key === 'robots') return asList(object.robots);
+    if (key === 'chemistry') return asList(object.chemistry);
+    if (key === 'test_chem') {
+      const names = asList(object.chemistry);
+      const result = [];
+      if (names.some(name => testChemNames.has(name))) result.push('Тестовая');
+      if (names.some(name => rejectChemNames.has(name))) result.push('Отказ');
+      if (names.some(name => approvedChemNames.has(name))) result.push('Действующая');
+      return result;
+    }
+    return [object[key] || ''];
+  };
+
+  const activeObjectFilters = () => {
+    const active = {};
+    filterSelects.forEach(sel => { if (sel.value) active[sel.dataset.filter] = sel.value; });
+    return active;
+  };
+
+  const matchesObjectFilters = (object, filters) =>
+    Object.entries(filters).every(([key, value]) => objectFilterValues(object, key).includes(value));
+
+  // Пересобирает варианты фильтров (по остальным активным фильтрам) и список карточек.
+  const refresh = () => {
+    const filters = activeObjectFilters();
+
+    filterSelects.forEach(sel => {
+      const key = sel.dataset.filter;
+      if (key === 'test_chem') return;   // фиксированные варианты: Все / Да / Нет
+
+      const others = { ...filters };
+      delete others[key];
+      const pool = allObjects.filter(object => matchesObjectFilters(object, others));
+
+      const values = new Set();
+      pool.forEach(object => objectFilterValues(object, key).forEach(value => {
+        if (value !== '') values.add(value);
+      }));
+      const current = sel.value;
+      if (current && !values.has(current)) values.add(current);
+
+      sel.innerHTML = '';
+      const all = document.createElement('option');
+      all.value = '';
+      all.textContent = 'Все';
+      sel.append(all);
+      [...values].sort((a, b) => a.localeCompare(b, 'ru')).forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        sel.append(option);
+      });
+      sel.value = current;
+    });
+
+    render(allObjects.filter(object => matchesObjectFilters(object, filters)));
+  };
+
+  const setData = list => {
+    allObjects = list;
+    objectsById = {};
+    list.forEach(object => { objectsById[object.id] = object; });
+    filtersBar.hidden = !list.length;
+    refresh();
+  };
+
+  filterSelects.forEach(sel => sel.addEventListener('change', refresh));
+  filtersReset.addEventListener('click', () => {
+    filterSelects.forEach(sel => { sel.value = ''; });
+    refresh();
+  });
+
   // ---------- Редактирование объекта ----------
-  const openEditModal = object => {
+  const openEditModal = async object => {
+    await loadChemistryOptions();
     resetForm();
     editingId = object.id;
     modalTitle.textContent = 'Редактировать объект';
@@ -237,6 +361,22 @@
     if (currentDetailObject) openEditModal(currentDetailObject);
   };
 
+  // ---------- Удаление объекта ----------
+  const deleteModal = document.querySelector('#object-delete-modal');
+  document.querySelector('#detail-delete').onclick = () => { deleteModal.hidden = false; };
+  document.querySelector('#object-delete-no').onclick = () => { deleteModal.hidden = true; };
+  document.querySelector('#object-delete-yes').onclick = async () => {
+    if (!currentDetailObject) return;
+    try {
+      await deleteObject(currentDetailObject.id);
+      deleteModal.hidden = true;
+      location.hash = '';
+      setData(await getObjects());
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   // ---------- Форма добавления ----------
   photoInput.onchange = () => {
     clearPreview();
@@ -258,7 +398,8 @@
   form.addEventListener('input', revalidateFrom);
   form.addEventListener('change', revalidateFrom);
 
-  document.querySelector('#add-object-button').onclick = () => {
+  document.querySelector('#add-object-button').onclick = async () => {
+    await loadChemistryOptions();
     resetForm();
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -291,8 +432,7 @@
     try {
       if (savingId != null) await updateObject(savingId, data);
       else await createObject(data);
-      const list = await getObjects();
-      render(list);
+      setData(await getObjects());
       closeForm();
       if (savingId != null && location.hash === `#object-${savingId}`) {
         currentDetailObject = objectsById[savingId] || currentDetailObject;
@@ -303,8 +443,12 @@
     }
   };
 
+  loadChemistryOptions().then(() => {
+    if (allObjects.length) refresh();
+    if (currentDetailObject && !detailPage.hidden) renderDetail(currentDetailObject);
+  });
   getObjects()
-    .then(list => { render(list); route(); })
-    .catch(() => { render([]); route(); });
+    .then(list => { setData(list); route(); })
+    .catch(() => { setData([]); route(); });
   resetForm();
 })();
