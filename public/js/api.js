@@ -15,6 +15,7 @@ async function getFaqItem(id) { return request('/api/faq/' + encodeURIComponent(
 async function createFaq(payload) { return request('/api/faq', jsonInit('POST', payload)); }
 async function updateFaq(id, payload) { return request('/api/faq/' + encodeURIComponent(id), jsonInit('PUT', payload)); }
 async function deleteFaq(id) { return request('/api/faq/' + encodeURIComponent(id), { method: 'DELETE' }); }
+async function uploadFaqPhoto(file) { const fd = new FormData(); fd.append('photo', file); return request('/api/faq/upload', { method: 'POST', body: fd }); }
 async function getNotifications() { return request('/api/notifications'); }
 async function getEntityNotifications(entity, id) {
   return request('/api/notifications?entity=' + encodeURIComponent(entity) + '&id=' + encodeURIComponent(id));

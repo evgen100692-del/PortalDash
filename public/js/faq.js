@@ -8,43 +8,56 @@
   const deleteBtn = document.querySelector('#faq-item-delete');
   const deleteModal = document.querySelector('#faq-delete-modal');
 
-  // Поля, извлечённые из регламента «Стандарты автохимии сети «Портал»».
-  const DOC_FIELDS = [
+  // Поля позиции стандарта химии. Общие сведения теперь входят в каждую позицию.
+  const GENERAL_FIELDS = [
     { key: 'title', label: 'Название стандарта' },
-    { key: 'supplier', label: 'Генеральный поставщик' },
-    { key: 'complexType', label: 'Тип комплексов' },
+    { key: 'general_supplier', label: 'Генеральный поставщик' },
+    { key: 'complexType', label: 'Тип химии' },
     { key: 'author', label: 'Автор (технолог по химии)' },
-    { key: 'status', label: 'Статус документа' },
+    { key: 'status', label: 'Статус документа', options: ['Готов', 'В разработке', 'Отменен'] },
     { key: 'revision', label: 'Год / редакция' },
-    { key: 'summary', label: 'Краткое описание', multiline: true },
-    { key: 'qualityControl', label: 'Контроль качества и заказы', multiline: true }
+    { key: 'summary', label: 'Краткое описание', multiline: true }
   ];
   const POSITION_FIELDS = [
     { key: 'category', label: 'Категория' },
     { key: 'name', label: 'Наименование' },
     { key: 'packaging', label: 'Фасовка / тип' },
     { key: 'article', label: 'Артикул' },
-    { key: 'characteristics', label: 'Характеристики / тип пены', multiline: true },
-    { key: 'consumption', label: 'Нормативный расход' },
-    { key: 'application', label: 'Применение', multiline: true },
-    { key: 'purpose', label: 'Ключевое назначение' },
-    { key: 'supplier', label: 'Поставщик' },
-    { key: 'note', label: 'Примечание', multiline: true }
+    { key: 'characteristics', label: 'Характеристики', multiline: true },
+    { key: 'application', label: 'Применение', multiline: true }
   ];
+  const ALL_POSITION_FIELDS = [...GENERAL_FIELDS, ...POSITION_FIELDS];
 
   let items = [];
   let itemsById = {};
   let currentItem = null;
 
-  const field = (label, attr, value, multiline) => {
+  const field = (label, attr, value, spec = {}) => {
     const wrap = document.createElement('label');
     wrap.className = 'faq-field';
     const span = document.createElement('span');
     span.textContent = label;
-    const control = document.createElement(multiline ? 'textarea' : 'input');
-    if (multiline) control.rows = 2;
-    else control.type = 'text';
-    control.value = value || '';
+
+    let control;
+    if (spec.options) {
+      control = document.createElement('select');
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = '—';
+      control.append(blank);
+      spec.options.forEach(option => {
+        const el = document.createElement('option');
+        el.value = option;
+        el.textContent = option;
+        control.append(el);
+      });
+      control.value = value || '';
+    } else {
+      control = document.createElement(spec.multiline ? 'textarea' : 'input');
+      if (spec.multiline) control.rows = 2;
+      else control.type = 'text';
+      control.value = value || '';
+    }
     control.setAttribute(attr.name, attr.value);
     wrap.append(span, control);
     return wrap;
@@ -67,12 +80,56 @@
     head.append(name, remove);
     box.append(head);
 
-    const grid = document.createElement('div');
-    grid.className = 'faq-grid';
-    POSITION_FIELDS.forEach(f => {
-      grid.append(field(f.label, { name: 'data-pos', value: f.key }, (data || {})[f.key], f.multiline));
-    });
-    box.append(grid);
+    // Фотография позиции
+    const photoWrap = document.createElement('div');
+    photoWrap.className = 'faq-position__photo';
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.setAttribute('data-pos', 'photo_url');
+    hidden.value = (data && data.photo_url) || '';
+    const img = document.createElement('img');
+    img.className = 'faq-position__img';
+    img.alt = '';
+    img.hidden = !hidden.value;
+    if (hidden.value) img.src = hidden.value;
+    const fileLabel = document.createElement('label');
+    fileLabel.className = 'faq-field';
+    const fileSpan = document.createElement('span');
+    fileSpan.textContent = 'Фотография';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.png,.jpg,.jpeg,image/png,image/jpeg';
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      try {
+        const { url } = await uploadFaqPhoto(file);
+        hidden.value = url;
+        img.src = url;
+        img.hidden = false;
+      } catch (error) {
+        alert(error.message);
+        fileInput.value = '';
+      }
+    };
+    fileLabel.append(fileSpan, fileInput);
+    photoWrap.append(fileLabel, img, hidden);
+    box.append(photoWrap);
+
+    const subgrid = (label, fields) => {
+      const sub = document.createElement('div');
+      sub.className = 'faq-subhead';
+      sub.textContent = label;
+      box.append(sub);
+      const grid = document.createElement('div');
+      grid.className = 'faq-grid';
+      fields.forEach(f => {
+        grid.append(field(f.label, { name: 'data-pos', value: f.key }, (data || {})[f.key], f));
+      });
+      box.append(grid);
+    };
+    subgrid('Общие сведения', GENERAL_FIELDS);
+    subgrid('Данные позиции', POSITION_FIELDS);
     return box;
   };
 
@@ -88,25 +145,10 @@
     deleteBtn.hidden = item.kind === 'standards';
     itemBody.innerHTML = '';
 
-    const titleField = field('Заголовок вопроса', { name: 'data-title', value: '1' }, item.title, false);
+    const titleField = field('Заголовок вопроса', { name: 'data-title', value: '1' }, item.title, {});
     itemBody.append(titleField);
 
     if (item.kind === 'standards') {
-      const docGroup = document.createElement('div');
-      docGroup.className = 'faq-group';
-      const docTitle = document.createElement('h3');
-      docTitle.className = 'faq-group__title';
-      docTitle.textContent = 'Общие сведения';
-      docGroup.append(docTitle);
-      const docGrid = document.createElement('div');
-      docGrid.className = 'faq-grid';
-      const doc = (item.data && item.data.doc) || {};
-      DOC_FIELDS.forEach(f => {
-        docGrid.append(field(f.label, { name: 'data-doc', value: f.key }, doc[f.key], f.multiline));
-      });
-      docGroup.append(docGrid);
-      itemBody.append(docGroup);
-
       const posGroup = document.createElement('div');
       posGroup.className = 'faq-group';
       const posHead = document.createElement('div');
@@ -141,7 +183,7 @@
     } else {
       const answerGroup = document.createElement('div');
       answerGroup.className = 'faq-group';
-      answerGroup.append(field('Ответ', { name: 'data-answer', value: '1' }, (item.data && item.data.answer) || '', true));
+      answerGroup.append(field('Ответ', { name: 'data-answer', value: '1' }, (item.data && item.data.answer) || '', { multiline: true }));
       answerGroup.querySelector('textarea').rows = 8;
       itemBody.append(answerGroup);
     }
@@ -150,18 +192,14 @@
   const collect = () => {
     const title = itemBody.querySelector('[data-title]').value.trim();
     if (currentItem.kind === 'standards') {
-      const doc = {};
-      DOC_FIELDS.forEach(f => {
-        doc[f.key] = itemBody.querySelector(`[data-doc="${f.key}"]`).value;
-      });
       const positions = [...itemBody.querySelectorAll('.faq-position')].map(box => {
-        const pos = {};
-        POSITION_FIELDS.forEach(f => {
+        const pos = { photo_url: box.querySelector('[data-pos="photo_url"]').value };
+        ALL_POSITION_FIELDS.forEach(f => {
           pos[f.key] = box.querySelector(`[data-pos="${f.key}"]`).value;
         });
         return pos;
       });
-      return { title, data: { doc, positions } };
+      return { title, data: { positions } };
     }
     return { title, data: { answer: itemBody.querySelector('[data-answer]').value } };
   };

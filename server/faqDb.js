@@ -13,25 +13,15 @@ const SEED = [
     id: 1,
     kind: 'standards',
     title: 'Стандарты химии',
-    data: {
-      doc: {
-        title: '',
-        supplier: '',
-        complexType: '',
-        author: '',
-        status: '',
-        revision: '',
-        summary: '',
-        qualityControl: ''
-      },
-      positions: []
-    }
+    data: { positions: [] }
   }
 ];
 
+// Каждая позиция содержит и общие сведения о стандарте, и данные самой позиции.
 const POSITION_KEYS = [
-  'category', 'name', 'packaging', 'article', 'characteristics',
-  'consumption', 'application', 'purpose', 'supplier', 'note'
+  'photo_url',
+  'title', 'general_supplier', 'complexType', 'author', 'status', 'revision', 'summary',
+  'category', 'name', 'packaging', 'article', 'characteristics', 'application'
 ];
 
 function emptyPosition() {
@@ -62,11 +52,6 @@ function ensure() {
 // Приводит data пункта «Стандарты химии» к полной схеме (не теряя введённого).
 function normalizeStandards(data) {
   const source = data && typeof data === 'object' ? data : {};
-  const doc = source.doc && typeof source.doc === 'object' ? source.doc : {};
-  const normalizedDoc = {};
-  Object.keys(SEED[0].data.doc).forEach(key => {
-    normalizedDoc[key] = doc[key] != null ? String(doc[key]) : '';
-  });
   const positions = Array.isArray(source.positions) ? source.positions : [];
   const normalizedPositions = positions.map(item => {
     const base = emptyPosition();
@@ -75,7 +60,7 @@ function normalizeStandards(data) {
     }
     return base;
   });
-  return { doc: normalizedDoc, positions: normalizedPositions };
+  return { positions: normalizedPositions };
 }
 
 module.exports = {
