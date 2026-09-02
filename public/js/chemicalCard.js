@@ -29,13 +29,37 @@
   let currentDetailChemical = null;
 
   const stageBlocks = [...form.querySelectorAll('.test-stage')];
+  const stageObjectSelects = [...form.querySelectorAll('.stage-object select')];
+  let objectOptions = [];  // адреса объектов для полей «Объект тестирования»
+
+  // Заполняет выпадающие списки объектов на этапах 2 и 3 адресами из раздела «Объекты».
+  const loadObjectOptions = async () => {
+    try {
+      const list = await getObjects();
+      objectOptions = [...new Set(list.map(item => item.address).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, 'ru'));
+    } catch { /* оставляем прежние значения */ }
+    stageObjectSelects.forEach(sel => {
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Выберите объект</option>';
+      objectOptions.forEach(address => {
+        const option = document.createElement('option');
+        option.value = address;
+        option.textContent = address;
+        sel.append(option);
+      });
+      sel.value = current;
+    });
+  };
 
   const stageParts = stage => ({
     block: form.querySelector(`.test-stage[data-stage="${stage}"]`),
     mode: form.querySelector(`[name="stage${stage}_mode"]`),
     date: form.querySelector(`[name="stage${stage}_date"]`),
     commentField: form.querySelector(`.stage-comment[data-stage="${stage}"]`),
-    comment: form.querySelector(`[name="stage${stage}_comment"]`)
+    comment: form.querySelector(`[name="stage${stage}_comment"]`),
+    objectField: form.querySelector(`.stage-object[data-stage="${stage}"]`),
+    objectSelect: form.querySelector(`[name="stage${stage}_object"]`)
   });
 
   const clearPreview = () => {
@@ -44,15 +68,20 @@
     preview.removeAttribute('src');
   };
 
-  // Показывает поле даты и комментария в зависимости от режима этапа.
+  // Показывает поля даты, комментария и объекта в зависимости от режима этапа.
   const syncStage = stage => {
-    const { mode, date, commentField, comment } = stageParts(stage);
+    const { mode, date, commentField, comment, objectField, objectSelect } = stageParts(stage);
     const useDate = mode.value === 'date';
     date.hidden = !useDate;
     if (!useDate) { date.value = ''; }
-    const showComment = useDate && !!date.value;
-    commentField.hidden = !showComment;
-    if (!showComment) { comment.value = ''; commentField.classList.remove('invalid'); }
+    // Комментарий и объект появляются, когда для этапа выбрана дата.
+    const showExtra = useDate && !!date.value;
+    commentField.hidden = !showExtra;
+    if (!showExtra) { comment.value = ''; commentField.classList.remove('invalid'); }
+    if (objectField) {
+      objectField.hidden = !showExtra;
+      if (!showExtra) { objectSelect.value = ''; objectField.classList.remove('invalid'); }
+    }
     if (!useDate) date.closest('.test-stage').classList.remove('invalid');
   };
 
@@ -93,20 +122,29 @@
   };
 
   const validateStage = stage => {
-    const { block, mode, date, commentField, comment } = stageParts(stage);
+    const { block, mode, date, commentField, comment, objectField, objectSelect } = stageParts(stage);
     if (mode.value !== 'date') { block.classList.remove('invalid'); return true; }
     const dateOk = !!date.value;
     block.classList.toggle('invalid', !dateOk);
     if (!dateOk) return false;
+    let ok = true;
     const commentOk = !!comment.value.trim();
     commentField.classList.toggle('invalid', !commentOk);
-    return commentOk;
+    if (!commentOk) ok = false;
+    if (objectField) {
+      const objectOk = !!objectSelect.value;
+      objectField.classList.toggle('invalid', !objectOk);
+      if (!objectOk) ok = false;
+    }
+    return ok;
   };
 
   const validate = () => {
     let valid = true;
     form.querySelectorAll('.field').forEach(field => {
-      if (field.classList.contains('test-stage') || field.classList.contains('stage-comment')) return;
+      if (field.classList.contains('test-stage')
+        || field.classList.contains('stage-comment')
+        || field.classList.contains('stage-object')) return;
       if (!checkField(field)) valid = false;
     });
     [1, 2, 3].forEach(stage => { if (!validateStage(stage)) valid = false; });
@@ -124,14 +162,32 @@
       card.className = 'chem-card';
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
-      card.innerHTML = `<img alt=""><div class="chem-card__name"></div>`;
+      card.innerHTML = `<img alt=""><div class="chem-card__body"><div class="chem-card__name"></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
       img.src = chemical.photo_url;
       img.alt = chemical.name;
       card.querySelector('.chem-card__name').textContent = chemical.name;
-      card.onclick = () => { location.hash = `#chemical-${chemical.id}`; };
+
+      const meta = card.querySelector('.card-meta');
+      const addMeta = (label, value, reject) => {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        const dd = document.createElement('dd');
+        dd.textContent = value && String(value).trim() ? value : '—';
+        if (reject) dd.className = 'reject';
+        meta.append(dt, dd);
+      };
+      addMeta('Поставщик', chemical.supplier);
+      addMeta('Тип', chemical.chem_type);
+      addMeta('Результат', chemical.result, chemical.result === 'Отказ');
+
+      const openThis = () => {
+        try { sessionStorage.removeItem('chemBackTo'); } catch { /* нет доступа */ }
+        location.hash = `#chemical-${chemical.id}`;
+      };
+      card.onclick = openThis;
       card.onkeydown = event => {
-        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); location.hash = `#chemical-${chemical.id}`; }
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openThis(); }
       };
       cards.append(card);
     });
@@ -160,9 +216,13 @@
     ];
 
     (chemical.stages || []).forEach(stage => {
-      const value = stage.date
-        ? `${formatDate(stage.date)} — ${stage.comment || ''}`.trim()
-        : 'Тестирование не проводилось';
+      let value;
+      if (stage.date) {
+        value = `${formatDate(stage.date)} — ${stage.comment || ''}`.trim();
+        if (stage.object) value += ` (объект: ${stage.object})`;
+      } else {
+        value = 'Тестирование не проводилось';
+      }
       rows.push([stage.stage, value]);
     });
 
@@ -195,7 +255,9 @@
 
   const closeDetail = () => {
     detailPage.hidden = true;
-    listPage.hidden = false;
+    // Список химии показываем только при возврате «домой»; если ушли на страницу
+    // объекта (#object-…), её покажет objectCard.js.
+    if (!location.hash) listPage.hidden = false;
   };
 
   const route = () => {
@@ -205,10 +267,20 @@
   };
 
   window.addEventListener('hashchange', route);
-  document.querySelector('#chemical-detail-back').onclick = () => { location.hash = ''; };
+  document.querySelector('#chemical-detail-back').onclick = () => {
+    let back = '';
+    try {
+      back = sessionStorage.getItem('chemBackTo') || '';
+      sessionStorage.removeItem('chemBackTo');
+    } catch { /* нет доступа */ }
+    // Если химию открыли со страницы объекта (или его «Тестирований») — вернуться туда,
+    // иначе к списку химии.
+    location.hash = /^#object-\d+(-tests)?$/.test(back) ? back : '';
+  };
 
   // ---------- Редактирование химии ----------
-  const openEditModal = chemical => {
+  const openEditModal = async chemical => {
+    await loadObjectOptions();
     resetForm();
     editingId = chemical.id;
     modalTitle.textContent = 'Редактировать химию';
@@ -228,13 +300,14 @@
     (chemical.stages || []).forEach((stageData, index) => {
       const stage = index + 1;
       if (stage > 3) return;
-      const { mode, date, comment } = stageParts(stage);
+      const { mode, date, comment, objectSelect } = stageParts(stage);
       if (stageData && stageData.date) {
         mode.value = 'date';
         syncStage(stage);
         date.value = stageData.date;
         syncStage(stage);
         comment.value = stageData.comment || '';
+        if (objectSelect) objectSelect.value = stageData.object || '';
       } else {
         mode.value = 'none';
         syncStage(stage);
@@ -249,6 +322,11 @@
 
   document.querySelector('#chemical-detail-edit').onclick = () => {
     if (currentDetailChemical) openEditModal(currentDetailChemical);
+  };
+  document.querySelector('#chemical-detail-info').onclick = () => {
+    if (currentDetailChemical && window.openEntityNotifications) {
+      window.openEntityNotifications({ entity: 'chemical', id: currentDetailChemical.id, name: currentDetailChemical.name });
+    }
   };
 
   // ---------- Удаление химии ----------
@@ -358,7 +436,9 @@
   const revalidateFrom = event => {
     const field = event.target.closest('.field');
     if (field && field.classList.contains('invalid')) {
-      if (field.classList.contains('test-stage') || field.classList.contains('stage-comment')) {
+      if (field.classList.contains('test-stage')
+        || field.classList.contains('stage-comment')
+        || field.classList.contains('stage-object')) {
         validateStage(field.dataset.stage);
       } else {
         checkField(field);
@@ -368,7 +448,8 @@
   form.addEventListener('input', revalidateFrom);
   form.addEventListener('change', revalidateFrom);
 
-  document.querySelector('#add-chemical-button').onclick = () => {
+  document.querySelector('#add-chemical-button').onclick = async () => {
+    await loadObjectOptions();
     resetForm();
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -401,6 +482,7 @@
     }
   };
 
+  loadObjectOptions();
   getChemicals()
     .then(list => { setData(list); route(); })
     .catch(() => { setData([]); route(); });

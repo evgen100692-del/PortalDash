@@ -7,6 +7,8 @@ const db = require('./db');
 
 const objectsRoutes = require('./routes/objects');
 const chemicalsRoutes = require('./routes/chemicals');
+const faqRoutes = require('./routes/faq');
+const notificationsRoutes = require('./routes/notifications');
 const analyticsRoutes = require('./routes/analytics');
 const heatmapRoutes = require('./routes/heatmap');
 const suppliersRoutes = require('./routes/suppliers');
@@ -25,6 +27,8 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/api/objects', objectsRoutes);
 app.use('/api/chemicals', chemicalsRoutes);
+app.use('/api/faq', faqRoutes);
+app.use('/api/notifications', notificationsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/heatmap', heatmapRoutes);
 app.use('/api/suppliers', suppliersRoutes);

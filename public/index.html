@@ -9,11 +9,17 @@
 <body>
   <div id="app-shell">
     <aside id="sidebar">
-      <div class="logo"><img class="logo__img" src="/assets/logo.jpg" alt="">MCD</div>
+      <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Свернуть меню" title="Свернуть меню">
+        <span class="sidebar-toggle__bar"></span>
+        <span class="sidebar-toggle__bar"></span>
+        <span class="sidebar-toggle__bar"></span>
+      </button>
+      <div class="logo"><img class="logo__img" src="/assets/logo.jpg" alt=""><span class="logo__text">MCD</span></div>
       <div class="logo-credit">Разработка: Денисенко Юлия Андреевна</div>
       <nav>
         <a data-page="objectCard" class="active">Объекты</a>
         <a data-page="chemicals">Химия</a>
+        <a data-page="faq">Часто задаваемые вопросы</a>
         <a data-page="analytics">Сводная аналитика</a>
         <a data-page="heatmap">Рейтинг расхода химии</a>
         <a data-page="alerts">Уведомления</a>
@@ -67,14 +73,26 @@
           <h2 class="page-title" id="detail-title">Объект</h2>
           <div class="detail-actions">
             <button id="detail-edit" class="button button-primary" type="button">Редактировать</button>
+            <button id="detail-info" class="info-button" type="button" aria-label="Уведомления по объекту" title="Уведомления по объекту"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm-1-8.25A1.25 1.25 0 1 1 12 6.25a1.25 1.25 0 0 1 0 2.5z"/></svg></button>
             <button id="detail-delete" class="button-danger" type="button" aria-label="Удалить объект" title="Удалить объект"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zM6 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8H6zm3 3h2v8H9v-8zm4 0h2v8h-2v-8z"/></svg></button>
             <button id="detail-back" class="button button-secondary" type="button">← Назад</button>
           </div>
         </div>
         <div class="object-detail">
-          <img id="detail-photo" class="object-detail__photo" alt="Фотография объекта">
+          <div class="object-detail__side">
+            <img id="detail-photo" class="object-detail__photo" alt="Фотография объекта">
+            <button id="detail-tests" class="button button-secondary object-detail__tests" type="button">Тестирования</button>
+          </div>
           <dl id="detail-fields" class="object-detail__fields"></dl>
         </div>
+      </section>
+
+      <section id="page-objectTests" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title" id="object-tests-title">Тестирования</h2>
+          <button id="object-tests-back" class="button button-secondary" type="button">← Назад</button>
+        </div>
+        <div id="object-tests-list" class="tests-list"></div>
       </section>
 
       <section id="page-chemicalDetail" class="page" hidden>
@@ -82,6 +100,7 @@
           <h2 class="page-title" id="chemical-detail-title">Химия</h2>
           <div class="detail-actions">
             <button id="chemical-detail-edit" class="button button-primary" type="button">Редактировать</button>
+            <button id="chemical-detail-info" class="info-button" type="button" aria-label="Уведомления по химии" title="Уведомления по химии"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm-1-8.25A1.25 1.25 0 1 1 12 6.25a1.25 1.25 0 0 1 0 2.5z"/></svg></button>
             <button id="chemical-detail-delete" class="button-danger" type="button" aria-label="Удалить химию" title="Удалить химию"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zM6 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8H6zm3 3h2v8H9v-8zm4 0h2v8h-2v-8z"/></svg></button>
             <button id="chemical-detail-back" class="button button-secondary" type="button">← Назад</button>
           </div>
@@ -91,8 +110,44 @@
           <dl id="chemical-detail-fields" class="object-detail__fields"></dl>
         </div>
       </section>
+
+      <section id="page-faq" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title">Часто задаваемые вопросы</h2>
+          <button id="add-faq-button" class="button button-primary" type="button">+ Добавить вопрос</button>
+        </div>
+        <div id="faq-list" class="faq-list"></div>
+      </section>
+
+      <section id="page-faqItem" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title" id="faq-item-title">Вопрос</h2>
+          <div class="detail-actions">
+            <button id="faq-item-save" class="button button-primary" type="button">Сохранить</button>
+            <button id="faq-item-delete" class="button-danger" type="button" aria-label="Удалить вопрос" title="Удалить вопрос"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zM6 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8H6zm3 3h2v8H9v-8zm4 0h2v8h-2v-8z"/></svg></button>
+            <button id="faq-item-back" class="button button-secondary" type="button">← Назад</button>
+          </div>
+        </div>
+        <p id="faq-item-saved" class="faq-saved" hidden>Сохранено</p>
+        <div id="faq-item-body"></div>
+      </section>
+
+      <section id="page-alerts" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title">Уведомления</h2>
+          <button id="notifications-clear" class="button button-secondary" type="button">Очистить</button>
+        </div>
+        <div id="notifications-list" class="notifications-list"></div>
+        <p id="notifications-empty" class="empty-state" hidden>Изменений в объектах и химии пока не было.</p>
+      </section>
     </main>
   </div>
+
+  <div id="notifications-clear-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="notifications-clear-title"><h2 id="notifications-clear-title">Очистить все уведомления?</h2><div class="modal-actions"><button id="notifications-clear-no" class="button button-secondary" type="button">Нет</button><button id="notifications-clear-yes" class="button button-primary" type="button">Да</button></div></section></div>
+
+  <div id="info-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title"><div class="modal-header"><h2 id="info-modal-title">Уведомления</h2><button id="info-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><div id="info-modal-list" class="notifications-list"></div><p id="info-modal-empty" class="empty-state" hidden>Изменений по этой странице не было.</p></section></div>
+
+  <div id="faq-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="faq-delete-title"><h2 id="faq-delete-title">Удалить этот вопрос?</h2><div class="modal-actions"><button id="faq-delete-no" class="button button-secondary" type="button">Нет</button><button id="faq-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
 
   <div id="object-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title"><div class="modal-header"><h2 id="object-modal-title">Добавить объект</h2><button id="modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="object-form" novalidate><div class="form-grid">
     <label class="field field-full"><span class="field-title">Фотография объекта <span class="req">*</span></span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Прикрепите фотографию в формате PNG, JPG или JPEG.</small><small class="field-hint" id="photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фотографию.</small></label>
@@ -119,9 +174,11 @@
 
     <div class="field field-full test-stage" data-stage="2"><span class="field-title">Дата тестирования «Этап №2 - Полевой 1 день» <span class="req">*</span></span><select name="stage2_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage2_date" type="date" class="stage-date" hidden><small class="field-error">Укажите дату тестирования.</small></div>
     <label class="field field-full stage-comment" data-stage="2" hidden><span class="field-title">Комментарии к тестированию «Этап №2 - Полевой 1 день» <span class="req">*</span></span><textarea name="stage2_comment" rows="2"></textarea><small class="field-error">Добавьте комментарий.</small></label>
+    <label class="field field-full stage-object" data-stage="2" hidden><span class="field-title">Объект тестирования «Этап №2 - Полевой 1 день» <span class="req">*</span></span><select name="stage2_object"><option value="">Выберите объект</option></select><small class="field-error">Выберите объект тестирования.</small></label>
 
     <div class="field field-full test-stage" data-stage="3"><span class="field-title">Дата тестирования «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><select name="stage3_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage3_date" type="date" class="stage-date" hidden><small class="field-error">Укажите дату тестирования.</small></div>
     <label class="field field-full stage-comment" data-stage="3" hidden><span class="field-title">Комментарии к тестированию «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><textarea name="stage3_comment" rows="2"></textarea><small class="field-error">Добавьте комментарий.</small></label>
+    <label class="field field-full stage-object" data-stage="3" hidden><span class="field-title">Объект тестирования «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><select name="stage3_object"><option value="">Выберите объект</option></select><small class="field-error">Выберите объект тестирования.</small></label>
   </div><div class="modal-actions"><button id="chemical-cancel" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="chemical-confirm-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="chemical-confirm-title"><h2 id="chemical-confirm-title">Отменить добавление?</h2><p>Все не сохраненные данные будут удалены</p><div class="modal-actions"><button id="chemical-confirm-cancel" class="button button-secondary" type="button">Отмена</button><button id="chemical-confirm-ok" class="button button-primary" type="button">Ок</button></div></section></div>
 
@@ -133,6 +190,8 @@
   <script src="/js/api.js"></script>
   <script src="/js/objectCard.js"></script>
   <script src="/js/chemicalCard.js"></script>
+  <script src="/js/faq.js"></script>
+  <script src="/js/notifications.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>

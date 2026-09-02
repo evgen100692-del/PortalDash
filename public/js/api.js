@@ -9,3 +9,14 @@ async function getChemical(id) { return request('/api/chemicals/' + encodeURICom
 async function createChemical(formData) { return request('/api/chemicals', { method: 'POST', body: formData }); }
 async function updateChemical(id, formData) { return request('/api/chemicals/' + encodeURIComponent(id), { method: 'PUT', body: formData }); }
 async function deleteChemical(id) { return request('/api/chemicals/' + encodeURIComponent(id), { method: 'DELETE' }); }
+const jsonInit = (method, payload) => ({ method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+async function getFaq() { return request('/api/faq'); }
+async function getFaqItem(id) { return request('/api/faq/' + encodeURIComponent(id)); }
+async function createFaq(payload) { return request('/api/faq', jsonInit('POST', payload)); }
+async function updateFaq(id, payload) { return request('/api/faq/' + encodeURIComponent(id), jsonInit('PUT', payload)); }
+async function deleteFaq(id) { return request('/api/faq/' + encodeURIComponent(id), { method: 'DELETE' }); }
+async function getNotifications() { return request('/api/notifications'); }
+async function getEntityNotifications(entity, id) {
+  return request('/api/notifications?entity=' + encodeURIComponent(entity) + '&id=' + encodeURIComponent(id));
+}
+async function clearNotifications() { return request('/api/notifications', { method: 'DELETE' }); }

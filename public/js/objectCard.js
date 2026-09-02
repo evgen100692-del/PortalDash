@@ -17,6 +17,9 @@
   const detailTitle = document.querySelector('#detail-title');
   const detailPhoto = document.querySelector('#detail-photo');
   const detailFields = document.querySelector('#detail-fields');
+  const testsPage = document.querySelector('#page-objectTests');
+  const testsTitle = document.querySelector('#object-tests-title');
+  const testsList = document.querySelector('#object-tests-list');
 
   const filtersBar = document.querySelector('#object-filters');
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
@@ -28,6 +31,8 @@
   let testChemNames = new Set();      // названия химии на этапе тестирования №3
   let rejectChemNames = new Set();    // названия химии с результатом «Отказ»
   let approvedChemNames = new Set();  // названия химии с результатом «Одобрено»
+  let chemicalIdByName = {};          // название химии -> id (для ссылок на страницу химии)
+  let chemicalsList = [];             // полный список химии (для страницы «Тестирования»)
   const imageTypeRe = /^image\/(png|jpe?g)$/;
 
   // Подтягивает актуальные данные раздела «Химия»: названия для формы и наборы
@@ -36,11 +41,14 @@
   const loadChemistryOptions = async () => {
     try {
       const list = await getChemicals();
+      chemicalsList = list;
       chemistryOptions = [...new Set(list.map(item => item.name).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, 'ru'));
       testChemNames = new Set(list.filter(item => item.test_stage === STAGE3).map(item => item.name));
       rejectChemNames = new Set(list.filter(item => item.result === 'Отказ').map(item => item.name));
       approvedChemNames = new Set(list.filter(item => item.result === 'Одобрено').map(item => item.name));
+      chemicalIdByName = {};
+      list.forEach(item => { if (item.name) chemicalIdByName[item.name] = item.id; });
     } catch { /* оставляем прежние значения */ }
   };
 
@@ -158,12 +166,26 @@
       }
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
-      card.innerHTML = `<img alt=""><div class="object-card__address"><span class="object-card__address-text"></span></div>`;
+      card.innerHTML = `<img alt=""><div class="object-card__body"><div class="object-card__address"><span class="object-card__address-text"></span></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
       img.src = object.photo_url;
       img.alt = object.address;
       card.querySelector('.object-card__address-text').textContent = object.address;
       card.querySelector('.object-card__address').append(buildMapLink(object.address));
+
+      const meta = card.querySelector('.card-meta');
+      const addMeta = (label, value) => {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        const dd = document.createElement('dd');
+        dd.textContent = value && String(value).trim() ? value : '—';
+        meta.append(dt, dd);
+      };
+      addMeta('Боксы', object.boxes);
+      addMeta('Роботы', asList(object.robots).join(', '));
+      addMeta('Управляющий', object.manager);
+      addMeta('Водоотвод', object.drainage);
+
       card.onclick = () => { location.hash = `#object-${object.id}`; };
       card.onkeydown = event => {
         if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); location.hash = `#object-${object.id}`; }
@@ -182,6 +204,11 @@
   const formatDate = value => {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('ru-RU');
+  };
+
+  const formatDay = value => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString('ru-RU');
   };
 
   const renderDetail = object => {
@@ -207,11 +234,20 @@
       const names = asList(object.chemistry);
       if (!names.length) { dd.textContent = '—'; return; }
       names.forEach((name, index) => {
-        const span = document.createElement('span');
-        span.textContent = name;
+        const id = chemicalIdByName[name];
+        const node = id != null ? document.createElement('a') : document.createElement('span');
+        node.textContent = name;
+        if (id != null) {
+          node.className = 'chem-link';
+          node.href = `#chemical-${id}`;
+          // Запоминаем объект, с которого открыли химию — чтобы «Назад» вернуло сюда.
+          node.addEventListener('click', () => {
+            try { sessionStorage.setItem('chemBackTo', location.hash); } catch { /* нет доступа */ }
+          });
+        }
         // Химия с результатом тестирования «Отказ» — красным.
-        if (rejectChemNames.has(name)) span.className = 'chem-reject';
-        dd.append(span);
+        if (rejectChemNames.has(name)) node.classList.add('chem-reject');
+        dd.append(node);
         if (index < names.length - 1) dd.append(', ');
       });
     });
@@ -221,9 +257,7 @@
   };
 
   const showDetailPage = () => {
-    listPage.hidden = true;
-    placeholderPage.hidden = true;
-    detailPage.hidden = false;
+    document.querySelectorAll('#content > .page').forEach(page => { page.hidden = page !== detailPage; });
     window.scrollTo(0, 0);
   };
 
@@ -239,17 +273,116 @@
 
   const closeDetail = () => {
     detailPage.hidden = true;
-    listPage.hidden = false;
+    if (!location.hash) listPage.hidden = false;  // список объектов показываем только при возврате «домой»
+  };
+
+  // ---------- Страница «Тестирования» объекта ----------
+  let currentTestsObject = null;
+
+  const showTestsPage = () => {
+    document.querySelectorAll('#content > .page').forEach(page => { page.hidden = page !== testsPage; });
+    window.scrollTo(0, 0);
+  };
+
+  const renderTests = object => {
+    testsTitle.textContent = object.address ? `Тестирования — ${object.address}` : 'Тестирования';
+
+    const items = [];
+    chemicalsList.forEach(chemical => {
+      (chemical.stages || []).forEach(stage => {
+        if (stage.date && stage.object && stage.object === object.address) {
+          items.push({
+            chemId: chemical.id,
+            chemName: chemical.name,
+            stage: stage.stage,
+            date: stage.date,
+            comment: stage.comment || ''
+          });
+        }
+      });
+    });
+    items.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    testsList.innerHTML = '';
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = 'На этом объекте тестирования не проводились.';
+      testsList.append(empty);
+      return;
+    }
+
+    items.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'test-item';
+
+      const head = document.createElement('div');
+      head.className = 'test-item__head';
+      const link = document.createElement('a');
+      link.className = 'chem-link';
+      link.href = `#chemical-${item.chemId}`;
+      link.textContent = item.chemName;
+      link.addEventListener('click', () => {
+        try { sessionStorage.setItem('chemBackTo', location.hash); } catch { /* нет доступа */ }
+      });
+      head.append(link);
+      const stage = document.createElement('span');
+      stage.className = 'test-item__stage';
+      stage.textContent = item.stage;
+      head.append(stage);
+      card.append(head);
+
+      const date = document.createElement('div');
+      date.className = 'test-item__date';
+      date.textContent = formatDay(item.date);
+      card.append(date);
+
+      const comment = document.createElement('p');
+      comment.className = 'test-item__comment';
+      comment.textContent = item.comment || '—';
+      card.append(comment);
+
+      testsList.append(card);
+    });
+  };
+
+  const openTests = async id => {
+    let object = objectsById[id];
+    if (!object) {
+      try { object = await getObject(id); } catch { location.hash = ''; return; }
+    }
+    currentTestsObject = object;
+    renderTests(object);
+    showTestsPage();
+  };
+
+  const closeTests = () => {
+    testsPage.hidden = true;
+    if (!location.hash) listPage.hidden = false;
   };
 
   const route = () => {
+    const testsMatch = location.hash.match(/^#object-(\d+)-tests$/);
+    if (testsMatch) { openTests(testsMatch[1]); return; }
     const match = location.hash.match(/^#object-(\d+)$/);
-    if (match) openDetail(match[1]);
-    else if (!detailPage.hidden) closeDetail();
+    if (match) { openDetail(match[1]); return; }
+    if (!detailPage.hidden) closeDetail();
+    if (!testsPage.hidden) closeTests();
   };
 
   window.addEventListener('hashchange', route);
   document.querySelector('#detail-back').onclick = () => { location.hash = ''; };
+  document.querySelector('#detail-tests').onclick = () => {
+    if (currentDetailObject) location.hash = `#object-${currentDetailObject.id}-tests`;
+  };
+  document.querySelector('#detail-info').onclick = () => {
+    if (currentDetailObject && window.openEntityNotifications) {
+      window.openEntityNotifications({ entity: 'object', id: currentDetailObject.id, name: currentDetailObject.address });
+    }
+  };
+  document.querySelector('#object-tests-back').onclick = () => {
+    location.hash = currentTestsObject ? `#object-${currentTestsObject.id}` : '';
+  };
 
   // ---------- Фильтры ----------
   // Значения объекта для конкретного фильтра (всегда массив вариантов).
@@ -446,6 +579,7 @@
   loadChemistryOptions().then(() => {
     if (allObjects.length) refresh();
     if (currentDetailObject && !detailPage.hidden) renderDetail(currentDetailObject);
+    if (currentTestsObject && !testsPage.hidden) renderTests(currentTestsObject);
   });
   getObjects()
     .then(list => { setData(list); route(); })
