@@ -29,7 +29,8 @@ const upload = multer({
 const VALID_ROBOTS = ['Рязань', 'RCV'];
 const VALID_DRAINAGE = ['Нет', 'Есть', 'УКО'];
 
-// Разбирает и проверяет поля формы объекта. Возвращает { data } либо { error }.
+// Разбирает поля формы объекта. Все поля необязательны; проверяется только
+// допустимость заполненных значений. Возвращает { data } либо { error }.
 function parseObjectBody(body) {
   let robots;
   let chemistry;
@@ -39,36 +40,38 @@ function parseObjectBody(body) {
   } catch {
     return { error: 'Некорректные списки роботов или химии' };
   }
+  robots = (Array.isArray(robots) ? robots : []).filter(value => typeof value === 'string' && value.trim());
+  chemistry = (Array.isArray(chemistry) ? chemistry : []).filter(value => typeof value === 'string' && value.trim());
 
-  const boxes = Number(body.boxes);
-  const knownChemistry = new Set(chemicalsDb.listChemicals().map(item => item.name));
-
-  if (Array.isArray(chemistry) && chemistry.length && chemistry.some(value => !knownChemistry.has(value))) {
-    return {
-      error: knownChemistry.size
-        ? 'Выбранная химия отсутствует в разделе «Химия»'
-        : 'Сначала добавьте химию в разделе «Химия»'
-    };
+  if (robots.some(value => !VALID_ROBOTS.includes(value))) {
+    return { error: 'Недопустимое значение робота' };
   }
 
-  const required = ['address', 'boxes', 'manager', 'drainage'];
-  const invalid =
-    required.some(key => !String(body[key] || '').trim()) ||
-    !Number.isFinite(boxes) || boxes < 1 ||
-    !Array.isArray(robots) || !robots.length || robots.some(value => !VALID_ROBOTS.includes(value)) ||
-    !Array.isArray(chemistry) || !chemistry.length ||
-    !VALID_DRAINAGE.includes(body.drainage);
+  const knownChemistry = new Set(chemicalsDb.listChemicals().map(item => item.name));
+  if (chemistry.some(value => !knownChemistry.has(value))) {
+    return { error: 'Выбранная химия отсутствует в разделе «Химия»' };
+  }
 
-  if (invalid) return { error: 'Все поля обязательны и должны содержать допустимые значения' };
+  const drainage = String(body.drainage || '').trim();
+  if (drainage && !VALID_DRAINAGE.includes(drainage)) {
+    return { error: 'Недопустимое значение водоотведения' };
+  }
+
+  const boxesRaw = String(body.boxes || '').trim();
+  let boxes = 0;
+  if (boxesRaw) {
+    boxes = Number(boxesRaw);
+    if (!Number.isFinite(boxes) || boxes < 0) return { error: 'Некорректное количество боксов/роботов' };
+  }
 
   return {
     data: {
-      address: body.address.trim(),
+      address: String(body.address || '').trim(),
       boxes,
       robots,
       chemistry,
-      manager: body.manager.trim(),
-      drainage: body.drainage
+      manager: String(body.manager || '').trim(),
+      drainage
     }
   };
 }
@@ -87,16 +90,15 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', upload.single('photo'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Фотография обязательна и должна быть PNG, JPG или JPEG' });
-  }
   const parsed = parseObjectBody(req.body);
   if (parsed.error) {
-    removeUpload(req.file.filename);
+    if (req.file) removeUpload(req.file.filename);
     return res.status(400).json({ error: parsed.error });
   }
-  const saved = db.insertObject({ photo_url: '/uploads/objects/' + req.file.filename, ...parsed.data });
-  notifications.record({ entity: 'object', entity_id: saved.id, entity_name: saved.address, action: 'create', changes: [] });
+  const data = { ...parsed.data };
+  if (req.file) data.photo_url = '/uploads/objects/' + req.file.filename;
+  const saved = db.insertObject(data);
+  notifications.record({ entity: 'object', entity_id: saved.id, entity_name: saved.address || `#${saved.id}`, action: 'create', changes: [] });
   res.status(201).json(saved);
 });
 

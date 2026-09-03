@@ -5,7 +5,6 @@
   const form = document.querySelector('#object-form');
   const photoInput = document.querySelector('#object-photo');
   const photoField = photoInput.closest('.field');
-  const photoRequiredMark = photoField.querySelector('.req');
   const photoEditHint = document.querySelector('#photo-edit-hint');
   const preview = document.querySelector('#photo-preview');
   const robots = document.querySelector('#robots-fields');
@@ -82,7 +81,7 @@
   const addRow = (container, name, values, selectedValue) => {
     const row = document.createElement('div');
     row.className = 'repeatable-row';
-    row.innerHTML = `<select name="${name}" required>${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;
+    row.innerHTML = `<select name="${name}">${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;
     const select = row.querySelector('select');
     if (selectedValue) {
       if (![...select.options].some(option => option.value === selectedValue)) {
@@ -114,8 +113,6 @@
     form.querySelectorAll('.field').forEach(field => field.classList.remove('invalid'));
     editingId = null;
     modalTitle.textContent = 'Добавить объект';
-    photoInput.required = true;
-    photoRequiredMark.hidden = false;
     photoEditHint.hidden = true;
   };
 
@@ -126,27 +123,19 @@
     editingId = null;
   };
 
-  // Помечает .field как invalid, если хотя бы один обязательный контрол внутри не заполнен.
+  // Все поля объекта необязательны — проверяем только формат фото, если оно выбрано.
   const checkField = field => {
-    const controls = [...field.querySelectorAll('[required]')];
-    if (!controls.length) return true;
-    let bad = controls.some(control => !String(control.value).trim());
     if (field.contains(photoInput)) {
       const file = photoInput.files[0];
-      if (editingId != null && !file) bad = false;          // при редактировании фото можно не менять
-      else bad = !file || !imageTypeRe.test(file.type);
+      const bad = !!file && !imageTypeRe.test(file.type);
+      field.classList.toggle('invalid', bad);
+      return !bad;
     }
-    field.classList.toggle('invalid', bad);
-    return !bad;
+    field.classList.remove('invalid');
+    return true;
   };
 
-  const validate = () => {
-    let valid = true;
-    form.querySelectorAll('.field').forEach(field => {
-      if (!checkField(field)) valid = false;
-    });
-    return valid;
-  };
+  const validate = () => checkField(photoInput.closest('.field'));
 
   // ---------- Список карточек ----------
   const render = list => {
@@ -168,8 +157,8 @@
       card.setAttribute('role', 'button');
       card.innerHTML = `<img alt=""><div class="object-card__body"><div class="object-card__address"><span class="object-card__address-text"></span></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
-      img.src = object.photo_url;
-      img.alt = object.address;
+      if (object.photo_url) img.src = object.photo_url;
+      img.alt = object.address || '';
       card.querySelector('.object-card__address-text').textContent = object.address;
       card.querySelector('.object-card__address').append(buildMapLink(object.address));
 
@@ -213,7 +202,8 @@
 
   const renderDetail = object => {
     detailTitle.textContent = object.address || 'Объект';
-    detailPhoto.src = object.photo_url || '';
+    if (object.photo_url) detailPhoto.src = object.photo_url;
+    else detailPhoto.removeAttribute('src');
     detailPhoto.alt = object.address || 'Фотография объекта';
 
     detailFields.innerHTML = '';
@@ -465,8 +455,6 @@
     resetForm();
     editingId = object.id;
     modalTitle.textContent = 'Редактировать объект';
-    photoInput.required = false;
-    photoRequiredMark.hidden = true;
     photoEditHint.hidden = false;
 
     form.address.value = object.address || '';
