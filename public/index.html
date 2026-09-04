@@ -73,6 +73,7 @@
           <h2 class="page-title" id="detail-title">Объект</h2>
           <div class="detail-actions">
             <button id="detail-edit" class="button button-primary" type="button">Редактировать</button>
+            <button id="detail-complaints" class="info-button" type="button" aria-label="Жалобы по объекту" title="Жалобы по объекту"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V8h2v5z"/></svg></button>
             <button id="detail-info" class="info-button" type="button" aria-label="Уведомления по объекту" title="Уведомления по объекту"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm-1-8.25A1.25 1.25 0 1 1 12 6.25a1.25 1.25 0 0 1 0 2.5z"/></svg></button>
             <button id="detail-delete" class="button-danger" type="button" aria-label="Удалить объект" title="Удалить объект"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zM6 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8H6zm3 3h2v8H9v-8zm4 0h2v8h-2v-8z"/></svg></button>
             <button id="detail-back" class="button button-secondary" type="button">← Назад</button>
@@ -93,6 +94,17 @@
           <button id="object-tests-back" class="button button-secondary" type="button">← Назад</button>
         </div>
         <div id="object-tests-list" class="tests-list"></div>
+      </section>
+
+      <section id="page-objectComplaints" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title" id="object-complaints-title">Жалобы</h2>
+          <div class="detail-actions">
+            <button id="object-complaints-add" class="button button-primary" type="button">+ Добавить жалобу</button>
+            <button id="object-complaints-back" class="button button-secondary" type="button">← Назад</button>
+          </div>
+        </div>
+        <div id="object-complaints-list" class="complaints-list"></div>
       </section>
 
       <section id="page-chemicalDetail" class="page" hidden>
@@ -154,41 +166,59 @@
     <label class="field field-full"><span class="field-title">Адрес объекта</span><input name="address" type="text" autocomplete="street-address"></label>
     <label class="field"><span class="field-title">Количество боксов/роботов</span><input name="boxes" type="number" min="0" step="1"></label>
     <label class="field"><span class="field-title">Управляющий</span><input name="manager" type="text"></label>
+    <label class="field"><span class="field-title">Номер телефона управляющего</span><input name="manager_phone" type="tel" autocomplete="tel"></label>
     <div class="field field-full"><span class="field-title">Роботы</span><div id="robots-fields" class="repeatable-fields"></div><button class="add-field" data-target="robots-fields" data-name="robots" type="button">+ Добавить модель</button></div>
     <div class="field field-full"><span class="field-title">Химия</span><div id="chemistry-fields" class="repeatable-fields"></div><button class="add-field" data-target="chemistry-fields" data-name="chemistry" type="button">+ Добавить вид химии</button></div>
     <label class="field"><span class="field-title">Водоотведение</span><select name="drainage"><option value="">Не выбрано</option><option>Нет</option><option>Есть</option><option>УКО</option></select></label>
   </div><div class="modal-actions"><button id="cancel-object" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="chemical-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="chemical-modal-title"><div class="modal-header"><h2 id="chemical-modal-title">Добавить химию</h2><button id="chemical-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="chemical-form" novalidate><div class="form-grid">
-    <label class="field field-full"><span class="field-title">Фото <span class="req">*</span></span><input id="chemical-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" required><img id="chemical-photo-preview" class="photo-preview" alt="Предпросмотр фото" hidden><small class="field-error">Прикрепите фото в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фото.</small></label>
-    <label class="field field-full"><span class="field-title">Наименование <span class="req">*</span></span><input name="name" type="text" required><small class="field-error">Укажите наименование.</small></label>
-    <label class="field"><span class="field-title">Цена <span class="req">*</span></span><input name="price" type="number" min="0" step="0.01" required><small class="field-error">Укажите цену.</small></label>
-    <label class="field"><span class="field-title">Объём <span class="req">*</span></span><input name="volume" type="number" min="0" step="any" required><small class="field-error">Укажите объём.</small></label>
-    <label class="field"><span class="field-title">Поставщик <span class="req">*</span></span><input name="supplier" type="text" required><small class="field-error">Укажите поставщика.</small></label>
-    <label class="field"><span class="field-title">Тип химии <span class="req">*</span></span><input name="chem_type" type="text" required><small class="field-error">Укажите тип химии.</small></label>
-    <label class="field"><span class="field-title">Этап тестирования <span class="req">*</span></span><select name="test_stage" required><option value="">Выберите этап</option><option>Тестирование не проводилось</option><option>Этап №1 - Лабораторный</option><option>Этап №2 - Полевой 1 день</option><option>Этап №3 - Полевой долгосрочный</option><option>Завершено</option></select><small class="field-error">Выберите этап.</small></label>
-    <label class="field field-full field-checkbox"><input name="has_docs" type="checkbox"><span class="field-title">Наличие документации</span></label>
-    <label class="field field-full"><span class="field-title">Результат тестирования <span class="req">*</span></span><select name="result" required><option value="">Выберите результат</option><option>Одобрено</option><option>Тестирование не проводилось</option><option>Пройден 1 этап тестирования</option><option>Пройден 2 этап тестирования</option><option>Отправлено на доработку</option><option>Отказ</option></select><small class="field-error">Выберите результат.</small></label>
+    <label class="field field-full"><span class="field-title">Фото</span><input id="chemical-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><img id="chemical-photo-preview" class="photo-preview" alt="Предпросмотр фото" hidden><small class="field-error">Файл должен быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фото.</small></label>
+    <label class="field field-full"><span class="field-title">Наименование</span><input name="name" type="text"></label>
+    <label class="field"><span class="field-title">Цена</span><input name="price" type="number" min="0" step="0.01"></label>
+    <label class="field"><span class="field-title">Объём</span><input name="volume" type="number" min="0" step="any"></label>
+    <label class="field"><span class="field-title">Поставщик</span><input name="supplier" type="text"></label>
+    <label class="field"><span class="field-title">Тип химии</span><input name="chem_type" type="text"></label>
+    <label class="field"><span class="field-title">Этап тестирования</span><select name="test_stage"><option value="">Не выбрано</option><option>Тестирование не проводилось</option><option>Этап №1 - Лабораторный</option><option>Этап №2 - Полевой 1 день</option><option>Этап №3 - Полевой долгосрочный</option><option>Завершено</option></select></label>
+    <label class="field field-full field-checkbox"><input id="chemical-has-docs" name="has_docs" type="checkbox"><span class="field-title">Наличие документации</span></label>
+    <div class="field field-full chem-docs" id="chemical-docs" hidden>
+      <label class="field"><span class="field-title">Паспорт безопасности</span><input name="doc_safety" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"><small class="field-hint chem-doc-current" data-doc="safety" hidden></small></label>
+      <label class="field"><span class="field-title">Свидетельство о государственной регистрации</span><input name="doc_registration" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"><small class="field-hint chem-doc-current" data-doc="registration" hidden></small></label>
+      <label class="field field-checkbox"><input name="has_honest_sign" type="checkbox"><span class="field-title">Наличие честного знака</span></label>
+      <input type="hidden" name="doc_safety_remove">
+      <input type="hidden" name="doc_registration_remove">
+    </div>
+    <label class="field field-full"><span class="field-title">Результат тестирования</span><select name="result"><option value="">Не выбрано</option><option>Одобрено</option><option>Тестирование не проводилось</option><option>Пройден 1 этап тестирования</option><option>Пройден 2 этап тестирования</option><option>Отправлено на доработку</option><option>Отказ</option></select></label>
 
-    <div class="field field-full test-stage" data-stage="1"><span class="field-title">Дата тестирования «Этап №1 - Лабораторный» <span class="req">*</span></span><select name="stage1_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage1_date" type="date" class="stage-date" hidden><small class="field-error">Укажите дату тестирования.</small></div>
-    <label class="field field-full stage-comment" data-stage="1" hidden><span class="field-title">Комментарии к тестированию «Этап №1 - Лабораторный» <span class="req">*</span></span><textarea name="stage1_comment" rows="2"></textarea><small class="field-error">Добавьте комментарий.</small></label>
+    <div class="field field-full test-stage" data-stage="1"><span class="field-title">Дата тестирования «Этап №1 - Лабораторный»</span><select name="stage1_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage1_date" type="date" class="stage-date" hidden></div>
+    <label class="field field-full stage-comment" data-stage="1" hidden><span class="field-title">Комментарии к тестированию «Этап №1 - Лабораторный»</span><textarea name="stage1_comment" rows="2"></textarea></label>
 
-    <div class="field field-full test-stage" data-stage="2"><span class="field-title">Дата тестирования «Этап №2 - Полевой 1 день» <span class="req">*</span></span><select name="stage2_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage2_date" type="date" class="stage-date" hidden><small class="field-error">Укажите дату тестирования.</small></div>
-    <label class="field field-full stage-comment" data-stage="2" hidden><span class="field-title">Комментарии к тестированию «Этап №2 - Полевой 1 день» <span class="req">*</span></span><textarea name="stage2_comment" rows="2"></textarea><small class="field-error">Добавьте комментарий.</small></label>
-    <label class="field field-full stage-object" data-stage="2" hidden><span class="field-title">Объект тестирования «Этап №2 - Полевой 1 день» <span class="req">*</span></span><select name="stage2_object"><option value="">Выберите объект</option></select><small class="field-error">Выберите объект тестирования.</small></label>
+    <div class="field field-full test-stage" data-stage="2"><span class="field-title">Дата тестирования «Этап №2 - Полевой 1 день»</span><select name="stage2_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage2_date" type="date" class="stage-date" hidden></div>
+    <label class="field field-full stage-comment" data-stage="2" hidden><span class="field-title">Комментарии к тестированию «Этап №2 - Полевой 1 день»</span><textarea name="stage2_comment" rows="2"></textarea></label>
+    <label class="field field-full stage-object" data-stage="2" hidden><span class="field-title">Объект тестирования «Этап №2 - Полевой 1 день»</span><select name="stage2_object"><option value="">Выберите объект</option></select></label>
 
-    <div class="field field-full test-stage" data-stage="3"><span class="field-title">Дата тестирования «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><select name="stage3_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage3_date" type="date" class="stage-date" hidden><small class="field-error">Укажите дату тестирования.</small></div>
-    <label class="field field-full stage-comment" data-stage="3" hidden><span class="field-title">Комментарии к тестированию «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><textarea name="stage3_comment" rows="2"></textarea><small class="field-error">Добавьте комментарий.</small></label>
-    <label class="field field-full stage-object" data-stage="3" hidden><span class="field-title">Объект тестирования «Этап №3 - Полевой долгосрочный» <span class="req">*</span></span><select name="stage3_object"><option value="">Выберите объект</option></select><small class="field-error">Выберите объект тестирования.</small></label>
+    <div class="field field-full test-stage" data-stage="3"><span class="field-title">Дата тестирования «Этап №3 - Полевой долгосрочный»</span><select name="stage3_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage3_date" type="date" class="stage-date" hidden></div>
+    <label class="field field-full stage-comment" data-stage="3" hidden><span class="field-title">Комментарии к тестированию «Этап №3 - Полевой долгосрочный»</span><textarea name="stage3_comment" rows="2"></textarea></label>
+    <label class="field field-full stage-object" data-stage="3" hidden><span class="field-title">Объект тестирования «Этап №3 - Полевой долгосрочный»</span><select name="stage3_object"><option value="">Выберите объект</option></select></label>
   </div><div class="modal-actions"><button id="chemical-cancel" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="chemical-confirm-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="chemical-confirm-title"><h2 id="chemical-confirm-title">Отменить добавление?</h2><p>Все не сохраненные данные будут удалены</p><div class="modal-actions"><button id="chemical-confirm-cancel" class="button button-secondary" type="button">Отмена</button><button id="chemical-confirm-ok" class="button button-primary" type="button">Ок</button></div></section></div>
 
   <div id="confirm-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title"><h2 id="confirm-title">Отменить добавление?</h2><p>Все не сохраненные данные будут удалены</p><div class="modal-actions"><button id="confirm-cancel" class="button button-secondary" type="button">Отмена</button><button id="confirm-ok" class="button button-primary" type="button">Ок</button></div></section></div>
 
   <div id="object-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="object-delete-title"><h2 id="object-delete-title">Вы уверены что хотите удалить объект?</h2><div class="modal-actions"><button id="object-delete-no" class="button button-secondary" type="button">Нет</button><button id="object-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
+
+  <div id="complaint-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="complaint-modal-title"><div class="modal-header"><h2 id="complaint-modal-title">Добавить жалобу</h2><button id="complaint-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="complaint-form" novalidate><div class="form-grid">
+    <label class="field field-full"><span class="field-title">Тема жалобы</span><input name="subject" type="text"></label>
+    <label class="field"><span class="field-title">Дата жалобы</span><input name="date" type="date"></label>
+    <label class="field field-full field-checkbox"><input id="complaint-about-chem" name="about_chemistry" type="checkbox"><span class="field-title">Жалоба на химию</span></label>
+    <label class="field field-full complaint-chem" id="complaint-chem" hidden><span class="field-title">Химия</span><select name="chemical_name"><option value="">Выберите химию</option></select></label>
+    <label class="field field-full"><span class="field-title">Комментарий</span><textarea name="comment" rows="3"></textarea></label>
+  </div><div class="modal-actions"><button id="complaint-cancel" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
+  <div id="complaint-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="complaint-delete-title"><h2 id="complaint-delete-title">Удалить эту жалобу?</h2><div class="modal-actions"><button id="complaint-delete-no" class="button button-secondary" type="button">Нет</button><button id="complaint-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
   <div id="chemical-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="chemical-delete-title"><h2 id="chemical-delete-title">Вы уверены что хотите удалить химию?</h2><div class="modal-actions"><button id="chemical-delete-no" class="button button-secondary" type="button">Нет</button><button id="chemical-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
 
   <script src="/js/api.js"></script>
   <script src="/js/objectCard.js"></script>
+  <script src="/js/complaints.js"></script>
   <script src="/js/chemicalCard.js"></script>
   <script src="/js/faq.js"></script>
   <script src="/js/notifications.js"></script>

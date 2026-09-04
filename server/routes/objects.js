@@ -14,6 +14,7 @@ const OBJECT_FIELDS = [
   { key: 'robots', label: 'Установленные роботы', format: asJoined },
   { key: 'chemistry', label: 'Установленная химия', format: asJoined },
   { key: 'manager', label: 'Управляющий' },
+  { key: 'manager_phone', label: 'Телефон управляющего' },
   { key: 'drainage', label: 'Водоотведение' }
 ];
 
@@ -26,7 +27,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => cb(null, /^image\/(png|jpe?g)$/.test(file.mimetype))
 });
 
-const VALID_ROBOTS = ['Рязань', 'RCV'];
+const VALID_ROBOTS = ['Рязань', 'RCW'];
 const VALID_DRAINAGE = ['Нет', 'Есть', 'УКО'];
 
 // Разбирает поля формы объекта. Все поля необязательны; проверяется только
@@ -71,6 +72,7 @@ function parseObjectBody(body) {
       robots,
       chemistry,
       manager: String(body.manager || '').trim(),
+      manager_phone: String(body.manager_phone || '').trim(),
       drainage
     }
   };

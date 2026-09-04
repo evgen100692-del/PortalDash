@@ -5,9 +5,11 @@
   const deleteModal = document.querySelector('#chemical-delete-modal');
   const form = document.querySelector('#chemical-form');
   const photoInput = document.querySelector('#chemical-photo');
-  const photoReqMark = photoInput.closest('.field').querySelector('.req');
   const photoEditHint = document.querySelector('#chemical-photo-edit-hint');
   const preview = document.querySelector('#chemical-photo-preview');
+  const hasDocsBox = document.querySelector('#chemical-has-docs');
+  const docsBlock = document.querySelector('#chemical-docs');
+  const docCurrents = [...docsBlock.querySelectorAll('.chem-doc-current')];
   const formEl = name => form.elements[name];
   const cards = document.querySelector('#chemical-cards');
   const emptyState = document.querySelector('#chemicals-empty');
@@ -85,6 +87,10 @@
     if (!useDate) date.closest('.test-stage').classList.remove('invalid');
   };
 
+  const syncDocs = () => {
+    docsBlock.hidden = !hasDocsBox.checked;
+  };
+
   const resetForm = () => {
     form.reset();
     clearPreview();
@@ -93,10 +99,10 @@
       stageParts(stage).mode.value = 'none';
       syncStage(stage);
     });
+    docCurrents.forEach(el => { el.hidden = true; el.textContent = ''; });
+    syncDocs();
     editingId = null;
     modalTitle.textContent = 'Добавить химию';
-    photoInput.required = true;
-    photoReqMark.hidden = false;
     photoEditHint.hidden = true;
   };
 
@@ -107,49 +113,19 @@
     editingId = null;
   };
 
+  // Все поля химии необязательны — проверяем только формат фото, если оно выбрано.
   const checkField = field => {
-    const isPhoto = field.contains(photoInput);
-    const controls = [...field.querySelectorAll('input[required], select[required], textarea[required]')];
-    if (!controls.length && !isPhoto) return true;
-    let bad = controls.some(control => !String(control.value).trim());
-    if (isPhoto) {
+    if (field.contains(photoInput)) {
       const file = photoInput.files[0];
-      if (editingId != null && !file) bad = false;   // при редактировании фото можно не менять
-      else bad = !file || !imageTypeRe.test(file.type);
+      const bad = !!file && !imageTypeRe.test(file.type);
+      field.classList.toggle('invalid', bad);
+      return !bad;
     }
-    field.classList.toggle('invalid', bad);
-    return !bad;
+    field.classList.remove('invalid');
+    return true;
   };
 
-  const validateStage = stage => {
-    const { block, mode, date, commentField, comment, objectField, objectSelect } = stageParts(stage);
-    if (mode.value !== 'date') { block.classList.remove('invalid'); return true; }
-    const dateOk = !!date.value;
-    block.classList.toggle('invalid', !dateOk);
-    if (!dateOk) return false;
-    let ok = true;
-    const commentOk = !!comment.value.trim();
-    commentField.classList.toggle('invalid', !commentOk);
-    if (!commentOk) ok = false;
-    if (objectField) {
-      const objectOk = !!objectSelect.value;
-      objectField.classList.toggle('invalid', !objectOk);
-      if (!objectOk) ok = false;
-    }
-    return ok;
-  };
-
-  const validate = () => {
-    let valid = true;
-    form.querySelectorAll('.field').forEach(field => {
-      if (field.classList.contains('test-stage')
-        || field.classList.contains('stage-comment')
-        || field.classList.contains('stage-object')) return;
-      if (!checkField(field)) valid = false;
-    });
-    [1, 2, 3].forEach(stage => { if (!validateStage(stage)) valid = false; });
-    return valid;
-  };
+  const validate = () => checkField(photoInput.closest('.field'));
 
   const render = list => {
     cards.innerHTML = '';
@@ -206,14 +182,17 @@
 
     const rows = [
       ['Наименование', chemical.name || '—'],
-      ['Цена', chemical.price != null ? `${chemical.price} ₽` : '—'],
-      ['Объём', chemical.volume != null ? String(chemical.volume) : '—'],
+      ['Цена', chemical.price != null && chemical.price !== '' ? `${chemical.price} ₽` : '—'],
+      ['Объём', chemical.volume != null && chemical.volume !== '' ? String(chemical.volume) : '—'],
       ['Поставщик', chemical.supplier || '—'],
       ['Тип химии', chemical.chem_type || '—'],
-      ['Наличие документации', chemical.has_docs ? 'Есть' : 'Документы отсутствуют'],
-      ['Этап тестирования', chemical.test_stage || '—'],
-      ['Результат тестирования', chemical.result || '—']
+      ['Наличие документации', chemical.has_docs ? 'Есть' : 'Документы отсутствуют']
     ];
+    if (chemical.has_docs) {
+      rows.push(['Честный знак', chemical.has_honest_sign ? 'Есть' : 'Нет']);
+    }
+    rows.push(['Этап тестирования', chemical.test_stage || '—']);
+    rows.push(['Результат тестирования', chemical.result || '—']);
 
     (chemical.stages || []).forEach(stage => {
       let value;
@@ -236,6 +215,31 @@
       dd.textContent = value;
       detailFields.append(dt, dd);
     });
+
+    // Ссылки на загруженные документы
+    if (chemical.has_docs) {
+      const docs = [
+        ['Паспорт безопасности', chemical.doc_safety_url],
+        ['Свидетельство о государственной регистрации', chemical.doc_registration_url]
+      ];
+      docs.forEach(([label, url]) => {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        const dd = document.createElement('dd');
+        if (url) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.className = 'chem-link';
+          link.textContent = 'Открыть';
+          dd.append(link);
+        } else {
+          dd.textContent = '—';
+        }
+        detailFields.append(dt, dd);
+      });
+    }
   };
 
   const showDetailPage = () => {
@@ -284,8 +288,6 @@
     resetForm();
     editingId = chemical.id;
     modalTitle.textContent = 'Редактировать химию';
-    photoInput.required = false;
-    photoReqMark.hidden = true;
     photoEditHint.hidden = false;
 
     formEl('name').value = chemical.name || '';
@@ -296,6 +298,37 @@
     formEl('test_stage').value = chemical.test_stage || '';
     formEl('result').value = chemical.result || '';
     formEl('has_docs').checked = !!chemical.has_docs;
+    formEl('has_honest_sign').checked = !!chemical.has_honest_sign;
+    syncDocs();
+    const docMap = { safety: chemical.doc_safety_url, registration: chemical.doc_registration_url };
+    docCurrents.forEach(el => {
+      const key = el.dataset.doc;
+      formEl(`doc_${key}_remove`).value = '';
+      const url = docMap[key];
+      el.innerHTML = '';
+      if (url) {
+        el.append(document.createTextNode('Загружен — '));
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = 'открыть';
+        el.append(link);
+        el.append(document.createTextNode(' · '));
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'link-danger';
+        del.textContent = 'удалить';
+        del.onclick = () => {
+          formEl(`doc_${key}_remove`).value = 'true';
+          el.textContent = 'Файл будет удалён при сохранении';
+        };
+        el.append(del);
+        el.hidden = false;
+      } else {
+        el.hidden = true;
+      }
+    });
 
     (chemical.stages || []).forEach((stageData, index) => {
       const stage = index + 1;
@@ -435,18 +468,14 @@
 
   const revalidateFrom = event => {
     const field = event.target.closest('.field');
-    if (field && field.classList.contains('invalid')) {
-      if (field.classList.contains('test-stage')
-        || field.classList.contains('stage-comment')
-        || field.classList.contains('stage-object')) {
-        validateStage(field.dataset.stage);
-      } else {
-        checkField(field);
-      }
-    }
+    if (field && field.classList.contains('invalid')) checkField(field);
   };
   form.addEventListener('input', revalidateFrom);
   form.addEventListener('change', revalidateFrom);
+  hasDocsBox.addEventListener('change', syncDocs);
+  ['safety', 'registration'].forEach(key => {
+    formEl(`doc_${key}`).addEventListener('change', () => { formEl(`doc_${key}_remove`).value = ''; });
+  });
 
   document.querySelector('#add-chemical-button').onclick = async () => {
     await loadObjectOptions();
@@ -466,7 +495,10 @@
     if (!validate()) return;
     const data = new FormData(form);
     data.set('has_docs', formEl('has_docs').checked ? 'true' : 'false');
+    data.set('has_honest_sign', formEl('has_honest_sign').checked ? 'true' : 'false');
     if (!photoInput.files.length) data.delete('photo');
+    if (!formEl('doc_safety').files.length) data.delete('doc_safety');
+    if (!formEl('doc_registration').files.length) data.delete('doc_registration');
     const savingId = editingId;
     try {
       if (savingId != null) await updateChemical(savingId, data);

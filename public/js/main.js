@@ -23,6 +23,7 @@ function navigate(pageKey) {
   // Уходим со страниц-деталей и чистим их хэш без hashchange.
   document.getElementById('page-objectDetail').hidden = true;
   document.getElementById('page-objectTests').hidden = true;
+  document.getElementById('page-objectComplaints').hidden = true;
   document.getElementById('page-chemicalDetail').hidden = true;
   document.getElementById('page-faqItem').hidden = true;
   try { sessionStorage.removeItem('chemBackTo'); } catch { /* нет доступа */ }
@@ -65,7 +66,7 @@ sidebarToggle.addEventListener('click', () => {
 // Прямые ссылки на страницы-детали (#object-<id> / #chemical-<id>) открывают
 // objectCard.js / chemicalCard.js — здесь только подсвечиваем нужный пункт меню.
 const initialHash = location.hash;
-if (/^#object-\d+(-tests)?$/.test(initialHash)) {
+if (/^#object-\d+(-tests|-complaints)?$/.test(initialHash)) {
   document.querySelector('#sidebar nav a[data-page="objectCard"]').classList.add('active');
   Object.values(REAL_PAGES).forEach(id => { document.getElementById(id).hidden = true; });
 } else if (/^#chemical-\d+$/.test(initialHash)) {

@@ -24,7 +24,7 @@
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
   const filtersReset = document.querySelector('#object-filters-reset');
 
-  const robotOptions = ['Рязань', 'RCV'];
+  const robotOptions = ['Рязань', 'RCW'];
   const STAGE3 = 'Этап №3 - Полевой долгосрочный';
   let chemistryOptions = [];        // названия из раздела «Химия» для формы
   let testChemNames = new Set();      // названия химии на этапе тестирования №3
@@ -242,6 +242,7 @@
       });
     });
     addRow('Управляющий', text(object.manager || '—'));
+    addRow('Телефон управляющего', text(object.manager_phone || '—'));
     addRow('Водоотведение', text(object.drainage || '—'));
     addRow('Добавлен', text(formatDate(object.created_at)));
   };
@@ -365,6 +366,9 @@
   document.querySelector('#detail-tests').onclick = () => {
     if (currentDetailObject) location.hash = `#object-${currentDetailObject.id}-tests`;
   };
+  document.querySelector('#detail-complaints').onclick = () => {
+    if (currentDetailObject) location.hash = `#object-${currentDetailObject.id}-complaints`;
+  };
   document.querySelector('#detail-info').onclick = () => {
     if (currentDetailObject && window.openEntityNotifications) {
       window.openEntityNotifications({ entity: 'object', id: currentDetailObject.id, name: currentDetailObject.address });
@@ -460,6 +464,7 @@
     form.address.value = object.address || '';
     form.boxes.value = String(object.boxes || '');
     form.manager.value = object.manager || '';
+    form.manager_phone.value = object.manager_phone || '';
     form.drainage.value = object.drainage || '';
 
     robots.innerHTML = '';

@@ -435,6 +435,73 @@ body.sidebar-collapsed #sidebar nav { opacity: 0; pointer-events: none; }
   white-space: pre-wrap;
 }
 
+/* ---------- Жалобы по объекту ---------- */
+.complaints-list { display: grid; gap: 12px; max-width: 760px; }
+.complaint-item {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #1a1a1a, #161616);
+  box-shadow: var(--shadow-1);
+  padding: 14px 16px;
+  animation: fade-in-up 0.3s var(--ease) both;
+}
+.complaint-item__head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+.complaint-item__subject { font-size: 15px; font-weight: 700; color: var(--white); }
+.complaint-item__date { font-size: 12px; color: var(--gray); }
+.complaint-item__del {
+  margin-left: auto;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(229, 72, 77, 0.14);
+  color: var(--danger);
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.14s var(--ease);
+}
+.complaint-item__del:hover { background: rgba(229, 72, 77, 0.26); }
+.complaint-item__del:active { transform: scale(0.9); }
+.complaint-item__chem {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange);
+}
+.complaint-item__comment {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--white);
+  white-space: pre-wrap;
+}
+
+/* Блок документов в форме химии */
+.chem-docs {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.chem-docs[hidden] { display: none; }
+.chem-doc-current { color: var(--gray); }
+.chem-doc-current a { color: var(--orange); }
+.link-danger {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--danger);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-danger:hover { color: #ff6b70; }
+
 /* ---------- Часто задаваемые вопросы ---------- */
 .faq-list { display: grid; gap: 14px; max-width: 820px; }
 .faq-card {
