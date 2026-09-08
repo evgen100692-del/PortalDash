@@ -167,18 +167,41 @@
     titleField.append(titleInput);
     editBody.append(titleField);
 
+    // Блок ответа — поле добавляется/убирается кнопкой.
     const answerGroup = document.createElement('div');
     answerGroup.className = 'faq-group';
-    const answerField = document.createElement('label');
-    answerField.className = 'faq-field';
-    answerField.innerHTML = '<span>Ответ</span>';
-    const answerInput = document.createElement('textarea');
-    answerInput.id = 'faq-edit-answer';
-    answerInput.rows = 8;
-    answerInput.value = (item.data && item.data.answer) || '';
-    answerField.append(answerInput);
-    answerGroup.append(answerField);
     editBody.append(answerGroup);
+
+    const renderAnswer = (value, present) => {
+      answerGroup.innerHTML = '';
+      const head = document.createElement('div');
+      head.className = 'faq-group__head';
+      const title = document.createElement('h3');
+      title.className = 'faq-group__title';
+      title.textContent = 'Ответ';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = present ? 'remove-field' : 'add-field';
+      btn.textContent = present ? '− Удалить ответ' : '+ Добавить ответ';
+      head.append(title, btn);
+      answerGroup.append(head);
+
+      if (present) {
+        const field = document.createElement('label');
+        field.className = 'faq-field';
+        const textarea = document.createElement('textarea');
+        textarea.id = 'faq-edit-answer';
+        textarea.rows = 8;
+        textarea.value = value || '';
+        field.append(textarea);
+        answerGroup.append(field);
+        btn.onclick = () => renderAnswer(document.querySelector('#faq-edit-answer').value, false);
+      } else {
+        btn.onclick = () => renderAnswer(value || '', true);
+      }
+    };
+    const existingAnswer = (item.data && item.data.answer) || '';
+    renderAnswer(existingAnswer, !!existingAnswer.trim());
 
     const filesGroup = document.createElement('div');
     filesGroup.className = 'faq-group';
@@ -212,9 +235,10 @@
       name: row.querySelector('.faq-file__name-input').value,
       comment: row.querySelector('.faq-file__comment').value
     })).filter(file => file.url);
+    const answerEl = document.querySelector('#faq-edit-answer');
     return {
       title: document.querySelector('#faq-edit-title').value.trim(),
-      data: { answer: document.querySelector('#faq-edit-answer').value, files }
+      data: { answer: answerEl ? answerEl.value : '', files }
     };
   };
 
