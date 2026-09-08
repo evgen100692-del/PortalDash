@@ -247,11 +247,13 @@
     viewTitle.textContent = item.title || 'Вопрос';
     viewBody.innerHTML = '';
 
-    const answer = document.createElement('div');
-    answer.className = 'faq-view__answer';
-    answer.textContent = (item.data && item.data.answer) || 'Ответ не заполнен';
-    if (!(item.data && item.data.answer)) answer.classList.add('faq-view__answer--empty');
-    viewBody.append(answer);
+    const answerText = (item.data && item.data.answer) || '';
+    if (answerText.trim()) {
+      const answer = document.createElement('div');
+      answer.className = 'faq-view__answer';
+      answer.textContent = answerText;
+      viewBody.append(answer);
+    }
 
     const files = (item.data && item.data.files) || [];
     if (files.length) {
@@ -315,9 +317,9 @@
 
       const preview = document.createElement('div');
       preview.className = 'faq-card__preview';
-      const answer = ((item.data && item.data.answer) || '').slice(0, 140);
+      const answer = ((item.data && item.data.answer) || '').trim().slice(0, 140);
       const fileCount = ((item.data && item.data.files) || []).length;
-      preview.textContent = [answer || 'Ответ не заполнен', fileCount ? `файлов: ${fileCount}` : '']
+      preview.textContent = [answer, fileCount ? `файлов: ${fileCount}` : '']
         .filter(Boolean).join(' · ');
       card.append(preview);
 
