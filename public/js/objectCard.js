@@ -23,6 +23,7 @@
   const filtersBar = document.querySelector('#object-filters');
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
   const filtersReset = document.querySelector('#object-filters-reset');
+  const searchInput = document.querySelector('#object-search');
 
   const robotOptions = ['Рязань', 'RCW'];
   const STAGE3 = 'Этап №3 - Полевой долгосрочный';
@@ -406,6 +407,8 @@
   // Пересобирает варианты фильтров (по остальным активным фильтрам) и список карточек.
   const refresh = () => {
     const filters = activeObjectFilters();
+    const term = searchInput.value.trim().toLowerCase();
+    const matchesSearch = object => !term || String(object.address || '').toLowerCase().includes(term);
 
     filterSelects.forEach(sel => {
       const key = sel.dataset.filter;
@@ -413,7 +416,7 @@
 
       const others = { ...filters };
       delete others[key];
-      const pool = allObjects.filter(object => matchesObjectFilters(object, others));
+      const pool = allObjects.filter(object => matchesObjectFilters(object, others) && matchesSearch(object));
 
       const values = new Set();
       pool.forEach(object => objectFilterValues(object, key).forEach(value => {
@@ -436,7 +439,7 @@
       sel.value = current;
     });
 
-    render(allObjects.filter(object => matchesObjectFilters(object, filters)));
+    render(allObjects.filter(object => matchesObjectFilters(object, filters) && matchesSearch(object)));
   };
 
   const setData = list => {
@@ -448,8 +451,10 @@
   };
 
   filterSelects.forEach(sel => sel.addEventListener('change', refresh));
+  searchInput.addEventListener('input', refresh);
   filtersReset.addEventListener('click', () => {
     filterSelects.forEach(sel => { sel.value = ''; });
+    searchInput.value = '';
     refresh();
   });
 

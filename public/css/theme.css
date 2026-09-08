@@ -325,7 +325,8 @@ body.sidebar-collapsed #sidebar nav { opacity: 0; pointer-events: none; }
   font-size: 13px;
   color: var(--gray);
 }
-.card-filter select {
+.card-filter select,
+.card-filter input {
   border: 1px solid var(--border);
   border-radius: 9px;
   padding: 10px 12px;
@@ -335,8 +336,11 @@ body.sidebar-collapsed #sidebar nav { opacity: 0; pointer-events: none; }
   min-width: 190px;
   transition: border-color 0.18s, box-shadow 0.18s;
 }
-.card-filter select:hover { border-color: #3a3a3a; }
-.card-filter select:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.18); }
+.card-filter--search input { min-width: 240px; }
+.card-filter select:hover,
+.card-filter input:hover { border-color: #3a3a3a; }
+.card-filter select:focus,
+.card-filter input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.18); }
 .card-filters .filters-reset { align-self: end; }
 
 /* ---------- Страница объекта / химии ---------- */
