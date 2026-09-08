@@ -25,6 +25,7 @@ function navigate(pageKey) {
   document.getElementById('page-objectTests').hidden = true;
   document.getElementById('page-objectComplaints').hidden = true;
   document.getElementById('page-chemicalDetail').hidden = true;
+  document.getElementById('page-faqView').hidden = true;
   document.getElementById('page-faqItem').hidden = true;
   try { sessionStorage.removeItem('chemBackTo'); } catch { /* нет доступа */ }
   if (/^#(object|chemical|faq)-/.test(location.hash)) {
@@ -72,7 +73,7 @@ if (/^#object-\d+(-tests|-complaints)?$/.test(initialHash)) {
 } else if (/^#chemical-\d+$/.test(initialHash)) {
   document.querySelector('#sidebar nav a[data-page="chemicals"]').classList.add('active');
   Object.values(REAL_PAGES).forEach(id => { document.getElementById(id).hidden = true; });
-} else if (/^#faq-\d+$/.test(initialHash)) {
+} else if (/^#faq-(\d+(-edit)?|new)$/.test(initialHash)) {
   document.querySelector('#sidebar nav a[data-page="faq"]').classList.add('active');
   Object.values(REAL_PAGES).forEach(id => { document.getElementById(id).hidden = true; });
 } else {

@@ -131,6 +131,17 @@
         <div id="faq-list" class="faq-list"></div>
       </section>
 
+      <section id="page-faqView" class="page" hidden>
+        <div class="section-heading">
+          <h2 class="page-title" id="faq-view-title">Вопрос</h2>
+          <div class="detail-actions">
+            <button id="faq-view-edit" class="button button-primary" type="button">Редактировать</button>
+            <button id="faq-view-back" class="button button-secondary" type="button">← Назад</button>
+          </div>
+        </div>
+        <div id="faq-view-body" class="faq-view"></div>
+      </section>
+
       <section id="page-faqItem" class="page" hidden>
         <div class="section-heading">
           <h2 class="page-title" id="faq-item-title">Вопрос</h2>
@@ -153,6 +164,17 @@
         <p id="notifications-empty" class="empty-state" hidden>Изменений в объектах и химии пока не было.</p>
       </section>
     </main>
+  </div>
+
+  <div id="faq-file-viewer" class="file-viewer" hidden>
+    <div class="file-viewer__bar">
+      <span class="file-viewer__name"></span>
+      <div class="file-viewer__actions">
+        <a class="file-viewer__download button button-secondary" download>Скачать</a>
+        <button class="file-viewer__close button button-primary" type="button">← Назад к вопросу</button>
+      </div>
+    </div>
+    <div class="file-viewer__body"></div>
   </div>
 
   <div id="notifications-clear-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="notifications-clear-title"><h2 id="notifications-clear-title">Очистить все уведомления?</h2><div class="modal-actions"><button id="notifications-clear-no" class="button button-secondary" type="button">Нет</button><button id="notifications-clear-yes" class="button button-primary" type="button">Да</button></div></section></div>

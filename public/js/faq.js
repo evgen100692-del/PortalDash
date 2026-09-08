@@ -1,207 +1,275 @@
 (() => {
   const listPage = document.querySelector('#page-faq');
-  const itemPage = document.querySelector('#page-faqItem');
+  const viewPage = document.querySelector('#page-faqView');
+  const editPage = document.querySelector('#page-faqItem');
   const listBox = document.querySelector('#faq-list');
-  const itemTitle = document.querySelector('#faq-item-title');
-  const itemBody = document.querySelector('#faq-item-body');
+
+  const viewTitle = document.querySelector('#faq-view-title');
+  const viewBody = document.querySelector('#faq-view-body');
+  const viewEditBtn = document.querySelector('#faq-view-edit');
+
+  const editTitle = document.querySelector('#faq-item-title');
+  const editBody = document.querySelector('#faq-item-body');
   const savedFlag = document.querySelector('#faq-item-saved');
   const deleteBtn = document.querySelector('#faq-item-delete');
   const deleteModal = document.querySelector('#faq-delete-modal');
 
-  // Поля позиции стандарта химии. Общие сведения теперь входят в каждую позицию.
-  const GENERAL_FIELDS = [
-    { key: 'title', label: 'Название стандарта' },
-    { key: 'general_supplier', label: 'Генеральный поставщик' },
-    { key: 'complexType', label: 'Тип химии' },
-    { key: 'author', label: 'Автор (технолог по химии)' },
-    { key: 'status', label: 'Статус документа', options: ['Готов', 'В разработке', 'Отменен'] },
-    { key: 'revision', label: 'Год / редакция' },
-    { key: 'summary', label: 'Краткое описание', multiline: true }
-  ];
-  const POSITION_FIELDS = [
-    { key: 'category', label: 'Категория' },
-    { key: 'name', label: 'Наименование' },
-    { key: 'packaging', label: 'Фасовка / тип' },
-    { key: 'article', label: 'Артикул' },
-    { key: 'characteristics', label: 'Характеристики', multiline: true },
-    { key: 'application', label: 'Применение', multiline: true }
-  ];
-  const ALL_POSITION_FIELDS = [...GENERAL_FIELDS, ...POSITION_FIELDS];
-
   let items = [];
   let itemsById = {};
-  let currentItem = null;
+  let currentItem = null;   // редактируемый; id === null для нового
 
-  const field = (label, attr, value, spec = {}) => {
-    const wrap = document.createElement('label');
-    wrap.className = 'faq-field';
-    const span = document.createElement('span');
-    span.textContent = label;
+  // ---------- Полноэкранный просмотр файла ----------
+  const viewer = document.querySelector('#faq-file-viewer');
+  const viewerName = viewer.querySelector('.file-viewer__name');
+  const viewerDownload = viewer.querySelector('.file-viewer__download');
+  const viewerBody = viewer.querySelector('.file-viewer__body');
 
-    let control;
-    if (spec.options) {
-      control = document.createElement('select');
-      const blank = document.createElement('option');
-      blank.value = '';
-      blank.textContent = '—';
-      control.append(blank);
-      spec.options.forEach(option => {
-        const el = document.createElement('option');
-        el.value = option;
-        el.textContent = option;
-        control.append(el);
-      });
-      control.value = value || '';
+  const isPdf = (url, name) => /\.pdf(?:$|[?#])/i.test(url) || /\.pdf$/i.test(name || '');
+  const isImage = (url, name) =>
+    /\.(png|jpe?g|gif|webp|bmp|svg)(?:$|[?#])/i.test(url) || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name || '');
+
+  const openViewer = (url, name) => {
+    viewerName.textContent = name || '';
+    viewerDownload.href = url;
+    viewerDownload.setAttribute('download', name || '');
+    viewerBody.innerHTML = '';
+    if (isPdf(url, name)) {
+      const frame = document.createElement('iframe');
+      frame.src = url + '#toolbar=0&navpanes=0&statusbar=0&scrollbar=1&view=FitH';
+      frame.className = 'file-viewer__frame';
+      frame.setAttribute('title', name || 'Документ');
+      viewerBody.append(frame);
+    } else if (isImage(url, name)) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = name || '';
+      img.className = 'file-viewer__img';
+      viewerBody.append(img);
     } else {
-      control = document.createElement(spec.multiline ? 'textarea' : 'input');
-      if (spec.multiline) control.rows = 2;
-      else control.type = 'text';
-      control.value = value || '';
+      const msg = document.createElement('div');
+      msg.className = 'file-viewer__msg';
+      msg.textContent = 'Предпросмотр для этого формата недоступен — файл можно скачать.';
+      viewerBody.append(msg);
     }
-    control.setAttribute(attr.name, attr.value);
-    wrap.append(span, control);
-    return wrap;
+    viewer.hidden = false;
+    document.body.style.overflow = 'hidden';
   };
+  const closeViewer = () => {
+    viewer.hidden = true;
+    viewerBody.innerHTML = '';
+    document.body.style.overflow = '';
+  };
+  viewer.querySelector('.file-viewer__close').onclick = closeViewer;
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !viewer.hidden) closeViewer();
+  });
 
-  const buildPosition = (data, index) => {
-    const box = document.createElement('div');
-    box.className = 'faq-position';
+  // ---------- Редактор: строка файла ----------
+  const buildFileRow = data => {
+    const row = document.createElement('div');
+    row.className = 'faq-file';
+
+    const urlInput = document.createElement('input');
+    urlInput.type = 'hidden';
+    urlInput.className = 'faq-file__url';
+    urlInput.value = (data && data.url) || '';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.className = 'faq-file__name-input';
+    nameInput.value = (data && data.name) || '';
 
     const head = document.createElement('div');
-    head.className = 'faq-position__head';
-    const name = document.createElement('span');
-    name.className = 'faq-position__name';
-    name.textContent = `Позиция ${index + 1}`;
-    const remove = document.createElement('button');
-    remove.type = 'button';
-    remove.className = 'remove-field';
-    remove.textContent = '− Удалить';
-    remove.onclick = () => { box.remove(); renumberPositions(); };
-    head.append(name, remove);
-    box.append(head);
+    head.className = 'faq-file__head';
 
-    // Фотография позиции
-    const photoWrap = document.createElement('div');
-    photoWrap.className = 'faq-position__photo';
-    const hidden = document.createElement('input');
-    hidden.type = 'hidden';
-    hidden.setAttribute('data-pos', 'photo_url');
-    hidden.value = (data && data.photo_url) || '';
-    const img = document.createElement('img');
-    img.className = 'faq-position__img';
-    img.alt = '';
-    img.hidden = !hidden.value;
-    if (hidden.value) img.src = hidden.value;
-    const fileLabel = document.createElement('label');
-    fileLabel.className = 'faq-field';
-    const fileSpan = document.createElement('span');
-    fileSpan.textContent = 'Фотография';
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.png,.jpg,.jpeg,image/png,image/jpeg';
-    fileInput.onchange = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      try {
-        const { url } = await uploadFaqPhoto(file);
-        hidden.value = url;
-        img.src = url;
-        img.hidden = false;
-      } catch (error) {
-        alert(error.message);
-        fileInput.value = '';
+    const commentWrap = document.createElement('label');
+    commentWrap.className = 'faq-field';
+    const commentSpan = document.createElement('span');
+    commentSpan.textContent = 'Краткое содержание';
+    const commentInput = document.createElement('textarea');
+    commentInput.className = 'faq-file__comment';
+    commentInput.rows = 2;
+    commentInput.value = (data && data.comment) || '';
+    commentWrap.append(commentSpan, commentInput);
+
+    const removeBtn = () => {
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'remove-field';
+      rm.textContent = '− Удалить';
+      rm.onclick = () => row.remove();
+      return rm;
+    };
+
+    const renderHead = () => {
+      head.innerHTML = '';
+      if (urlInput.value) {
+        const name = document.createElement('span');
+        name.className = 'faq-file__name';
+        name.textContent = nameInput.value || 'файл';
+        head.append(name);
+
+        const openBtn = document.createElement('button');
+        openBtn.type = 'button';
+        openBtn.className = 'faq-file__open';
+        openBtn.textContent = 'Открыть';
+        openBtn.onclick = () => openViewer(urlInput.value, nameInput.value);
+        head.append(openBtn);
+
+        const dl = document.createElement('a');
+        dl.className = 'faq-file__dl';
+        dl.href = urlInput.value;
+        dl.setAttribute('download', nameInput.value || '');
+        dl.textContent = 'Скачать';
+        head.append(dl);
+
+        head.append(removeBtn());
+      } else {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.className = 'faq-file__input';
+        fileInput.onchange = async () => {
+          const file = fileInput.files[0];
+          if (!file) return;
+          try {
+            const res = await uploadFaqFile(file);
+            urlInput.value = res.url;
+            nameInput.value = res.name || file.name;
+            renderHead();
+          } catch (error) {
+            alert(error.message);
+            fileInput.value = '';
+          }
+        };
+        head.append(fileInput, removeBtn());
       }
     };
-    fileLabel.append(fileSpan, fileInput);
-    photoWrap.append(fileLabel, img, hidden);
-    box.append(photoWrap);
+    renderHead();
 
-    const subgrid = (label, fields) => {
-      const sub = document.createElement('div');
-      sub.className = 'faq-subhead';
-      sub.textContent = label;
-      box.append(sub);
-      const grid = document.createElement('div');
-      grid.className = 'faq-grid';
-      fields.forEach(f => {
-        grid.append(field(f.label, { name: 'data-pos', value: f.key }, (data || {})[f.key], f));
-      });
-      box.append(grid);
-    };
-    subgrid('Общие сведения', GENERAL_FIELDS);
-    subgrid('Данные позиции', POSITION_FIELDS);
-    return box;
+    row.append(urlInput, nameInput, head, commentWrap);
+    return row;
   };
 
-  const renumberPositions = () => {
-    itemBody.querySelectorAll('.faq-position').forEach((box, i) => {
-      box.querySelector('.faq-position__name').textContent = `Позиция ${i + 1}`;
-    });
-  };
-
+  // ---------- Редактор ----------
   const renderEditor = item => {
-    itemTitle.textContent = item.title || 'Вопрос';
+    editTitle.textContent = item.id == null ? 'Новый вопрос' : 'Редактирование вопроса';
     savedFlag.hidden = true;
-    deleteBtn.hidden = item.kind === 'standards';
-    itemBody.innerHTML = '';
+    deleteBtn.hidden = item.id == null;
+    editBody.innerHTML = '';
 
-    const titleField = field('Заголовок вопроса', { name: 'data-title', value: '1' }, item.title, {});
-    itemBody.append(titleField);
+    const titleField = document.createElement('label');
+    titleField.className = 'faq-field';
+    titleField.innerHTML = '<span>Заголовок вопроса</span>';
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.id = 'faq-edit-title';
+    titleInput.value = item.title || '';
+    titleField.append(titleInput);
+    editBody.append(titleField);
 
-    if (item.kind === 'standards') {
-      const posGroup = document.createElement('div');
-      posGroup.className = 'faq-group';
-      const posHead = document.createElement('div');
-      posHead.className = 'faq-group__head';
-      const posTitle = document.createElement('h3');
-      posTitle.className = 'faq-group__title';
-      posTitle.textContent = 'Позиции химии';
-      const addPos = document.createElement('button');
-      addPos.type = 'button';
-      addPos.className = 'add-field';
-      addPos.textContent = '+ Добавить позицию';
-      addPos.onclick = () => {
-        const box = buildPosition({}, posList.children.length);
-        posList.append(box);
-        box.scrollIntoView({ block: 'nearest' });
-      };
-      posHead.append(posTitle, addPos);
-      posGroup.append(posHead);
+    const answerGroup = document.createElement('div');
+    answerGroup.className = 'faq-group';
+    const answerField = document.createElement('label');
+    answerField.className = 'faq-field';
+    answerField.innerHTML = '<span>Ответ</span>';
+    const answerInput = document.createElement('textarea');
+    answerInput.id = 'faq-edit-answer';
+    answerInput.rows = 8;
+    answerInput.value = (item.data && item.data.answer) || '';
+    answerField.append(answerInput);
+    answerGroup.append(answerField);
+    editBody.append(answerGroup);
 
-      const posList = document.createElement('div');
-      posList.className = 'faq-positions';
-      posList.id = 'faq-positions';
-      ((item.data && item.data.positions) || []).forEach((pos, i) => posList.append(buildPosition(pos, i)));
-      posGroup.append(posList);
+    const filesGroup = document.createElement('div');
+    filesGroup.className = 'faq-group';
+    const filesHead = document.createElement('div');
+    filesHead.className = 'faq-group__head';
+    const filesTitle = document.createElement('h3');
+    filesTitle.className = 'faq-group__title';
+    filesTitle.textContent = 'Файлы';
+    const addFile = document.createElement('button');
+    addFile.type = 'button';
+    addFile.className = 'add-field';
+    addFile.textContent = '+ Добавить файл';
+    addFile.onclick = () => {
+      const row = buildFileRow({});
+      filesList.append(row);
+      row.scrollIntoView({ block: 'nearest' });
+    };
+    filesHead.append(filesTitle, addFile);
+    filesGroup.append(filesHead);
 
-      const emptyHint = document.createElement('p');
-      emptyHint.className = 'faq-hint';
-      emptyHint.textContent = 'Позиции пока не добавлены — заполните по мере утверждения химии.';
-      posGroup.append(emptyHint);
-
-      itemBody.append(posGroup);
-    } else {
-      const answerGroup = document.createElement('div');
-      answerGroup.className = 'faq-group';
-      answerGroup.append(field('Ответ', { name: 'data-answer', value: '1' }, (item.data && item.data.answer) || '', { multiline: true }));
-      answerGroup.querySelector('textarea').rows = 8;
-      itemBody.append(answerGroup);
-    }
+    const filesList = document.createElement('div');
+    filesList.className = 'faq-files';
+    ((item.data && item.data.files) || []).forEach(file => filesList.append(buildFileRow(file)));
+    filesGroup.append(filesList);
+    editBody.append(filesGroup);
   };
 
   const collect = () => {
-    const title = itemBody.querySelector('[data-title]').value.trim();
-    if (currentItem.kind === 'standards') {
-      const positions = [...itemBody.querySelectorAll('.faq-position')].map(box => {
-        const pos = { photo_url: box.querySelector('[data-pos="photo_url"]').value };
-        ALL_POSITION_FIELDS.forEach(f => {
-          pos[f.key] = box.querySelector(`[data-pos="${f.key}"]`).value;
-        });
-        return pos;
+    const files = [...editBody.querySelectorAll('.faq-file')].map(row => ({
+      url: row.querySelector('.faq-file__url').value,
+      name: row.querySelector('.faq-file__name-input').value,
+      comment: row.querySelector('.faq-file__comment').value
+    })).filter(file => file.url);
+    return {
+      title: document.querySelector('#faq-edit-title').value.trim(),
+      data: { answer: document.querySelector('#faq-edit-answer').value, files }
+    };
+  };
+
+  // ---------- Просмотр ----------
+  const renderView = item => {
+    viewTitle.textContent = item.title || 'Вопрос';
+    viewBody.innerHTML = '';
+
+    const answer = document.createElement('div');
+    answer.className = 'faq-view__answer';
+    answer.textContent = (item.data && item.data.answer) || 'Ответ не заполнен';
+    if (!(item.data && item.data.answer)) answer.classList.add('faq-view__answer--empty');
+    viewBody.append(answer);
+
+    const files = (item.data && item.data.files) || [];
+    if (files.length) {
+      const heading = document.createElement('div');
+      heading.className = 'faq-view__files-title';
+      heading.textContent = 'Файлы';
+      viewBody.append(heading);
+
+      files.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'faq-view__file';
+
+        const name = document.createElement('div');
+        name.className = 'faq-view__file-name';
+        name.textContent = file.name || 'файл';
+        card.append(name);
+
+        if (file.comment) {
+          const comment = document.createElement('div');
+          comment.className = 'faq-view__file-comment';
+          comment.textContent = file.comment;
+          card.append(comment);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'faq-view__file-actions';
+        const openBtn = document.createElement('button');
+        openBtn.type = 'button';
+        openBtn.className = 'faq-file__open';
+        openBtn.textContent = 'Открыть';
+        openBtn.onclick = () => openViewer(file.url, file.name);
+        const dl = document.createElement('a');
+        dl.className = 'faq-file__dl';
+        dl.href = file.url;
+        dl.setAttribute('download', file.name || '');
+        dl.textContent = 'Скачать';
+        actions.append(openBtn, dl);
+        card.append(actions);
+
+        viewBody.append(card);
       });
-      return { title, data: { positions } };
     }
-    return { title, data: { answer: itemBody.querySelector('[data-answer]').value } };
   };
 
   // ---------- Список ----------
@@ -223,14 +291,10 @@
 
       const preview = document.createElement('div');
       preview.className = 'faq-card__preview';
-      if (item.kind === 'standards') {
-        const count = ((item.data && item.data.positions) || []).length;
-        preview.textContent = count
-          ? `Стандарт химии сети · позиций: ${count}`
-          : 'Шаблон полей стандарта химии — заполняется вручную';
-      } else {
-        preview.textContent = ((item.data && item.data.answer) || '').slice(0, 140) || 'Ответ не заполнен';
-      }
+      const answer = ((item.data && item.data.answer) || '').slice(0, 140);
+      const fileCount = ((item.data && item.data.files) || []).length;
+      preview.textContent = [answer || 'Ответ не заполнен', fileCount ? `файлов: ${fileCount}` : '']
+        .filter(Boolean).join(' · ');
       card.append(preview);
 
       const open = () => { location.hash = `#faq-${item.id}`; };
@@ -242,59 +306,79 @@
     });
   };
 
-  const showItemPage = () => {
-    document.querySelectorAll('#content > .page').forEach(page => { page.hidden = page !== itemPage; });
+  const showPage = target => {
+    document.querySelectorAll('#content > .page').forEach(page => { page.hidden = page !== target; });
     window.scrollTo(0, 0);
   };
 
-  const openItem = async id => {
-    let item = itemsById[id];
-    if (!item) {
-      try { item = await getFaqItem(id); } catch { location.hash = ''; return; }
-    }
-    currentItem = item;
-    renderEditor(item);
-    showItemPage();
+  const loadItem = async id => {
+    if (itemsById[id]) return itemsById[id];
+    try { return await getFaqItem(id); } catch { return null; }
   };
 
-  const closeItem = () => {
-    itemPage.hidden = true;
-    if (!location.hash) listPage.hidden = false;
+  const openView = async id => {
+    const item = await loadItem(id);
+    if (!item) { location.hash = ''; return; }
+    currentItem = item;
+    renderView(item);
+    showPage(viewPage);
+  };
+
+  const openEdit = async id => {
+    if (id === 'new') {
+      currentItem = { id: null, title: '', data: { answer: '', files: [] } };
+    } else {
+      const item = await loadItem(id);
+      if (!item) { location.hash = ''; return; }
+      currentItem = item;
+    }
+    renderEditor(currentItem);
+    showPage(editPage);
   };
 
   const route = () => {
-    const match = location.hash.match(/^#faq-(\d+)$/);
-    if (match) { openItem(match[1]); return; }
-    if (!itemPage.hidden) closeItem();
+    const hash = location.hash;
+    if (hash === '#faq-new') { openEdit('new'); return; }
+    const edit = hash.match(/^#faq-(\d+)-edit$/);
+    if (edit) { openEdit(edit[1]); return; }
+    const view = hash.match(/^#faq-(\d+)$/);
+    if (view) { openView(view[1]); return; }
+    if (!viewPage.hidden || !editPage.hidden) {
+      viewPage.hidden = true;
+      editPage.hidden = true;
+      if (!location.hash) listPage.hidden = false;
+    }
   };
-
   window.addEventListener('hashchange', route);
 
   // ---------- Кнопки ----------
-  document.querySelector('#faq-item-back').onclick = () => { location.hash = ''; };
+  document.querySelector('#add-faq-button').onclick = () => { location.hash = '#faq-new'; };
+
+  viewEditBtn.onclick = () => {
+    if (currentItem && currentItem.id != null) location.hash = `#faq-${currentItem.id}-edit`;
+  };
+  document.querySelector('#faq-view-back').onclick = () => { location.hash = ''; };
+
+  document.querySelector('#faq-item-back').onclick = () => {
+    location.hash = currentItem && currentItem.id != null ? `#faq-${currentItem.id}` : '';
+  };
 
   document.querySelector('#faq-item-save').onclick = async () => {
     if (!currentItem) return;
+    const payload = collect();
     try {
-      const updated = await updateFaq(currentItem.id, collect());
-      currentItem = updated;
-      itemsById[updated.id] = updated;
-      const idx = items.findIndex(i => i.id === updated.id);
-      if (idx !== -1) items[idx] = updated;
-      itemTitle.textContent = updated.title;
-      savedFlag.hidden = false;
-      clearTimeout(savedFlag._t);
-      savedFlag._t = setTimeout(() => { savedFlag.hidden = true; }, 2000);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  document.querySelector('#add-faq-button').onclick = async () => {
-    try {
-      const created = await createFaq({ title: 'Новый вопрос', answer: '' });
-      renderList(await getFaq());
-      location.hash = `#faq-${created.id}`;
+      if (currentItem.id == null) {
+        const created = await createFaq(payload);
+        renderList(await getFaq());
+        location.hash = `#faq-${created.id}`;
+      } else {
+        const updated = await updateFaq(currentItem.id, payload);
+        itemsById[updated.id] = updated;
+        const idx = items.findIndex(i => i.id === updated.id);
+        if (idx !== -1) items[idx] = updated;
+        renderList(items);
+        location.hash = `#faq-${updated.id}`;
+      }
     } catch (error) {
       alert(error.message);
     }
@@ -303,7 +387,7 @@
   deleteBtn.onclick = () => { deleteModal.hidden = false; };
   document.querySelector('#faq-delete-no').onclick = () => { deleteModal.hidden = true; };
   document.querySelector('#faq-delete-yes').onclick = async () => {
-    if (!currentItem) return;
+    if (!currentItem || currentItem.id == null) { deleteModal.hidden = true; return; }
     try {
       await deleteFaq(currentItem.id);
       deleteModal.hidden = true;
