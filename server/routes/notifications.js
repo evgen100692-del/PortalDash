@@ -8,6 +8,4 @@ router.get('/', (req, res) => {
   res.json(db.list());
 });
 
-router.delete('/', (req, res) => res.json(db.clear()));
-
 module.exports = router;

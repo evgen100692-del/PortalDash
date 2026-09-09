@@ -16,6 +16,7 @@
   const filtersBar = document.querySelector('#chemical-filters');
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
   const filtersReset = document.querySelector('#chemical-filters-reset');
+  const searchInput = document.querySelector('#chemical-search');
 
   const listPage = document.querySelector('#page-chemicals');
   const detailPage = document.querySelector('#page-chemicalDetail');
@@ -27,8 +28,51 @@
   let previewUrl = null;
   let chemicalsById = {};
   let allChemicals = [];
+  let allObjectsData = [];   // объекты (для блока «Применяется на объектах»)
   let editingId = null;
   let currentDetailChemical = null;
+
+  const asList = value => {
+    if (Array.isArray(value)) return value;
+    try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : []; }
+    catch { return []; }
+  };
+
+  // Небольшая задержка для поля поиска — не фильтруем на каждый символ.
+  const debounce = (fn, ms = 200) => {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+  };
+
+  // Выбранные фильтры храним в query-строке (cf_*) — чтобы делиться ссылкой
+  // и не терять выбор при перезагрузке.
+  const URL_PREFIX = 'cf_';
+  let urlFiltersApplied = false;
+  const readFiltersFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    filterSelects.forEach(sel => {
+      const value = params.get(URL_PREFIX + sel.dataset.filter);
+      if (!value) return;
+      if (![...sel.options].some(option => option.value === value)) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        sel.append(option);
+      }
+      sel.value = value;
+    });
+    const query = params.get(URL_PREFIX + 'q');
+    if (query) searchInput.value = query;
+  };
+  const writeFiltersToUrl = () => {
+    const params = new URLSearchParams(location.search);
+    [...params.keys()].forEach(key => { if (key.startsWith(URL_PREFIX)) params.delete(key); });
+    filterSelects.forEach(sel => { if (sel.value) params.set(URL_PREFIX + sel.dataset.filter, sel.value); });
+    const query = searchInput.value.trim();
+    if (query) params.set(URL_PREFIX + 'q', query);
+    const qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  };
 
   const stageBlocks = [...form.querySelectorAll('.test-stage')];
   const stageObjectSelects = [...form.querySelectorAll('.stage-object select')];
@@ -38,6 +82,7 @@
   const loadObjectOptions = async () => {
     try {
       const list = await getObjects();
+      allObjectsData = list;
       objectOptions = [...new Set(list.map(item => item.address).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, 'ru'));
     } catch { /* оставляем прежние значения */ }
@@ -240,6 +285,30 @@
         detailFields.append(dt, dd);
       });
     }
+
+    // Объекты, где применяется эта химия — обратная ссылка на раздел «Объекты».
+    const relatedDt = document.createElement('dt');
+    relatedDt.textContent = 'Применяется на объектах';
+    const relatedDd = document.createElement('dd');
+    const related = allObjectsData
+      .filter(obj => asList(obj.chemistry).includes(chemical.name))
+      .sort((a, b) => String(a.address || '').localeCompare(String(b.address || ''), 'ru'));
+    if (!related.length) {
+      relatedDd.textContent = '—';
+    } else {
+      const wrap = document.createElement('div');
+      wrap.className = 'chem-detail-objects';
+      related.forEach((obj, index) => {
+        const link = document.createElement('a');
+        link.className = 'chem-link';
+        link.href = `#object-${obj.id}`;
+        link.textContent = obj.address || `#${obj.id}`;
+        wrap.append(link);
+        if (index < related.length - 1) wrap.append(document.createTextNode(', '));
+      });
+      relatedDd.append(wrap);
+    }
+    detailFields.append(relatedDt, relatedDd);
   };
 
   const showDetailPage = () => {
@@ -372,8 +441,9 @@
       deleteModal.hidden = true;
       location.hash = '';
       setData(await getChemicals());
+      window.toast('Химия удалена');
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
@@ -392,6 +462,12 @@
   const matchesFilters = (chemical, filters) =>
     Object.entries(filters).every(([key, value]) => filterValue(chemical, key) === value);
 
+  const term = () => searchInput.value.trim().toLowerCase();
+  const matchesSearch = chemical => {
+    const t = term();
+    return !t || String(chemical.name || '').toLowerCase().includes(t);
+  };
+
   // Пересобирает варианты каждого фильтра (по остальным активным фильтрам) и список карточек.
   const refresh = () => {
     const filters = activeFilters();
@@ -400,7 +476,7 @@
       const key = sel.dataset.filter;
       const others = { ...filters };
       delete others[key];
-      const pool = allChemicals.filter(chemical => matchesFilters(chemical, others));
+      const pool = allChemicals.filter(chemical => matchesFilters(chemical, others) && matchesSearch(chemical));
 
       const optionMap = new Map();
       pool.forEach(chemical => {
@@ -429,7 +505,8 @@
       sel.value = current;
     });
 
-    render(allChemicals.filter(chemical => matchesFilters(chemical, filters)));
+    render(allChemicals.filter(chemical => matchesFilters(chemical, filters) && matchesSearch(chemical)));
+    writeFiltersToUrl();
   };
 
   const setData = list => {
@@ -437,14 +514,20 @@
     chemicalsById = {};
     list.forEach(chemical => { chemicalsById[chemical.id] = chemical; });
     filtersBar.hidden = !list.length;
+    if (!urlFiltersApplied) { urlFiltersApplied = true; readFiltersFromUrl(); }
     refresh();
   };
 
   filterSelects.forEach(sel => sel.addEventListener('change', refresh));
-  filtersReset.addEventListener('click', () => {
+  searchInput.addEventListener('input', debounce(refresh));
+  const resetFilters = () => {
     filterSelects.forEach(sel => { sel.value = ''; });
+    searchInput.value = '';
     refresh();
-  });
+  };
+  filtersReset.addEventListener('click', resetFilters);
+  // Уход в другой раздел через меню — очищаем фильтры и query-строку.
+  document.addEventListener('sidebar-navigate', resetFilters);
 
   // ---------- Обработчики ----------
   photoInput.onchange = () => {
@@ -509,12 +592,16 @@
         currentDetailChemical = chemicalsById[savingId] || currentDetailChemical;
         if (currentDetailChemical) renderDetail(currentDetailChemical);
       }
+      window.toast(savingId != null ? 'Химия обновлена' : 'Химия добавлена');
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
-  loadObjectOptions();
+  loadObjectOptions().then(() => {
+    if (currentDetailChemical && !detailPage.hidden) renderDetail(currentDetailChemical);
+  });
+  window.skeletonCards(document.querySelector('#chemical-cards'));
   getChemicals()
     .then(list => { setData(list); route(); })
     .catch(() => { setData([]); route(); });

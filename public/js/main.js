@@ -45,7 +45,11 @@ function navigate(pageKey) {
 }
 
 document.querySelectorAll('#sidebar nav a').forEach(a => {
-  a.addEventListener('click', () => navigate(a.dataset.page));
+  a.addEventListener('click', () => {
+    navigate(a.dataset.page);
+    // Переход по меню — сбрасываем фильтры списков, чтобы адрес не «распухал».
+    document.dispatchEvent(new CustomEvent('sidebar-navigate', { detail: { pageKey: a.dataset.page } }));
+  });
 });
 
 // ---------- Сворачивание боковой панели ----------

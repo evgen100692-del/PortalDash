@@ -397,6 +397,7 @@
         const created = await createFaq(payload);
         renderList(await getFaq());
         location.hash = `#faq-${created.id}`;
+        window.toast('Вопрос добавлен');
       } else {
         const updated = await updateFaq(currentItem.id, payload);
         itemsById[updated.id] = updated;
@@ -404,9 +405,10 @@
         if (idx !== -1) items[idx] = updated;
         renderList(items);
         location.hash = `#faq-${updated.id}`;
+        window.toast('Изменения сохранены');
       }
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
@@ -419,9 +421,10 @@
       deleteModal.hidden = true;
       location.hash = '';
       renderList(await getFaq());
+      window.toast('Вопрос удалён');
     } catch (error) {
       deleteModal.hidden = true;
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 

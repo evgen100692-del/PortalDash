@@ -21,7 +21,6 @@ async function getNotifications() { return request('/api/notifications'); }
 async function getEntityNotifications(entity, id) {
   return request('/api/notifications?entity=' + encodeURIComponent(entity) + '&id=' + encodeURIComponent(id));
 }
-async function clearNotifications() { return request('/api/notifications', { method: 'DELETE' }); }
 async function getComplaints(objectId) { return request('/api/complaints?object_id=' + encodeURIComponent(objectId)); }
 async function createComplaint(payload) { return request('/api/complaints', jsonInit('POST', payload)); }
 async function deleteComplaint(id) { return request('/api/complaints/' + encodeURIComponent(id), { method: 'DELETE' }); }

@@ -53,6 +53,7 @@
           <button id="add-chemical-button" class="button button-primary" type="button">+ Добавить химию</button>
         </div>
         <div id="chemical-filters" class="card-filters" hidden>
+          <label class="card-filter card-filter--search">Поиск по наименованию<input id="chemical-search" type="search" placeholder="Введите наименование" autocomplete="off"></label>
           <label class="card-filter">Поставщик<select data-filter="supplier"><option value="">Все</option></select></label>
           <label class="card-filter">Тип химии<select data-filter="chem_type"><option value="">Все</option></select></label>
           <label class="card-filter">Наличие документов<select data-filter="has_docs"><option value="">Все</option></select></label>
@@ -159,7 +160,13 @@
       <section id="page-alerts" class="page" hidden>
         <div class="section-heading">
           <h2 class="page-title">Уведомления</h2>
-          <button id="notifications-clear" class="button button-secondary" type="button">Очистить</button>
+        </div>
+        <div id="notifications-filters" class="card-filters" hidden>
+          <label class="card-filter">Тип уведомления<select id="notif-filter-action"><option value="">Все</option><option value="create">Добавление</option><option value="update">Изменение</option><option value="delete">Удаление</option></select></label>
+          <label class="card-filter">Что менялось?<select id="notif-filter-entity"><option value="">Все</option><option value="object">Объекты</option><option value="chemical">Химия</option></select></label>
+          <label class="card-filter">Дата с<input id="notif-filter-from" type="date"></label>
+          <label class="card-filter">Дата по<input id="notif-filter-to" type="date"></label>
+          <button type="button" id="notif-filters-reset" class="button button-secondary filters-reset">Сбросить</button>
         </div>
         <div id="notifications-list" class="notifications-list"></div>
         <p id="notifications-empty" class="empty-state" hidden>Изменений в объектах и химии пока не было.</p>
@@ -178,7 +185,6 @@
     <div class="file-viewer__body"></div>
   </div>
 
-  <div id="notifications-clear-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="notifications-clear-title"><h2 id="notifications-clear-title">Очистить все уведомления?</h2><div class="modal-actions"><button id="notifications-clear-no" class="button button-secondary" type="button">Нет</button><button id="notifications-clear-yes" class="button button-primary" type="button">Да</button></div></section></div>
 
   <div id="info-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title"><div class="modal-header"><h2 id="info-modal-title">Уведомления</h2><button id="info-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><div id="info-modal-list" class="notifications-list"></div><p id="info-modal-empty" class="empty-state" hidden>Изменений по этой странице не было.</p></section></div>
 
@@ -240,6 +246,7 @@
   <div id="chemical-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="chemical-delete-title"><h2 id="chemical-delete-title">Вы уверены что хотите удалить химию?</h2><div class="modal-actions"><button id="chemical-delete-no" class="button button-secondary" type="button">Нет</button><button id="chemical-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
   <script src="/js/objectCard.js"></script>
   <script src="/js/complaints.js"></script>
   <script src="/js/chemicalCard.js"></script>

@@ -1,8 +1,13 @@
 (() => {
   const listBox = document.querySelector('#notifications-list');
   const emptyState = document.querySelector('#notifications-empty');
-  const clearBtn = document.querySelector('#notifications-clear');
-  const clearModal = document.querySelector('#notifications-clear-modal');
+
+  const filtersBar = document.querySelector('#notifications-filters');
+  const fAction = document.querySelector('#notif-filter-action');
+  const fEntity = document.querySelector('#notif-filter-entity');
+  const fFrom = document.querySelector('#notif-filter-from');
+  const fTo = document.querySelector('#notif-filter-to');
+  const fReset = document.querySelector('#notif-filters-reset');
 
   const infoModal = document.querySelector('#info-modal');
   const infoTitle = document.querySelector('#info-modal-title');
@@ -11,6 +16,8 @@
 
   const ACTION_LABEL = { create: 'Добавление', update: 'Изменение', delete: 'Удаление' };
   const ENTITY_LABEL = { object: 'Объект', chemical: 'Химия' };
+
+  let allNotes = [];
 
   const formatWhen = value => {
     const date = new Date(value);
@@ -85,35 +92,57 @@
   };
 
   // ---------- Раздел «Уведомления» ----------
+  const applyFilters = () => {
+    const action = fAction.value;
+    const entity = fEntity.value;
+    const from = fFrom.value ? new Date(fFrom.value + 'T00:00:00') : null;
+    const to = fTo.value ? new Date(fTo.value + 'T23:59:59.999') : null;
+
+    const filtered = allNotes.filter(note => {
+      if (action && note.action !== action) return false;
+      if (entity && note.entity !== entity) return false;
+      const when = new Date(note.created_at);
+      if (from && when < from) return false;
+      if (to && when > to) return false;
+      return true;
+    });
+
+    emptyState.hidden = !!filtered.length;
+    emptyState.textContent = allNotes.length
+      ? 'По выбранным фильтрам ничего не найдено.'
+      : 'Изменений в объектах и химии пока не было.';
+    fillList(listBox, filtered);
+  };
+
   const refresh = () => {
     getNotifications().then(list => {
-      emptyState.hidden = !!list.length;
-      fillList(listBox, list);
-    }).catch(() => { emptyState.hidden = false; fillList(listBox, []); });
+      allNotes = list;
+      filtersBar.hidden = !list.length;
+      applyFilters();
+    }).catch(() => {
+      allNotes = [];
+      filtersBar.hidden = true;
+      applyFilters();
+    });
   };
+
+  [fAction, fEntity, fFrom, fTo].forEach(el => el.addEventListener('change', applyFilters));
+  fReset.addEventListener('click', () => {
+    fAction.value = '';
+    fEntity.value = '';
+    fFrom.value = '';
+    fTo.value = '';
+    applyFilters();
+  });
 
   const alertsLink = document.querySelector('#sidebar nav a[data-page="alerts"]');
   if (alertsLink) alertsLink.addEventListener('click', refresh);
-
-  clearBtn.onclick = () => { clearModal.hidden = false; };
-  document.querySelector('#notifications-clear-no').onclick = () => { clearModal.hidden = true; };
-  document.querySelector('#notifications-clear-yes').onclick = async () => {
-    try {
-      await clearNotifications();
-      clearModal.hidden = true;
-      refresh();
-    } catch (error) {
-      clearModal.hidden = true;
-      alert(error.message);
-    }
-  };
 
   // ---------- Модалка уведомлений конкретной страницы ----------
   const closeInfo = () => { infoModal.hidden = true; document.body.style.overflow = ''; };
   document.querySelector('#info-modal-close').onclick = closeInfo;
   infoModal.addEventListener('click', event => {
     if (event.target === infoModal) closeInfo();
-    // Переход по ссылке из модалки — закрываем её, чтобы не осталась поверх страницы.
     if (event.target.closest('a')) closeInfo();
   });
 

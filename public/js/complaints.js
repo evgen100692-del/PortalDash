@@ -162,8 +162,9 @@
       await createComplaint(payload);
       closeModal();
       refresh();
+      window.toast('Жалоба добавлена');
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
@@ -176,9 +177,10 @@
       deleteModal.hidden = true;
       pendingDeleteId = null;
       refresh();
+      window.toast('Жалоба удалена');
     } catch (error) {
       deleteModal.hidden = true;
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 

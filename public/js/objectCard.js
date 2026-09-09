@@ -25,6 +25,42 @@
   const filtersReset = document.querySelector('#object-filters-reset');
   const searchInput = document.querySelector('#object-search');
 
+  // Небольшая задержка для поля поиска — не фильтруем на каждый символ.
+  const debounce = (fn, ms = 200) => {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+  };
+
+  // Выбранные фильтры списка объектов храним в query-строке (of_*), чтобы ссылкой
+  // можно было поделиться и не терять выбор при перезагрузке.
+  const URL_PREFIX = 'of_';
+  let urlFiltersApplied = false;
+  const readFiltersFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    filterSelects.forEach(sel => {
+      const value = params.get(URL_PREFIX + sel.dataset.filter);
+      if (!value) return;
+      if (![...sel.options].some(option => option.value === value)) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        sel.append(option);
+      }
+      sel.value = value;
+    });
+    const query = params.get(URL_PREFIX + 'q');
+    if (query) searchInput.value = query;
+  };
+  const writeFiltersToUrl = () => {
+    const params = new URLSearchParams(location.search);
+    [...params.keys()].forEach(key => { if (key.startsWith(URL_PREFIX)) params.delete(key); });
+    filterSelects.forEach(sel => { if (sel.value) params.set(URL_PREFIX + sel.dataset.filter, sel.value); });
+    const query = searchInput.value.trim();
+    if (query) params.set(URL_PREFIX + 'q', query);
+    const qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  };
+
   const robotOptions = ['Рязань', 'RCW'];
   const STAGE3 = 'Этап №3 - Полевой долгосрочный';
   let chemistryOptions = [];        // названия из раздела «Химия» для формы
@@ -65,11 +101,12 @@
   const options = values =>
     `<option value="">Выберите значение</option>${values.map(value => `<option>${escapeHtml(value)}</option>`).join('')}`;
 
-  // Ссылка-иконка на Яндекс.Карты с адресом объекта.
+  // Ссылка-иконка на Яндекс.Карты с адресом объекта (+ «Портал» в запросе).
   const buildMapLink = address => {
     const link = document.createElement('a');
     link.className = 'map-link';
-    link.href = 'https://yandex.ru/maps/?text=' + encodeURIComponent(address || '');
+    const query = [String(address || '').trim(), 'Портал'].filter(Boolean).join(' ');
+    link.href = 'https://yandex.ru/maps/?text=' + encodeURIComponent(query);
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.title = 'Показать на Яндекс.Картах';
@@ -175,6 +212,24 @@
       addMeta('Роботы', asList(object.robots).join(', '));
       addMeta('Управляющий', object.manager);
       addMeta('Водоотвод', object.drainage);
+
+      // Химия объекта; названия с результатом «Отказ» — красным.
+      const chemDt = document.createElement('dt');
+      chemDt.textContent = 'Химия';
+      const chemDd = document.createElement('dd');
+      const chemNames = asList(object.chemistry);
+      if (!chemNames.length) {
+        chemDd.textContent = '—';
+      } else {
+        chemNames.forEach((name, i) => {
+          const span = document.createElement('span');
+          span.textContent = name;
+          if (rejectChemNames.has(name)) span.className = 'reject';
+          chemDd.append(span);
+          if (i < chemNames.length - 1) chemDd.append(', ');
+        });
+      }
+      meta.append(chemDt, chemDd);
 
       card.onclick = () => { location.hash = `#object-${object.id}`; };
       card.onkeydown = event => {
@@ -440,6 +495,7 @@
     });
 
     render(allObjects.filter(object => matchesObjectFilters(object, filters) && matchesSearch(object)));
+    writeFiltersToUrl();
   };
 
   const setData = list => {
@@ -447,16 +503,20 @@
     objectsById = {};
     list.forEach(object => { objectsById[object.id] = object; });
     filtersBar.hidden = !list.length;
+    if (!urlFiltersApplied) { urlFiltersApplied = true; readFiltersFromUrl(); }
     refresh();
   };
 
   filterSelects.forEach(sel => sel.addEventListener('change', refresh));
-  searchInput.addEventListener('input', refresh);
-  filtersReset.addEventListener('click', () => {
+  searchInput.addEventListener('input', debounce(refresh));
+  const resetFilters = () => {
     filterSelects.forEach(sel => { sel.value = ''; });
     searchInput.value = '';
     refresh();
-  });
+  };
+  filtersReset.addEventListener('click', resetFilters);
+  // Уход в другой раздел через меню — очищаем фильтры и query-строку.
+  document.addEventListener('sidebar-navigate', resetFilters);
 
   // ---------- Редактирование объекта ----------
   const openEditModal = async object => {
@@ -503,8 +563,9 @@
       deleteModal.hidden = true;
       location.hash = '';
       setData(await getObjects());
+      window.toast('Объект удалён');
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
@@ -569,8 +630,9 @@
         currentDetailObject = objectsById[savingId] || currentDetailObject;
         if (currentDetailObject) renderDetail(currentDetailObject);
       }
+      window.toast(savingId != null ? 'Объект обновлён' : 'Объект добавлен');
     } catch (error) {
-      alert(error.message);
+      window.toast(error.message, 'error');
     }
   };
 
@@ -579,6 +641,7 @@
     if (currentDetailObject && !detailPage.hidden) renderDetail(currentDetailObject);
     if (currentTestsObject && !testsPage.hidden) renderTests(currentTestsObject);
   });
+  window.skeletonCards(document.querySelector('#object-cards'));
   getObjects()
     .then(list => { setData(list); route(); })
     .catch(() => { setData([]); route(); });
