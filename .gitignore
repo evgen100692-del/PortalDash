@@ -1,5 +1,4 @@
 node_modules/
-data/*.xlsx
 *.sqlite
 *.sqlite3
 .env
@@ -8,5 +7,3 @@ npm-debug.log*
 dist/
 
 # Runtime data / uploads (created by the app at runtime)
-/server/data/
-/public/uploads/

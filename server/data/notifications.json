@@ -1,0 +1,1623 @@
+[
+  {
+    "id": 1,
+    "created_at": "2026-09-03T07:08:24.034Z",
+    "entity": "object",
+    "entity_id": 2,
+    "entity_name": "Московская область, д.Сапроново, ул. Калиновая, 1с1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 2,
+    "created_at": "2026-09-03T07:22:22.100Z",
+    "entity": "object",
+    "entity_id": 3,
+    "entity_name": "Москва, ул. Поляны 6б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 3,
+    "created_at": "2026-09-03T07:31:31.777Z",
+    "entity": "object",
+    "entity_id": 4,
+    "entity_name": "Москва, ул. Обручева, д. 52, с69",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 4,
+    "created_at": "2026-09-03T07:31:42.936Z",
+    "entity": "object",
+    "entity_id": 5,
+    "entity_name": "Москва, Ярославское шоссе, 25с3",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 5,
+    "created_at": "2026-09-03T07:31:53.567Z",
+    "entity": "object",
+    "entity_id": 6,
+    "entity_name": "Москва, ул. Лобачевского, 19",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 6,
+    "created_at": "2026-09-03T07:32:05.450Z",
+    "entity": "object",
+    "entity_id": 7,
+    "entity_name": "Орехово-Зуево, ул. Якова Флиера, 2/2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 7,
+    "created_at": "2026-09-03T07:32:21.245Z",
+    "entity": "object",
+    "entity_id": 8,
+    "entity_name": "Нижний Новгород, ул. Коминтерна, 47Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 8,
+    "created_at": "2026-09-03T07:32:30.011Z",
+    "entity": "object",
+    "entity_id": 9,
+    "entity_name": "Балашиха, ул. Звёздная, вл1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 9,
+    "created_at": "2026-09-03T07:32:38.277Z",
+    "entity": "object",
+    "entity_id": 10,
+    "entity_name": "г. Химки, Ленинградское шоссе 24Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 10,
+    "created_at": "2026-09-03T07:32:46.085Z",
+    "entity": "object",
+    "entity_id": 11,
+    "entity_name": "Уфа, ул. Бакалинская, 15",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 11,
+    "created_at": "2026-09-03T07:32:53.783Z",
+    "entity": "object",
+    "entity_id": 12,
+    "entity_name": "Балашиха, Носовихинское шоссе, 6А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 12,
+    "created_at": "2026-09-03T07:33:02.884Z",
+    "entity": "object",
+    "entity_id": 13,
+    "entity_name": "Москва, Минская улица, 1М",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 13,
+    "created_at": "2026-09-03T07:33:11.115Z",
+    "entity": "object",
+    "entity_id": 14,
+    "entity_name": "Москва, Правобережная улица, 2Бс1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 14,
+    "created_at": "2026-09-03T07:33:18.736Z",
+    "entity": "object",
+    "entity_id": 15,
+    "entity_name": "Москва, Шипиловская улица, 28",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 15,
+    "created_at": "2026-09-03T07:33:26.753Z",
+    "entity": "object",
+    "entity_id": 16,
+    "entity_name": "Москва, Рублёвское шоссе, 91Ас1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 16,
+    "created_at": "2026-09-03T07:33:34.983Z",
+    "entity": "object",
+    "entity_id": 17,
+    "entity_name": "Москва, улица Паперника, 22с3",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 17,
+    "created_at": "2026-09-03T07:33:42.523Z",
+    "entity": "object",
+    "entity_id": 18,
+    "entity_name": "Москва, Привольная улица, вл64с2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 18,
+    "created_at": "2026-09-03T07:33:51.075Z",
+    "entity": "object",
+    "entity_id": 19,
+    "entity_name": "Москва, ул. Профсоюзная д.67а, стр.2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 19,
+    "created_at": "2026-09-03T07:33:58.392Z",
+    "entity": "object",
+    "entity_id": 20,
+    "entity_name": "Москва, Рязанский проспект, 2Ас2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 20,
+    "created_at": "2026-09-03T07:34:06.280Z",
+    "entity": "object",
+    "entity_id": 21,
+    "entity_name": "Москва, ул. Исаковского,37 к.1 стр.2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 21,
+    "created_at": "2026-09-03T07:34:14.941Z",
+    "entity": "object",
+    "entity_id": 22,
+    "entity_name": "Москва, улица Лобачевского, 37",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 22,
+    "created_at": "2026-09-03T07:34:22.560Z",
+    "entity": "object",
+    "entity_id": 23,
+    "entity_name": "Красноярск, пр. им. газеты Красноярский рабочий, 26Г",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 23,
+    "created_at": "2026-09-03T07:34:31.329Z",
+    "entity": "object",
+    "entity_id": 24,
+    "entity_name": "Москва, Пятницкое шоссе, вл. 20",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 24,
+    "created_at": "2026-09-03T07:34:40.808Z",
+    "entity": "object",
+    "entity_id": 25,
+    "entity_name": "Москва, Люблинская улица, 135/1с2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 25,
+    "created_at": "2026-09-03T07:34:48.437Z",
+    "entity": "object",
+    "entity_id": 26,
+    "entity_name": "Москва, Пятницкое шоссе, вл 27",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 26,
+    "created_at": "2026-09-03T07:34:55.741Z",
+    "entity": "object",
+    "entity_id": 27,
+    "entity_name": "Москва, проспект Мира, вл94с1Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 27,
+    "created_at": "2026-09-03T07:35:04.528Z",
+    "entity": "object",
+    "entity_id": 28,
+    "entity_name": "Москва, ул. 1-я Рыбинская улица, 3А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 28,
+    "created_at": "2026-09-03T07:35:11.508Z",
+    "entity": "object",
+    "entity_id": 29,
+    "entity_name": "Москва, Дмитровское шоссе д.107е",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 29,
+    "created_at": "2026-09-03T07:35:18.689Z",
+    "entity": "object",
+    "entity_id": 30,
+    "entity_name": "Москва, улица Лобачевского, 92Ас1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 30,
+    "created_at": "2026-09-03T07:35:28.238Z",
+    "entity": "object",
+    "entity_id": 31,
+    "entity_name": "Москва, Загородное шоссе, 2Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 31,
+    "created_at": "2026-09-03T07:35:35.385Z",
+    "entity": "object",
+    "entity_id": 32,
+    "entity_name": "Москва, Мичуринский проспект, 76А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 32,
+    "created_at": "2026-09-03T07:35:42.426Z",
+    "entity": "object",
+    "entity_id": 33,
+    "entity_name": "Москва, проспект Вернадского 86Д",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 33,
+    "created_at": "2026-09-03T07:35:49.783Z",
+    "entity": "object",
+    "entity_id": 34,
+    "entity_name": "Москва, Рублёвское шоссе, 4с1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 34,
+    "created_at": "2026-09-03T08:43:37.593Z",
+    "entity": "object",
+    "entity_id": 35,
+    "entity_name": "Москва, МКАД, 94-й км,6",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 35,
+    "created_at": "2026-09-03T08:43:45.564Z",
+    "entity": "object",
+    "entity_id": 36,
+    "entity_name": "Портал на ВДНХ",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 36,
+    "created_at": "2026-09-03T08:43:59.564Z",
+    "entity": "object",
+    "entity_id": 36,
+    "entity_name": "Москва, проспект Мира, вл.142",
+    "action": "update",
+    "changes": [
+      {
+        "field": "address",
+        "label": "Адрес объекта",
+        "from": "Портал на ВДНХ",
+        "to": "Москва, проспект Мира, вл.142"
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 37,
+    "created_at": "2026-09-03T08:44:11.062Z",
+    "entity": "object",
+    "entity_id": 37,
+    "entity_name": "Москва, Новоясеневский проспект, 12А, стр. 2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 38,
+    "created_at": "2026-09-03T11:02:23.876Z",
+    "entity": "object",
+    "entity_id": 38,
+    "entity_name": "Красноярск, ул. 52-й Квартал, 8А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 39,
+    "created_at": "2026-09-08T07:26:25.002Z",
+    "entity": "chemical",
+    "entity_id": 5,
+    "entity_name": "Вуаль",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 40,
+    "created_at": "2026-09-08T07:28:13.304Z",
+    "entity": "chemical",
+    "entity_id": 6,
+    "entity_name": "Гидрофоб",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 41,
+    "created_at": "2026-09-08T07:29:34.206Z",
+    "entity": "chemical",
+    "entity_id": 7,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 42,
+    "created_at": "2026-09-08T07:29:34.281Z",
+    "entity": "chemical",
+    "entity_id": 8,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 43,
+    "created_at": "2026-09-08T07:29:34.294Z",
+    "entity": "chemical",
+    "entity_id": 9,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 44,
+    "created_at": "2026-09-08T07:29:34.300Z",
+    "entity": "chemical",
+    "entity_id": 10,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 45,
+    "created_at": "2026-09-08T07:29:34.307Z",
+    "entity": "chemical",
+    "entity_id": 11,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 46,
+    "created_at": "2026-09-08T07:29:34.311Z",
+    "entity": "chemical",
+    "entity_id": 12,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 47,
+    "created_at": "2026-09-08T07:29:34.329Z",
+    "entity": "chemical",
+    "entity_id": 13,
+    "entity_name": "Розовая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 48,
+    "created_at": "2026-09-08T07:29:44.555Z",
+    "entity": "chemical",
+    "entity_id": 9,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 49,
+    "created_at": "2026-09-08T07:29:48.017Z",
+    "entity": "chemical",
+    "entity_id": 12,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 50,
+    "created_at": "2026-09-08T07:29:51.815Z",
+    "entity": "chemical",
+    "entity_id": 11,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 51,
+    "created_at": "2026-09-08T07:29:54.725Z",
+    "entity": "chemical",
+    "entity_id": 10,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 52,
+    "created_at": "2026-09-08T07:29:57.558Z",
+    "entity": "chemical",
+    "entity_id": 8,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 53,
+    "created_at": "2026-09-08T07:30:01.737Z",
+    "entity": "chemical",
+    "entity_id": 7,
+    "entity_name": "Розовая пена",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 54,
+    "created_at": "2026-09-08T07:31:23.755Z",
+    "entity": "chemical",
+    "entity_id": 14,
+    "entity_name": "Желтая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 55,
+    "created_at": "2026-09-08T07:33:24.367Z",
+    "entity": "chemical",
+    "entity_id": 15,
+    "entity_name": "Голубая пена",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 56,
+    "created_at": "2026-09-08T11:07:53.488Z",
+    "entity": "object",
+    "entity_id": 38,
+    "entity_name": "Красноярск, ул. 52-й Квартал, 8А",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "—",
+        "to": "Pro Cleaner"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 3,
+        "name": "Pro Cleaner"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "created_at": "2026-09-09T07:00:34.239Z",
+    "entity": "object",
+    "entity_id": 38,
+    "entity_name": "Красноярск, ул. 52-й Квартал, 8А",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 58,
+    "created_at": "2026-09-09T07:00:37.283Z",
+    "entity": "object",
+    "entity_id": 37,
+    "entity_name": "Москва, Новоясеневский проспект, 12А, стр. 2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 59,
+    "created_at": "2026-09-09T07:00:40.407Z",
+    "entity": "object",
+    "entity_id": 36,
+    "entity_name": "Москва, проспект Мира, вл.142",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 60,
+    "created_at": "2026-09-09T07:00:42.813Z",
+    "entity": "object",
+    "entity_id": 35,
+    "entity_name": "Москва, МКАД, 94-й км,6",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 61,
+    "created_at": "2026-09-09T07:00:45.284Z",
+    "entity": "object",
+    "entity_id": 34,
+    "entity_name": "Москва, Рублёвское шоссе, 4с1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 62,
+    "created_at": "2026-09-09T07:00:48.125Z",
+    "entity": "object",
+    "entity_id": 33,
+    "entity_name": "Москва, проспект Вернадского 86Д",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 63,
+    "created_at": "2026-09-09T07:00:55.675Z",
+    "entity": "object",
+    "entity_id": 4,
+    "entity_name": "Москва, ул. Обручева, д. 52, с69",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 64,
+    "created_at": "2026-09-09T07:00:58.409Z",
+    "entity": "object",
+    "entity_id": 29,
+    "entity_name": "Москва, Дмитровское шоссе д.107е",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 65,
+    "created_at": "2026-09-09T07:01:00.863Z",
+    "entity": "object",
+    "entity_id": 28,
+    "entity_name": "Москва, ул. 1-я Рыбинская улица, 3А",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 66,
+    "created_at": "2026-09-09T07:01:03.366Z",
+    "entity": "object",
+    "entity_id": 26,
+    "entity_name": "Москва, Пятницкое шоссе, вл 27",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 67,
+    "created_at": "2026-09-09T07:01:05.548Z",
+    "entity": "object",
+    "entity_id": 25,
+    "entity_name": "Москва, Люблинская улица, 135/1с2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 68,
+    "created_at": "2026-09-09T07:01:07.916Z",
+    "entity": "object",
+    "entity_id": 24,
+    "entity_name": "Москва, Пятницкое шоссе, вл. 20",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 69,
+    "created_at": "2026-09-09T07:01:10.555Z",
+    "entity": "object",
+    "entity_id": 27,
+    "entity_name": "Москва, проспект Мира, вл94с1Б",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 70,
+    "created_at": "2026-09-09T07:01:12.824Z",
+    "entity": "object",
+    "entity_id": 23,
+    "entity_name": "Красноярск, пр. им. газеты Красноярский рабочий, 26Г",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 71,
+    "created_at": "2026-09-09T07:01:15.134Z",
+    "entity": "object",
+    "entity_id": 22,
+    "entity_name": "Москва, улица Лобачевского, 37",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 72,
+    "created_at": "2026-09-09T07:01:17.539Z",
+    "entity": "object",
+    "entity_id": 21,
+    "entity_name": "Москва, ул. Исаковского,37 к.1 стр.2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 73,
+    "created_at": "2026-09-09T07:01:19.812Z",
+    "entity": "object",
+    "entity_id": 20,
+    "entity_name": "Москва, Рязанский проспект, 2Ас2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 74,
+    "created_at": "2026-09-09T07:01:22.096Z",
+    "entity": "object",
+    "entity_id": 19,
+    "entity_name": "Москва, ул. Профсоюзная д.67а, стр.2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 75,
+    "created_at": "2026-09-09T07:01:24.374Z",
+    "entity": "object",
+    "entity_id": 18,
+    "entity_name": "Москва, Привольная улица, вл64с2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 76,
+    "created_at": "2026-09-09T07:01:26.760Z",
+    "entity": "object",
+    "entity_id": 17,
+    "entity_name": "Москва, улица Паперника, 22с3",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 77,
+    "created_at": "2026-09-09T07:01:28.873Z",
+    "entity": "object",
+    "entity_id": 16,
+    "entity_name": "Москва, Рублёвское шоссе, 91Ас1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 78,
+    "created_at": "2026-09-09T07:01:30.859Z",
+    "entity": "object",
+    "entity_id": 15,
+    "entity_name": "Москва, Шипиловская улица, 28",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 79,
+    "created_at": "2026-09-09T07:01:32.805Z",
+    "entity": "object",
+    "entity_id": 14,
+    "entity_name": "Москва, Правобережная улица, 2Бс1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 80,
+    "created_at": "2026-09-09T07:01:34.927Z",
+    "entity": "object",
+    "entity_id": 13,
+    "entity_name": "Москва, Минская улица, 1М",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 81,
+    "created_at": "2026-09-09T07:01:37.415Z",
+    "entity": "object",
+    "entity_id": 12,
+    "entity_name": "Балашиха, Носовихинское шоссе, 6А",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 82,
+    "created_at": "2026-09-09T07:01:39.629Z",
+    "entity": "object",
+    "entity_id": 11,
+    "entity_name": "Уфа, ул. Бакалинская, 15",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 83,
+    "created_at": "2026-09-09T07:01:41.615Z",
+    "entity": "object",
+    "entity_id": 10,
+    "entity_name": "г. Химки, Ленинградское шоссе 24Б",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 84,
+    "created_at": "2026-09-09T07:01:44.313Z",
+    "entity": "object",
+    "entity_id": 9,
+    "entity_name": "Балашиха, ул. Звёздная, вл1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 85,
+    "created_at": "2026-09-09T07:01:46.479Z",
+    "entity": "object",
+    "entity_id": 8,
+    "entity_name": "Нижний Новгород, ул. Коминтерна, 47Б",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 86,
+    "created_at": "2026-09-09T07:01:48.614Z",
+    "entity": "object",
+    "entity_id": 7,
+    "entity_name": "Орехово-Зуево, ул. Якова Флиера, 2/2",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 87,
+    "created_at": "2026-09-09T07:01:50.577Z",
+    "entity": "object",
+    "entity_id": 6,
+    "entity_name": "Москва, ул. Лобачевского, 19",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 88,
+    "created_at": "2026-09-09T07:01:52.683Z",
+    "entity": "object",
+    "entity_id": 5,
+    "entity_name": "Москва, Ярославское шоссе, 25с3",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 89,
+    "created_at": "2026-09-09T07:01:55.319Z",
+    "entity": "object",
+    "entity_id": 30,
+    "entity_name": "Москва, улица Лобачевского, 92Ас1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 90,
+    "created_at": "2026-09-09T07:01:57.698Z",
+    "entity": "object",
+    "entity_id": 3,
+    "entity_name": "Москва, ул. Поляны 6б",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 91,
+    "created_at": "2026-09-09T07:01:59.926Z",
+    "entity": "object",
+    "entity_id": 2,
+    "entity_name": "Московская область, д.Сапроново, ул. Калиновая, 1с1",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 92,
+    "created_at": "2026-09-09T07:02:02.004Z",
+    "entity": "object",
+    "entity_id": 1,
+    "entity_name": "Куликовская ул., вл4Район Северное Бутово (ЮЗАО), метро — «Лесопарковая»",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 93,
+    "created_at": "2026-09-09T07:02:04.339Z",
+    "entity": "object",
+    "entity_id": 31,
+    "entity_name": "Москва, Загородное шоссе, 2Б",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 94,
+    "created_at": "2026-09-09T07:02:06.659Z",
+    "entity": "object",
+    "entity_id": 32,
+    "entity_name": "Москва, Мичуринский проспект, 76А",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 95,
+    "created_at": "2026-09-09T07:26:27.081Z",
+    "entity": "object",
+    "entity_id": 1,
+    "entity_name": "Москва, Загородное шоссе, 2Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 96,
+    "created_at": "2026-09-09T07:28:10.002Z",
+    "entity": "object",
+    "entity_id": 2,
+    "entity_name": "Москва, Привольная улица, вл64с2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 97,
+    "created_at": "2026-09-09T07:29:20.141Z",
+    "entity": "object",
+    "entity_id": 3,
+    "entity_name": "Москва, Люблинская улица, 135/1с2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 98,
+    "created_at": "2026-09-09T07:30:46.222Z",
+    "entity": "object",
+    "entity_id": 4,
+    "entity_name": "Москва, Каширское шоссе, 24с20",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 99,
+    "created_at": "2026-09-09T07:31:34.272Z",
+    "entity": "object",
+    "entity_id": 5,
+    "entity_name": "Москва, Коломенский проезд, 1В",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 100,
+    "created_at": "2026-09-09T07:32:25.481Z",
+    "entity": "object",
+    "entity_id": 6,
+    "entity_name": "Москва, ул. Каспийская, 20А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 101,
+    "created_at": "2026-09-09T07:45:21.380Z",
+    "entity": "object",
+    "entity_id": 7,
+    "entity_name": "Москва, улица Паперника, 22с3",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 102,
+    "created_at": "2026-09-09T07:46:22.808Z",
+    "entity": "object",
+    "entity_id": 8,
+    "entity_name": "Москва, ул. 1-я Рыбинская улица, 3А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 103,
+    "created_at": "2026-09-09T07:47:07.967Z",
+    "entity": "object",
+    "entity_id": 9,
+    "entity_name": "Москва, ул. Куликовская, вл4",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 104,
+    "created_at": "2026-09-09T07:48:07.123Z",
+    "entity": "object",
+    "entity_id": 10,
+    "entity_name": "Москва, проспект Мира, вл94с1Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 105,
+    "created_at": "2026-09-09T07:49:21.983Z",
+    "entity": "object",
+    "entity_id": 11,
+    "entity_name": "Санкт-Петербург, проспект Маршала Жукова, 10.",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 106,
+    "created_at": "2026-09-09T08:33:00.786Z",
+    "entity": "chemical",
+    "entity_id": 16,
+    "entity_name": "Джей Ди 1%",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 107,
+    "created_at": "2026-09-09T08:33:21.475Z",
+    "entity": "object",
+    "entity_id": 11,
+    "entity_name": "Санкт-Петербург, проспект Маршала Жукова, 10.",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Голубая пена, Желтая пена, Розовая пена",
+        "to": "Голубая пена, Желтая пена, Розовая пена, Джей Ди 1%"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 16,
+        "name": "Джей Ди 1%"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "created_at": "2026-09-09T08:33:38.866Z",
+    "entity": "object",
+    "entity_id": 10,
+    "entity_name": "Москва, проспект Мира, вл94с1Б",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Голубая пена, Желтая пена, Розовая пена",
+        "to": "Голубая пена, Желтая пена, Розовая пена, Джей Ди 1%"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 16,
+        "name": "Джей Ди 1%"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "created_at": "2026-09-09T08:33:48.743Z",
+    "entity": "object",
+    "entity_id": 9,
+    "entity_name": "Москва, ул. Куликовская, вл4",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Голубая пена, Желтая пена, Розовая пена",
+        "to": "Голубая пена, Желтая пена, Розовая пена, Джей Ди 1%"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 16,
+        "name": "Джей Ди 1%"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "created_at": "2026-09-09T08:33:59.946Z",
+    "entity": "object",
+    "entity_id": 7,
+    "entity_name": "Москва, улица Паперника, 22с3",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Голубая пена, Розовая пена, Желтая пена",
+        "to": "Голубая пена, Розовая пена, Желтая пена, Джей Ди 1%"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 16,
+        "name": "Джей Ди 1%"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "created_at": "2026-09-09T08:34:07.891Z",
+    "entity": "object",
+    "entity_id": 8,
+    "entity_name": "Москва, ул. 1-я Рыбинская улица, 3А",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Голубая пена, Желтая пена, Розовая пена",
+        "to": "Голубая пена, Желтая пена, Розовая пена, Джей Ди 1%"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 16,
+        "name": "Джей Ди 1%"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "created_at": "2026-09-09T08:42:57.424Z",
+    "entity": "object",
+    "entity_id": 12,
+    "entity_name": "Москва, улица Лобачевского, 37",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 113,
+    "created_at": "2026-09-09T08:44:26.771Z",
+    "entity": "object",
+    "entity_id": 13,
+    "entity_name": "Москва, ул. Лобачевского, 19",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 114,
+    "created_at": "2026-09-09T08:46:42.801Z",
+    "entity": "object",
+    "entity_id": 14,
+    "entity_name": "Москва, Минская улица, 1М",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 115,
+    "created_at": "2026-09-09T08:50:23.379Z",
+    "entity": "object",
+    "entity_id": 15,
+    "entity_name": "Москва, Мичуринский проспект, 76А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 116,
+    "created_at": "2026-09-09T08:55:00.852Z",
+    "entity": "object",
+    "entity_id": 16,
+    "entity_name": "Москва, Рублёвское ш., 4, стр. 1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 117,
+    "created_at": "2026-09-09T08:56:40.809Z",
+    "entity": "object",
+    "entity_id": 17,
+    "entity_name": "Москва, улица Лобачевского, 92Ас1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 118,
+    "created_at": "2026-09-09T09:25:03.687Z",
+    "entity": "object",
+    "entity_id": 18,
+    "entity_name": "Москва, Рублёвское шоссе, 91Ас1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 119,
+    "created_at": "2026-09-09T09:50:26.097Z",
+    "entity": "object",
+    "entity_id": 19,
+    "entity_name": "Москва, Шереметьевская улица, 22с2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 120,
+    "created_at": "2026-09-09T09:51:31.209Z",
+    "entity": "object",
+    "entity_id": 20,
+    "entity_name": "Москва, Дмитровское шоссе д.107е",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 121,
+    "created_at": "2026-09-09T09:53:13.576Z",
+    "entity": "object",
+    "entity_id": 21,
+    "entity_name": "Москва, Правобережная улица, 2Бс1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 122,
+    "created_at": "2026-09-09T09:54:10.280Z",
+    "entity": "object",
+    "entity_id": 22,
+    "entity_name": "Москва, Пятницкое шоссе, вл 27",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 123,
+    "created_at": "2026-09-09T09:54:58.376Z",
+    "entity": "object",
+    "entity_id": 23,
+    "entity_name": "Москва, Пятницкое шоссе, вл. 20",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 124,
+    "created_at": "2026-09-09T09:55:43.727Z",
+    "entity": "object",
+    "entity_id": 24,
+    "entity_name": "г. Химки, Ленинградское шоссе 24Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 125,
+    "created_at": "2026-09-09T10:01:12.010Z",
+    "entity": "object",
+    "entity_id": 25,
+    "entity_name": "Дзержинский, Угрешская улица, 5В",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 126,
+    "created_at": "2026-09-09T10:02:21.265Z",
+    "entity": "object",
+    "entity_id": 26,
+    "entity_name": "Москва, микрорайон Северное Чертаново, 1А",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 127,
+    "created_at": "2026-09-09T10:03:14.586Z",
+    "entity": "object",
+    "entity_id": 27,
+    "entity_name": "Москва, Новоясеневский проспект, 12А, стр. 2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 128,
+    "created_at": "2026-09-09T10:04:11.867Z",
+    "entity": "object",
+    "entity_id": 28,
+    "entity_name": "Москва, проспект Вернадского 86Д",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 129,
+    "created_at": "2026-09-09T10:05:17.141Z",
+    "entity": "object",
+    "entity_id": 28,
+    "entity_name": "Москва, проспект Вернадского 86Д",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "365, Желтая пена, Розовая пена, Голубая пена",
+        "to": "365, Желтая пена, Розовая пена, Голубая пена, Гидрофоб"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 6,
+        "name": "Гидрофоб"
+      }
+    ]
+  },
+  {
+    "id": 130,
+    "created_at": "2026-09-09T10:06:16.576Z",
+    "entity": "object",
+    "entity_id": 29,
+    "entity_name": "Москва, ул. Профсоюзная д.67а, стр.2",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 131,
+    "created_at": "2026-09-09T13:33:57.964Z",
+    "entity": "object",
+    "entity_id": 30,
+    "entity_name": "Москва, Новорижское шоссе, 22-й километр, вл1с1",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 132,
+    "created_at": "2026-09-09T13:36:43.812Z",
+    "entity": "object",
+    "entity_id": 31,
+    "entity_name": "Москва, ул.Мичуринский Проспект, Олимпийская Деревня, 4к32",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 133,
+    "created_at": "2026-09-09T13:38:18.119Z",
+    "entity": "chemical",
+    "entity_id": 17,
+    "entity_name": "ACG вся продукция",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 134,
+    "created_at": "2026-09-09T13:43:52.150Z",
+    "entity": "chemical",
+    "entity_id": 17,
+    "entity_name": "Гидроблок",
+    "action": "update",
+    "changes": [
+      {
+        "field": "name",
+        "label": "Наименование",
+        "from": "ACG вся продукция",
+        "to": "Гидроблок"
+      },
+      {
+        "field": "chem_type",
+        "label": "Тип химии",
+        "from": "—",
+        "to": "Воск"
+      },
+      {
+        "field": "test_stage",
+        "label": "Этап тестирования",
+        "from": "—",
+        "to": "Завершено"
+      },
+      {
+        "field": "photo",
+        "label": "Фото",
+        "from": "—",
+        "to": "обновлено"
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 135,
+    "created_at": "2026-09-09T13:44:19.983Z",
+    "entity": "object",
+    "entity_id": 31,
+    "entity_name": "Москва, ул.Мичуринский Проспект, Олимпийская Деревня, 4к32",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "365, Желтая пена, Розовая пена, Голубая пена",
+        "to": "365, Желтая пена, Розовая пена, Голубая пена, Гидроблок"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 17,
+        "name": "Гидроблок"
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "created_at": "2026-09-09T13:47:11.806Z",
+    "entity": "chemical",
+    "entity_id": 18,
+    "entity_name": "Эмульсион (Интелджет)",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 137,
+    "created_at": "2026-09-09T13:54:52.937Z",
+    "entity": "chemical",
+    "entity_id": 17,
+    "entity_name": "Гидроблок",
+    "action": "update",
+    "changes": [
+      {
+        "field": "photo",
+        "label": "Фото",
+        "from": "—",
+        "to": "обновлено"
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 138,
+    "created_at": "2026-09-10T07:28:28.375Z",
+    "entity": "object",
+    "entity_id": 32,
+    "entity_name": "Новосибирск, ул. Широкая, д. 38, к. 4",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 139,
+    "created_at": "2026-09-10T07:28:38.542Z",
+    "entity": "object",
+    "entity_id": 32,
+    "entity_name": "Новосибирск, ул. Широкая, д. 38, к. 4",
+    "action": "update",
+    "changes": [
+      {
+        "field": "chemistry",
+        "label": "Установленная химия",
+        "from": "Джей Ди 1%, Гидроблок, Голубая пена, Розовая пена, Желтая пена",
+        "to": "Джей Ди 1%, Гидрофоб, Голубая пена, Розовая пена, Желтая пена"
+      }
+    ],
+    "related": [
+      {
+        "entity": "chemical",
+        "id": 17,
+        "name": "Гидроблок"
+      },
+      {
+        "entity": "chemical",
+        "id": 6,
+        "name": "Гидрофоб"
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "created_at": "2026-09-10T07:33:19.154Z",
+    "entity": "object",
+    "entity_id": 33,
+    "entity_name": "Ростов-на-Дону, ул.Таганрогская 134Б",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 141,
+    "created_at": "2026-09-10T08:28:16.248Z",
+    "entity": "chemical",
+    "entity_id": 18,
+    "entity_name": "Эмульсион (Интелджет)",
+    "action": "update",
+    "changes": [
+      {
+        "field": "stage1_date",
+        "label": "Этап №1 - Лабораторный — дата",
+        "from": "—",
+        "to": "2025-12-10"
+      },
+      {
+        "field": "stage1_comment",
+        "label": "Этап №1 - Лабораторный — комментарий",
+        "from": "—",
+        "to": "В лабораторных условиях - в смеси с другой химией - неадекватное вспенивание."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 142,
+    "created_at": "2026-09-11T07:15:58.582Z",
+    "entity": "chemical",
+    "entity_id": 19,
+    "entity_name": "Акваклин",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 143,
+    "created_at": "2026-09-11T07:16:57.956Z",
+    "entity": "chemical",
+    "entity_id": 20,
+    "entity_name": "Эмульсии Shine System",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 144,
+    "created_at": "2026-09-11T07:20:12.302Z",
+    "entity": "chemical",
+    "entity_id": 19,
+    "entity_name": "Акваклин",
+    "action": "update",
+    "changes": [
+      {
+        "field": "result",
+        "label": "Результат тестирования",
+        "from": "Пройден 1 этап тестирования",
+        "to": "Отказ"
+      }
+    ],
+    "related": []
+  }
+]
