@@ -320,6 +320,10 @@ body.sidebar-collapsed #sidebar nav { opacity: 0; pointer-events: none; }
 .map-link:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 .empty-state { color: var(--gray); }
 
+.page-heading-copy { display: flex; flex-direction: column; gap: 4px; }
+.page-heading-copy .page-title { margin-bottom: 0; }
+.page-count { margin: 0; color: var(--gray); font-size: 13px; }
+
 .card-filters {
   display: flex;
   flex-wrap: wrap;
@@ -370,6 +374,38 @@ body.sidebar-collapsed #sidebar nav { opacity: 0; pointer-events: none; }
   object-position: center;
   background: var(--bg-panel-2);
   box-shadow: var(--shadow-2);
+}
+.chemical-photo-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chemical-photo-gallery:empty { display: none; }
+.chemical-photo-gallery:empty + .object-detail__fields { grid-column: 1 / -1; }
+.chemical-photo-gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-panel-2);
+  box-shadow: var(--shadow-2);
+}
+.photo-preview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.photo-preview-list[hidden] { display: none; }
+.photo-preview-list img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 1px solid var(--border);
 }
 .object-detail__fields {
   margin: 0;

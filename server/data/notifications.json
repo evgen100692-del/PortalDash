@@ -1619,5 +1619,76 @@
       }
     ],
     "related": []
+  },
+  {
+    "id": 145,
+    "created_at": "2026-09-14T19:26:10.038Z",
+    "entity": "chemical",
+    "entity_id": 21,
+    "entity_name": "111",
+    "action": "create",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 146,
+    "created_at": "2026-09-14T19:26:28.799Z",
+    "entity": "chemical",
+    "entity_id": 21,
+    "entity_name": "111",
+    "action": "update",
+    "changes": [
+      {
+        "field": "photos",
+        "label": "Фотографии",
+        "from": "1",
+        "to": "2"
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 147,
+    "created_at": "2026-09-14T19:26:40.270Z",
+    "entity": "chemical",
+    "entity_id": 21,
+    "entity_name": "111",
+    "action": "update",
+    "changes": [
+      {
+        "field": "photos",
+        "label": "Фотографии",
+        "from": "2",
+        "to": "3"
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": 148,
+    "created_at": "2026-09-14T19:26:45.621Z",
+    "entity": "chemical",
+    "entity_id": 21,
+    "entity_name": "111",
+    "action": "delete",
+    "changes": [],
+    "related": []
+  },
+  {
+    "id": 149,
+    "created_at": "2026-09-14T19:28:02.315Z",
+    "entity": "object",
+    "entity_id": 33,
+    "entity_name": "Портал в Ростове-на-Дону",
+    "action": "update",
+    "changes": [
+      {
+        "field": "name",
+        "label": "Наименование объекта",
+        "from": "Ростов-на-Дону, ул.Таганрогская 134Б",
+        "to": "Портал в Ростове-на-Дону"
+      }
+    ],
+    "related": []
   }
 ]

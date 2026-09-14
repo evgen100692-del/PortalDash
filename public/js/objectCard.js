@@ -11,7 +11,6 @@
   const chemistry = document.querySelector('#chemistry-fields');
 
   const listPage = document.querySelector('#page-objectCard');
-  const placeholderPage = document.querySelector('#page-placeholder');
   const detailPage = document.querySelector('#page-objectDetail');
   const detailTitle = document.querySelector('#detail-title');
   const detailPhoto = document.querySelector('#detail-photo');
@@ -24,6 +23,7 @@
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
   const filtersReset = document.querySelector('#object-filters-reset');
   const searchInput = document.querySelector('#object-search');
+  const countLabel = document.querySelector('#objects-count');
 
   // Небольшая задержка для поля поиска — не фильтруем на каждый символ.
   const debounce = (fn, ms = 200) => {
@@ -63,7 +63,7 @@
 
   const robotOptions = ['Рязань', 'RCW'];
   const STAGE3 = 'Этап №3 - Полевой долгосрочный';
-  let chemistryOptions = [];        // названия из раздела «Химия» для формы
+  let chemistryOptions = [];        // id и названия из раздела «Химия» для формы
   let testChemNames = new Set();      // названия химии на этапе тестирования №3
   let rejectChemNames = new Set();    // названия химии с результатом «Отказ»
   let approvedChemNames = new Set();  // названия химии с результатом «Одобрено»
@@ -78,8 +78,9 @@
     try {
       const list = await getChemicals();
       chemicalsList = list;
-      chemistryOptions = [...new Set(list.map(item => item.name).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, 'ru'));
+      chemistryOptions = list.filter(item => item.name)
+        .map(item => ({ value: String(item.id), label: item.name }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'ru'));
       testChemNames = new Set(list.filter(item => item.test_stage === STAGE3).map(item => item.name));
       rejectChemNames = new Set(list.filter(item => item.result === 'Отказ').map(item => item.name));
       approvedChemNames = new Set(list.filter(item => item.result === 'Одобрено').map(item => item.name));
@@ -99,7 +100,11 @@
   }[char]));
 
   const options = values =>
-    `<option value="">Выберите значение</option>${values.map(value => `<option>${escapeHtml(value)}</option>`).join('')}`;
+    `<option value="">Выберите значение</option>${values.map(item => {
+      const value = item && typeof item === 'object' ? item.value : item;
+      const label = item && typeof item === 'object' ? item.label : item;
+      return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+    }).join('')}`;
 
   // Ссылка-иконка на Яндекс.Карты с адресом объекта (+ «Портал» в запросе).
   const buildMapLink = address => {
@@ -121,13 +126,8 @@
     row.className = 'repeatable-row';
     row.innerHTML = `<select name="${name}">${options(values)}</select><button type="button" class="remove-field" aria-label="Удалить">−</button>`;
     const select = row.querySelector('select');
-    if (selectedValue) {
-      if (![...select.options].some(option => option.value === selectedValue)) {
-        const extra = document.createElement('option');
-        extra.textContent = selectedValue;
-        select.append(extra);
-      }
-      select.value = selectedValue;
+    if (selectedValue != null && selectedValue !== '') {
+      select.value = String(selectedValue);
     }
     row.querySelector('button').onclick = () => {
       if (container.children.length > 1) row.remove();
@@ -147,7 +147,7 @@
     robots.innerHTML = '';
     chemistry.innerHTML = '';
     addRow(robots, 'robots', robotOptions);
-    addRow(chemistry, 'chemistry', chemistryOptions);
+    addRow(chemistry, 'chemical_ids', chemistryOptions);
     form.querySelectorAll('.field').forEach(field => field.classList.remove('invalid'));
     editingId = null;
     modalTitle.textContent = 'Добавить объект';
@@ -161,7 +161,7 @@
     editingId = null;
   };
 
-  // Все поля объекта необязательны — проверяем только формат фото, если оно выбрано.
+  // Сервер проверяет обязательный адрес и связи; здесь отдельно проверяем формат фото.
   const checkField = field => {
     if (field.contains(photoInput)) {
       const file = photoInput.files[0];
@@ -196,8 +196,8 @@
       card.innerHTML = `<img alt=""><div class="object-card__body"><div class="object-card__address"><span class="object-card__address-text"></span></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
       if (object.photo_url) img.src = object.photo_url;
-      img.alt = object.address || '';
-      card.querySelector('.object-card__address-text').textContent = object.address;
+      img.alt = object.name || object.address || '';
+      card.querySelector('.object-card__address-text').textContent = object.name || object.address;
       card.querySelector('.object-card__address').append(buildMapLink(object.address));
 
       const meta = card.querySelector('.card-meta');
@@ -208,6 +208,7 @@
         dd.textContent = value && String(value).trim() ? value : '—';
         meta.append(dt, dd);
       };
+      addMeta('Адрес', object.address);
       addMeta('Боксы', object.boxes);
       addMeta('Роботы', asList(object.robots).join(', '));
       addMeta('Управляющий', object.manager);
@@ -257,10 +258,10 @@
   };
 
   const renderDetail = object => {
-    detailTitle.textContent = object.address || 'Объект';
+    detailTitle.textContent = object.name || object.address || 'Объект';
     if (object.photo_url) detailPhoto.src = object.photo_url;
     else detailPhoto.removeAttribute('src');
-    detailPhoto.alt = object.address || 'Фотография объекта';
+    detailPhoto.alt = object.name || object.address || 'Фотография объекта';
 
     detailFields.innerHTML = '';
 
@@ -273,6 +274,7 @@
     };
     const text = value => dd => { dd.textContent = value; };
 
+    addRow('Наименование объекта', text(object.name || '—'));
     addRow('Адрес объекта', text(object.address || '—'));
     addRow('Количество боксов/роботов', text(object.boxes || '—'));
     addRow('Установленные роботы', text(asList(object.robots).join(', ') || '—'));
@@ -332,12 +334,12 @@
   };
 
   const renderTests = object => {
-    testsTitle.textContent = object.address ? `Тестирования — ${object.address}` : 'Тестирования';
+    testsTitle.textContent = object.name || object.address ? `Тестирования — ${object.name || object.address}` : 'Тестирования';
 
     const items = [];
     chemicalsList.forEach(chemical => {
       (chemical.stages || []).forEach(stage => {
-        if (stage.date && stage.object && stage.object === object.address) {
+        if (stage.date && Number(stage.object_id) === Number(object.id)) {
           items.push({
             chemId: chemical.id,
             chemName: chemical.name,
@@ -427,7 +429,7 @@
   };
   document.querySelector('#detail-info').onclick = () => {
     if (currentDetailObject && window.openEntityNotifications) {
-      window.openEntityNotifications({ entity: 'object', id: currentDetailObject.id, name: currentDetailObject.address });
+      window.openEntityNotifications({ entity: 'object', id: currentDetailObject.id, name: currentDetailObject.name || currentDetailObject.address });
     }
   };
   document.querySelector('#object-tests-back').onclick = () => {
@@ -463,7 +465,7 @@
   const refresh = () => {
     const filters = activeObjectFilters();
     const term = searchInput.value.trim().toLowerCase();
-    const matchesSearch = object => !term || String(object.address || '').toLowerCase().includes(term);
+    const matchesSearch = object => !term || [object.name, object.address].some(value => String(value || '').toLowerCase().includes(term));
 
     filterSelects.forEach(sel => {
       const key = sel.dataset.filter;
@@ -500,6 +502,7 @@
 
   const setData = list => {
     allObjects = list;
+    countLabel.textContent = `Всего объектов: ${list.length}`;
     objectsById = {};
     list.forEach(object => { objectsById[object.id] = object; });
     filtersBar.hidden = !list.length;
@@ -526,6 +529,7 @@
     modalTitle.textContent = 'Редактировать объект';
     photoEditHint.hidden = false;
 
+    form.name.value = object.name || '';
     form.address.value = object.address || '';
     form.boxes.value = String(object.boxes || '');
     form.manager.value = object.manager || '';
@@ -535,9 +539,9 @@
     robots.innerHTML = '';
     chemistry.innerHTML = '';
     const robotValues = asList(object.robots);
-    const chemistryValues = asList(object.chemistry);
+    const chemistryValues = asList(object.chemical_ids);
     (robotValues.length ? robotValues : ['']).forEach(value => addRow(robots, 'robots', robotOptions, value));
-    (chemistryValues.length ? chemistryValues : ['']).forEach(value => addRow(chemistry, 'chemistry', chemistryOptions, value));
+    (chemistryValues.length ? chemistryValues : ['']).forEach(value => addRow(chemistry, 'chemical_ids', chemistryOptions, value));
 
     if (object.photo_url) {
       preview.src = object.photo_url;
@@ -616,9 +620,9 @@
     if (!validate()) return;
     const data = new FormData(form);
     data.delete('robots');
-    data.delete('chemistry');
+    data.delete('chemical_ids');
     data.append('robots', JSON.stringify([...form.querySelectorAll('[name="robots"]')].map(input => input.value)));
-    data.append('chemistry', JSON.stringify([...form.querySelectorAll('[name="chemistry"]')].map(input => input.value)));
+    data.append('chemical_ids', JSON.stringify([...form.querySelectorAll('[name="chemical_ids"]')].map(input => input.value).filter(Boolean)));
     if (!photoInput.files.length) data.delete('photo');
     const savingId = editingId;
     try {

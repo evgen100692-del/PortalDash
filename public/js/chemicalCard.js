@@ -13,6 +13,7 @@
   const formEl = name => form.elements[name];
   const cards = document.querySelector('#chemical-cards');
   const emptyState = document.querySelector('#chemicals-empty');
+  const countLabel = document.querySelector('#chemicals-count');
   const filtersBar = document.querySelector('#chemical-filters');
   const filterSelects = [...filtersBar.querySelectorAll('select[data-filter]')];
   const filtersReset = document.querySelector('#chemical-filters-reset');
@@ -21,11 +22,11 @@
   const listPage = document.querySelector('#page-chemicals');
   const detailPage = document.querySelector('#page-chemicalDetail');
   const detailTitle = document.querySelector('#chemical-detail-title');
-  const detailPhoto = document.querySelector('#chemical-detail-photo');
+  const detailPhotos = document.querySelector('#chemical-detail-photos');
   const detailFields = document.querySelector('#chemical-detail-fields');
 
   const imageTypeRe = /^image\/(png|jpe?g)$/;
-  let previewUrl = null;
+  let previewUrls = [];
   let chemicalsById = {};
   let allChemicals = [];
   let allObjectsData = [];   // объекты (для блока «Применяется на объектах»)
@@ -76,23 +77,24 @@
 
   const stageBlocks = [...form.querySelectorAll('.test-stage')];
   const stageObjectSelects = [...form.querySelectorAll('.stage-object select')];
-  let objectOptions = [];  // адреса объектов для полей «Объект тестирования»
+  let objectOptions = [];  // id и наименования объектов для полей «Объект тестирования»
 
   // Заполняет выпадающие списки объектов на этапах 2 и 3 адресами из раздела «Объекты».
   const loadObjectOptions = async () => {
     try {
       const list = await getObjects();
       allObjectsData = list;
-      objectOptions = [...new Set(list.map(item => item.address).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, 'ru'));
+      objectOptions = list.filter(item => item.name || item.address)
+        .map(item => ({ value: String(item.id), label: item.name || item.address }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'ru'));
     } catch { /* оставляем прежние значения */ }
     stageObjectSelects.forEach(sel => {
       const current = sel.value;
       sel.innerHTML = '<option value="">Выберите объект</option>';
-      objectOptions.forEach(address => {
+      objectOptions.forEach(item => {
         const option = document.createElement('option');
-        option.value = address;
-        option.textContent = address;
+        option.value = item.value;
+        option.textContent = item.label;
         sel.append(option);
       });
       sel.value = current;
@@ -110,9 +112,21 @@
   });
 
   const clearPreview = () => {
-    if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    previewUrls = [];
     preview.hidden = true;
-    preview.removeAttribute('src');
+    preview.innerHTML = '';
+  };
+
+  const showPhotoPreview = urls => {
+    preview.innerHTML = '';
+    urls.forEach((url, index) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = `Фото ${index + 1}`;
+      preview.append(img);
+    });
+    preview.hidden = !urls.length;
   };
 
   // Показывает поля даты, комментария и объекта в зависимости от режима этапа.
@@ -158,11 +172,11 @@
     editingId = null;
   };
 
-  // Все поля химии необязательны — проверяем только формат фото, если оно выбрано.
+  // Сервер проверяет обязательное название и связи; здесь отдельно проверяем фотографии.
   const checkField = field => {
     if (field.contains(photoInput)) {
-      const file = photoInput.files[0];
-      const bad = !!file && !imageTypeRe.test(file.type);
+      const files = [...photoInput.files];
+      const bad = files.length > 10 || files.some(file => !imageTypeRe.test(file.type));
       field.classList.toggle('invalid', bad);
       return !bad;
     }
@@ -185,7 +199,8 @@
       card.setAttribute('role', 'button');
       card.innerHTML = `<img alt=""><div class="chem-card__body"><div class="chem-card__name"></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
-      img.src = chemical.photo_url;
+      const firstPhoto = asList(chemical.photo_urls)[0];
+      if (firstPhoto) img.src = firstPhoto;
       img.alt = chemical.name;
       card.querySelector('.chem-card__name').textContent = chemical.name;
 
@@ -222,8 +237,13 @@
 
   const renderDetail = chemical => {
     detailTitle.textContent = chemical.name || 'Химия';
-    detailPhoto.src = chemical.photo_url || '';
-    detailPhoto.alt = chemical.name || 'Фото химии';
+    detailPhotos.innerHTML = '';
+    asList(chemical.photo_urls).forEach((url, index) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = `${chemical.name || 'Химия'} — фото ${index + 1}`;
+      detailPhotos.append(img);
+    });
 
     const rows = [
       ['Наименование', chemical.name || '—'],
@@ -291,8 +311,8 @@
     relatedDt.textContent = 'Применяется на объектах';
     const relatedDd = document.createElement('dd');
     const related = allObjectsData
-      .filter(obj => asList(obj.chemistry).includes(chemical.name))
-      .sort((a, b) => String(a.address || '').localeCompare(String(b.address || ''), 'ru'));
+      .filter(obj => asList(obj.chemical_ids).map(Number).includes(Number(chemical.id)))
+      .sort((a, b) => String(a.name || a.address || '').localeCompare(String(b.name || b.address || ''), 'ru'));
     if (!related.length) {
       relatedDd.textContent = '—';
     } else {
@@ -302,7 +322,7 @@
         const link = document.createElement('a');
         link.className = 'chem-link';
         link.href = `#object-${obj.id}`;
-        link.textContent = obj.address || `#${obj.id}`;
+        link.textContent = obj.name || obj.address || `#${obj.id}`;
         wrap.append(link);
         if (index < related.length - 1) wrap.append(document.createTextNode(', '));
       });
@@ -409,14 +429,14 @@
         date.value = stageData.date;
         syncStage(stage);
         comment.value = stageData.comment || '';
-        if (objectSelect) objectSelect.value = stageData.object || '';
+        if (objectSelect) objectSelect.value = stageData.object_id == null ? '' : String(stageData.object_id);
       } else {
         mode.value = 'none';
         syncStage(stage);
       }
     });
 
-    if (chemical.photo_url) { preview.src = chemical.photo_url; preview.hidden = false; }
+    showPhotoPreview(asList(chemical.photo_urls));
 
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -511,6 +531,7 @@
 
   const setData = list => {
     allChemicals = list;
+    countLabel.textContent = `Всего химии: ${list.length}`;
     chemicalsById = {};
     list.forEach(chemical => { chemicalsById[chemical.id] = chemical; });
     filtersBar.hidden = !list.length;
@@ -532,12 +553,9 @@
   // ---------- Обработчики ----------
   photoInput.onchange = () => {
     clearPreview();
-    const file = photoInput.files[0];
-    if (file && imageTypeRe.test(file.type)) {
-      previewUrl = URL.createObjectURL(file);
-      preview.src = previewUrl;
-      preview.hidden = false;
-    }
+    const files = [...photoInput.files].filter(file => imageTypeRe.test(file.type));
+    previewUrls = files.map(file => URL.createObjectURL(file));
+    showPhotoPreview(previewUrls);
     const field = photoInput.closest('.field');
     if (field.classList.contains('invalid')) checkField(field);
   };
@@ -579,7 +597,7 @@
     const data = new FormData(form);
     data.set('has_docs', formEl('has_docs').checked ? 'true' : 'false');
     data.set('has_honest_sign', formEl('has_honest_sign').checked ? 'true' : 'false');
-    if (!photoInput.files.length) data.delete('photo');
+    if (!photoInput.files.length) data.delete('photos');
     if (!formEl('doc_safety').files.length) data.delete('doc_safety');
     if (!formEl('doc_registration').files.length) data.delete('doc_registration');
     const savingId = editingId;

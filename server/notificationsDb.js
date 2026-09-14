@@ -1,23 +1,8 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
-
-const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'notifications.json');
-fs.mkdirSync(DATA_DIR, { recursive: true });
+const { JsonStore } = require('./jsonStore');
+const store = new JsonStore('notifications.json');
 
 const MAX_ENTRIES = 500;
-
-function read() {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
-  } catch { return []; }
-}
-
-function write(items) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2));
-}
 
 // Сравнивает before/after по описанию полей и возвращает список изменений.
 // fields: [{ key, label, format? }]
@@ -44,15 +29,16 @@ function matchesEntity(note, entity, id) {
 
 module.exports = {
   buildChanges,
+  health: () => store.health(),
   list(filter) {
-    let items = read().sort((a, b) => b.id - a.id);
+    let items = store.read().sort((a, b) => b.id - a.id);
     if (filter && filter.entity && filter.id != null) {
       items = items.filter(note => matchesEntity(note, filter.entity, filter.id));
     }
     return items;
   },
   record(entry) {
-    const items = read();
+    const items = store.read();
     const id = items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
     const saved = {
       id,
@@ -69,11 +55,11 @@ module.exports = {
     };
     items.push(saved);
     if (items.length > MAX_ENTRIES) items.splice(0, items.length - MAX_ENTRIES);
-    write(items);
+    store.write(items);
     return saved;
   },
   clear() {
-    write([]);
+    store.write([]);
     return { ok: true };
   }
 };

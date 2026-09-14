@@ -1,2 +1,0 @@
--- Хранилище объектов переведено с better-sqlite3 на JSON-файл для запуска без native addons на Node.js 24.
--- Файл данных создаётся автоматически в server/data/objects.json.

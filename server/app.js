@@ -1,46 +1,60 @@
-// Точка входа Express-приложения
+'use strict';
+
 const express = require('express');
 const path = require('path');
 const os = require('os');
 
-const db = require('./db');
+const objectsDb = require('./db');
+const chemicalsDb = require('./chemicalsDb');
+const faqDb = require('./faqDb');
+const complaintsDb = require('./complaintsDb');
+const notificationsDb = require('./notificationsDb');
 
 const objectsRoutes = require('./routes/objects');
 const chemicalsRoutes = require('./routes/chemicals');
 const faqRoutes = require('./routes/faq');
 const notificationsRoutes = require('./routes/notifications');
 const complaintsRoutes = require('./routes/complaints');
-const analyticsRoutes = require('./routes/analytics');
-const heatmapRoutes = require('./routes/heatmap');
-const suppliersRoutes = require('./routes/suppliers');
-const alertsRoutes = require('./routes/alerts');
-const financeRoutes = require('./routes/finance');
-const exportRoutes = require('./routes/export');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-// 0.0.0.0 — слушать на всех интерфейсах, чтобы можно было подключаться по IP из локальной сети.
-// Переопределяется переменной окружения HOST (например HOST=127.0.0.1 — только локально).
-const HOST = process.env.HOST || '0.0.0.0';
+const stores = [objectsDb, chemicalsDb, faqDb, complaintsDb, notificationsDb];
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public')));
+function createApp() {
+  const app = express();
+  app.disable('x-powered-by');
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.use('/api/objects', objectsRoutes);
-app.use('/api/chemicals', chemicalsRoutes);
-app.use('/api/faq', faqRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/complaints', complaintsRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/heatmap', heatmapRoutes);
-app.use('/api/suppliers', suppliersRoutes);
-app.use('/api/alerts', alertsRoutes);
-app.use('/api/finance', financeRoutes);
-app.use('/api/export', exportRoutes);
+  app.use('/api/objects', objectsRoutes);
+  app.use('/api/chemicals', chemicalsRoutes);
+  app.use('/api/faq', faqRoutes);
+  app.use('/api/notifications', notificationsRoutes);
+  app.use('/api/complaints', complaintsRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
-});
+  app.get('/api/health', (req, res) => {
+    const storage = stores.map(module => module.health());
+    const ok = storage.every(item => item.ok);
+    res.status(ok ? 200 : 503).json({ status: ok ? 'ok' : 'error', time: new Date().toISOString(), storage });
+  });
+
+  app.use('/api', (req, res) => res.status(404).json({ error: 'API-метод не найден' }));
+
+  app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error);
+    const status = error.code === 'LIMIT_FILE_SIZE'
+      ? 413
+      : (error.code === 'LIMIT_UNEXPECTED_FILE' ? 400 : (error.code === 'DATA_MIGRATION_REQUIRED' ? 503 : 500));
+    console.error(error);
+    return res.status(status).json({
+      error: status === 413
+        ? 'Файл превышает допустимый размер'
+        : (error.code === 'LIMIT_UNEXPECTED_FILE'
+          ? 'Можно загрузить не более 10 фотографий'
+          : (status === 503 ? error.message : 'Внутренняя ошибка сервера'))
+    });
+  });
+
+  return app;
+}
 
 function lanAddresses() {
   return Object.values(os.networkInterfaces())
@@ -49,13 +63,21 @@ function lanAddresses() {
     .map(iface => iface.address);
 }
 
-app.listen(PORT, HOST, () => {
-  console.log(`PortalDash запущен на ${HOST}:${PORT}`);
-  console.log(`  локально:      http://localhost:${PORT}`);
-  for (const address of lanAddresses()) {
-    console.log(`  в этой сети:   http://${address}:${PORT}`);
-  }
-  if (HOST === '0.0.0.0') {
-    console.log('Если с другого устройства не открывается — разрешите порт во входящих правилах брандмауэра Windows.');
-  }
-});
+function start(options = {}) {
+  const port = options.port || process.env.PORT || 3000;
+  const host = options.host || process.env.HOST || '0.0.0.0';
+  const server = createApp().listen(port, host, () => {
+    const actualPort = server.address().port;
+    console.log(`PortalDash запущен на ${host}:${actualPort}`);
+    console.log(`  локально:      http://localhost:${actualPort}`);
+    if (host === '0.0.0.0') {
+      for (const address of lanAddresses()) console.log(`  в этой сети:   http://${address}:${actualPort}`);
+      console.log('Если с другого устройства не открывается — разрешите порт во входящих правилах брандмауэра Windows.');
+    }
+  });
+  return server;
+}
+
+if (require.main === module) start();
+
+module.exports = { createApp, start };

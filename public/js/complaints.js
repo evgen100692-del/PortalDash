@@ -94,7 +94,7 @@
     try { object = await getObject(id); } catch { location.hash = ''; return; }
     if (!object) { location.hash = ''; return; }
     currentObject = object;
-    title.textContent = object.address ? `Жалобы — ${object.address}` : 'Жалобы';
+    title.textContent = object.name || object.address ? `Жалобы — ${object.name || object.address}` : 'Жалобы';
     render([]);
     showPage();
     refresh();

@@ -1,11 +1,5 @@
 // Роутинг между разделами дашборда.
-// «Карточка объекта» и «Химия» реализованы, остальные пункты — заглушки.
-const PAGE_TITLES = {
-  analytics: 'Сводная аналитика',
-  heatmap: 'Рейтинг расхода химии',
-  finance: 'Финансы',
-  exportPanel: 'Экспорт'
-};
+// Реализованные разделы приложения.
 
 // pageKey -> id секции с реализованным содержимым.
 const REAL_PAGES = {
@@ -37,11 +31,6 @@ function navigate(pageKey) {
     document.getElementById(id).hidden = id !== targetId;
   });
 
-  const placeholder = document.getElementById('page-placeholder');
-  placeholder.hidden = !!targetId;
-  if (!targetId) {
-    placeholder.querySelector('.placeholder-title').textContent = PAGE_TITLES[pageKey] || 'Раздел';
-  }
 }
 
 document.querySelectorAll('#sidebar nav a').forEach(a => {

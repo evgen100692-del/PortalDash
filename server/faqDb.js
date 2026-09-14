@@ -1,29 +1,6 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
-
-const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'faq.json');
-fs.mkdirSync(DATA_DIR, { recursive: true });
-
-function read() {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
-  } catch { return []; }
-}
-
-function write(items) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2));
-}
-
-// Убираем устаревший неудаляемый пункт «Стандарты химии», если он есть в файле.
-function load() {
-  const items = read();
-  const cleaned = items.filter(item => item && item.kind !== 'standards');
-  if (cleaned.length !== items.length) write(cleaned);
-  return cleaned;
-}
+const { JsonStore } = require('./jsonStore');
+const store = new JsonStore('faq.json');
 
 function normalizeFiles(arr) {
   if (!Array.isArray(arr)) return [];
@@ -37,10 +14,11 @@ function normalizeFiles(arr) {
 }
 
 module.exports = {
-  list() { return load().sort((a, b) => a.id - b.id); },
-  get(id) { return load().find(item => Number(item.id) === Number(id)) || null; },
+  health: () => store.health(),
+  list() { return store.read().sort((a, b) => a.id - b.id); },
+  get(id) { return store.read().find(item => Number(item.id) === Number(id)) || null; },
   add(payload) {
-    const items = load();
+    const items = store.read();
     const id = items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
     const src = (payload && payload.data) || {};
     const saved = {
@@ -50,11 +28,11 @@ module.exports = {
       data: { answer: String(src.answer || ''), files: normalizeFiles(src.files) }
     };
     items.push(saved);
-    write(items);
+    store.write(items);
     return saved;
   },
   update(id, patch) {
-    const items = load();
+    const items = store.read();
     const index = items.findIndex(item => Number(item.id) === Number(id));
     if (index === -1) return null;
     const current = items[index];
@@ -64,15 +42,15 @@ module.exports = {
       data = { answer: String(patch.data.answer || ''), files: normalizeFiles(patch.data.files) };
     }
     items[index] = { ...current, title, data };
-    write(items);
+    store.write(items);
     return items[index];
   },
   remove(id) {
-    const items = load();
+    const items = store.read();
     const index = items.findIndex(item => Number(item.id) === Number(id));
     if (index === -1) return null;
     const [removed] = items.splice(index, 1);
-    write(items);
+    store.write(items);
     return removed;
   }
 };

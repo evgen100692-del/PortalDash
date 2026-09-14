@@ -20,18 +20,14 @@
         <a data-page="objectCard" class="active">Объекты</a>
         <a data-page="chemicals">Химия</a>
         <a data-page="faq">Часто задаваемые вопросы</a>
-        <a data-page="analytics">Сводная аналитика</a>
-        <a data-page="heatmap">Рейтинг расхода химии</a>
         <a data-page="alerts">Уведомления</a>
-        <a data-page="finance">Финансы</a>
-        <a data-page="exportPanel">Экспорт</a>
       </nav>
     </aside>
 
     <main id="content">
       <section id="page-objectCard" class="page">
         <div class="section-heading">
-          <h2 class="page-title">Объекты</h2>
+          <div class="page-heading-copy"><h2 class="page-title">Объекты</h2><p id="objects-count" class="page-count">Всего объектов: 0</p></div>
           <button id="add-object-button" class="button button-primary" type="button">+ Добавить объект</button>
         </div>
         <div id="object-filters" class="card-filters" hidden>
@@ -49,7 +45,7 @@
 
       <section id="page-chemicals" class="page" hidden>
         <div class="section-heading">
-          <h2 class="page-title">Химия</h2>
+          <div class="page-heading-copy"><h2 class="page-title">Химия</h2><p id="chemicals-count" class="page-count">Всего химии: 0</p></div>
           <button id="add-chemical-button" class="button button-primary" type="button">+ Добавить химию</button>
         </div>
         <div id="chemical-filters" class="card-filters" hidden>
@@ -63,11 +59,6 @@
         </div>
         <div id="chemical-cards" class="object-cards" aria-live="polite"></div>
         <p id="chemicals-empty" class="empty-state">Химия пока не добавлена.</p>
-      </section>
-
-      <section id="page-placeholder" class="page" hidden>
-        <h2 class="page-title placeholder-title">Раздел</h2>
-        <div class="panel">Раздел в разработке</div>
       </section>
 
       <section id="page-objectDetail" class="page" hidden>
@@ -119,8 +110,8 @@
             <button id="chemical-detail-back" class="button button-secondary" type="button">← Назад</button>
           </div>
         </div>
-        <div class="object-detail">
-          <img id="chemical-detail-photo" class="object-detail__photo" alt="Фото химии">
+        <div class="object-detail chemical-detail">
+          <div id="chemical-detail-photos" class="chemical-photo-gallery" aria-label="Фотографии химии"></div>
           <dl id="chemical-detail-fields" class="object-detail__fields"></dl>
         </div>
       </section>
@@ -192,17 +183,18 @@
 
   <div id="object-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title"><div class="modal-header"><h2 id="object-modal-title">Добавить объект</h2><button id="modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="object-form" novalidate><div class="form-grid">
     <label class="field field-full"><span class="field-title">Фотография объекта</span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Файл должен быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фотографию.</small></label>
-    <label class="field field-full"><span class="field-title">Адрес объекта</span><input name="address" type="text" autocomplete="street-address"></label>
+    <label class="field field-full"><span class="field-title">Наименование объекта</span><input name="name" type="text" autocomplete="organization" required></label>
+    <label class="field field-full"><span class="field-title">Адрес объекта</span><input name="address" type="text" autocomplete="street-address" required></label>
     <label class="field"><span class="field-title">Количество боксов/роботов</span><input name="boxes" type="number" min="0" step="1"></label>
     <label class="field"><span class="field-title">Управляющий</span><input name="manager" type="text"></label>
     <label class="field"><span class="field-title">Номер телефона управляющего</span><input name="manager_phone" type="tel" autocomplete="tel"></label>
     <div class="field field-full"><span class="field-title">Роботы</span><div id="robots-fields" class="repeatable-fields"></div><button class="add-field" data-target="robots-fields" data-name="robots" type="button">+ Добавить модель</button></div>
-    <div class="field field-full"><span class="field-title">Химия</span><div id="chemistry-fields" class="repeatable-fields"></div><button class="add-field" data-target="chemistry-fields" data-name="chemistry" type="button">+ Добавить вид химии</button></div>
+    <div class="field field-full"><span class="field-title">Химия</span><div id="chemistry-fields" class="repeatable-fields"></div><button class="add-field" data-target="chemistry-fields" data-name="chemical_ids" type="button">+ Добавить вид химии</button></div>
     <label class="field"><span class="field-title">Водоотведение</span><select name="drainage"><option value="">Не выбрано</option><option>Нет</option><option>Есть</option><option>УКО</option></select></label>
   </div><div class="modal-actions"><button id="cancel-object" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="chemical-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="chemical-modal-title"><div class="modal-header"><h2 id="chemical-modal-title">Добавить химию</h2><button id="chemical-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="chemical-form" novalidate><div class="form-grid">
-    <label class="field field-full"><span class="field-title">Фото</span><input id="chemical-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><img id="chemical-photo-preview" class="photo-preview" alt="Предпросмотр фото" hidden><small class="field-error">Файл должен быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фото.</small></label>
-    <label class="field field-full"><span class="field-title">Наименование</span><input name="name" type="text"></label>
+    <label class="field field-full"><span class="field-title">Фотографии (до 10 файлов)</span><input id="chemical-photo" name="photos" type="file" multiple accept=".png,.jpg,.jpeg,image/png,image/jpeg"><span id="chemical-photo-preview" class="photo-preview-list" hidden></span><small class="field-error">Все файлы должны быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint" hidden>Новые фотографии заменят текущий набор. Оставьте поле пустым, чтобы ничего не менять.</small></label>
+    <label class="field field-full"><span class="field-title">Наименование</span><input name="name" type="text" required></label>
     <label class="field"><span class="field-title">Цена</span><input name="price" type="number" min="0" step="0.01"></label>
     <label class="field"><span class="field-title">Объём</span><input name="volume" type="number" min="0" step="any"></label>
     <label class="field"><span class="field-title">Поставщик</span><input name="supplier" type="text"></label>

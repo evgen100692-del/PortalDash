@@ -4,395 +4,589 @@
     "created_at": "2026-09-09T07:26:27.080Z",
     "address": "Москва, Загородное шоссе, 2Б",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/2dab459ab0d5184830b9ab05794b5c9e"
+    "photo_url": "/uploads/objects/2dab459ab0d5184830b9ab05794b5c9e",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Загородное шоссе, 2Б"
   },
   {
     "id": 2,
     "created_at": "2026-09-09T07:28:10.002Z",
     "address": "Москва, Привольная улица, вл64с2",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/2631eb4179ff731c4bf0124168f19302"
+    "photo_url": "/uploads/objects/2631eb4179ff731c4bf0124168f19302",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Привольная улица, вл64с2"
   },
   {
     "id": 3,
     "created_at": "2026-09-09T07:29:20.141Z",
     "address": "Москва, Люблинская улица, 135/1с2",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/b67dcd2b7cd77dc6b3d390f67f8e4814"
+    "photo_url": "/uploads/objects/b67dcd2b7cd77dc6b3d390f67f8e4814",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Люблинская улица, 135/1с2"
   },
   {
     "id": 4,
     "created_at": "2026-09-09T07:30:46.222Z",
     "address": "Москва, Каширское шоссе, 24с20",
     "boxes": 3,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/420e486d7d279b20160c512549a12fd1"
+    "photo_url": "/uploads/objects/420e486d7d279b20160c512549a12fd1",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Каширское шоссе, 24с20"
   },
   {
     "id": 5,
     "created_at": "2026-09-09T07:31:34.271Z",
     "address": "Москва, Коломенский проезд, 1В",
     "boxes": 4,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/4c9c389210944bf7323bb825f7e291c6"
+    "photo_url": "/uploads/objects/4c9c389210944bf7323bb825f7e291c6",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Коломенский проезд, 1В"
   },
   {
     "id": 6,
     "created_at": "2026-09-09T07:32:25.480Z",
     "address": "Москва, ул. Каспийская, 20А",
     "boxes": 3,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Данилов А.",
     "manager_phone": "+79252010543",
     "drainage": "",
-    "photo_url": "/uploads/objects/a99ca6fc4156e6e385482bdaeb643167"
+    "photo_url": "/uploads/objects/a99ca6fc4156e6e385482bdaeb643167",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, ул. Каспийская, 20А"
   },
   {
     "id": 7,
     "created_at": "2026-09-09T07:45:21.380Z",
     "address": "Москва, улица Паперника, 22с3",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Голубая пена\",\"Розовая пена\",\"Желтая пена\",\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Юрлов Д.",
     "manager_phone": "89175920890",
     "drainage": "",
-    "photo_url": "/uploads/objects/f0f2062ed67dd06b4e6c206aaed6a647"
+    "photo_url": "/uploads/objects/f0f2062ed67dd06b4e6c206aaed6a647",
+    "chemical_ids": [
+      15,
+      13,
+      14,
+      16
+    ],
+    "name": "Москва, улица Паперника, 22с3"
   },
   {
     "id": 8,
     "created_at": "2026-09-09T07:46:22.807Z",
     "address": "Москва, ул. 1-я Рыбинская улица, 3А",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Голубая пена\",\"Желтая пена\",\"Розовая пена\",\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Юрлов Д.",
     "manager_phone": "+79175920890",
     "drainage": "",
-    "photo_url": "/uploads/objects/4e51efda0a38b01bc61a4d1110d6082e"
+    "photo_url": "/uploads/objects/4e51efda0a38b01bc61a4d1110d6082e",
+    "chemical_ids": [
+      15,
+      14,
+      13,
+      16
+    ],
+    "name": "Москва, ул. 1-я Рыбинская улица, 3А"
   },
   {
     "id": 9,
     "created_at": "2026-09-09T07:47:07.966Z",
     "address": "Москва, ул. Куликовская, вл4",
     "boxes": 3,
-    "robots": "[]",
-    "chemistry": "[\"Голубая пена\",\"Желтая пена\",\"Розовая пена\",\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Юрлов Д.",
     "manager_phone": "+79175920890",
     "drainage": "",
-    "photo_url": "/uploads/objects/1a66eb64c841c0120df10f46c208c439"
+    "photo_url": "/uploads/objects/1a66eb64c841c0120df10f46c208c439",
+    "chemical_ids": [
+      15,
+      14,
+      13,
+      16
+    ],
+    "name": "Москва, ул. Куликовская, вл4"
   },
   {
     "id": 10,
     "created_at": "2026-09-09T07:48:07.122Z",
     "address": "Москва, проспект Мира, вл94с1Б",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Голубая пена\",\"Желтая пена\",\"Розовая пена\",\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Юрлов Д.",
     "manager_phone": "+79175920890",
     "drainage": "",
-    "photo_url": "/uploads/objects/13522f4de37901d947b20f92a198c659"
+    "photo_url": "/uploads/objects/13522f4de37901d947b20f92a198c659",
+    "chemical_ids": [
+      15,
+      14,
+      13,
+      16
+    ],
+    "name": "Москва, проспект Мира, вл94с1Б"
   },
   {
     "id": 11,
     "created_at": "2026-09-09T07:49:21.983Z",
     "address": "Санкт-Петербург, проспект Маршала Жукова, 10.",
     "boxes": 2,
-    "robots": "[]",
-    "chemistry": "[\"Голубая пена\",\"Желтая пена\",\"Розовая пена\",\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Юрлов Д.",
     "manager_phone": "+79175920890",
     "drainage": "",
-    "photo_url": "/uploads/objects/e5b3bc13cdf2d981630647064c3c6a67"
+    "photo_url": "/uploads/objects/e5b3bc13cdf2d981630647064c3c6a67",
+    "chemical_ids": [
+      15,
+      14,
+      13,
+      16
+    ],
+    "name": "Санкт-Петербург, проспект Маршала Жукова, 10."
   },
   {
     "id": 12,
     "created_at": "2026-09-09T08:42:57.423Z",
     "address": "Москва, улица Лобачевского, 37",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/6cc760b8b38e852fa9c2c71baca699df"
+    "photo_url": "/uploads/objects/6cc760b8b38e852fa9c2c71baca699df",
+    "chemical_ids": [
+      4,
+      14,
+      13,
+      15
+    ],
+    "name": "Москва, улица Лобачевского, 37"
   },
   {
     "id": 13,
     "created_at": "2026-09-09T08:44:26.771Z",
     "address": "Москва, ул. Лобачевского, 19",
     "boxes": 2,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Розовая пена\",\"Желтая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/13312fe3644a3466a78468c1cf04ddcf"
+    "photo_url": "/uploads/objects/13312fe3644a3466a78468c1cf04ddcf",
+    "chemical_ids": [
+      4,
+      13,
+      14,
+      15
+    ],
+    "name": "Москва, ул. Лобачевского, 19"
   },
   {
     "id": 14,
     "created_at": "2026-09-09T08:46:42.801Z",
     "address": "Москва, Минская улица, 1М",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/a846e42bddc2c1ef55dfcd71c0b556bd"
+    "photo_url": "/uploads/objects/a846e42bddc2c1ef55dfcd71c0b556bd",
+    "chemical_ids": [
+      4
+    ],
+    "name": "Москва, Минская улица, 1М"
   },
   {
     "id": 15,
     "created_at": "2026-09-09T08:50:23.379Z",
     "address": "Москва, Мичуринский проспект, 76А",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/0f14b2fbcf1a9612578c1851b30410f1"
+    "photo_url": "/uploads/objects/0f14b2fbcf1a9612578c1851b30410f1",
+    "chemical_ids": [
+      4
+    ],
+    "name": "Москва, Мичуринский проспект, 76А"
   },
   {
     "id": 16,
     "created_at": "2026-09-09T08:55:00.852Z",
     "address": "Москва, Рублёвское ш., 4, стр. 1",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Розовая пена\",\"Желтая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/005d942db4edd95d3c63f8e9e2fdb46a"
+    "photo_url": "/uploads/objects/005d942db4edd95d3c63f8e9e2fdb46a",
+    "chemical_ids": [
+      4,
+      13,
+      14,
+      15
+    ],
+    "name": "Москва, Рублёвское ш., 4, стр. 1"
   },
   {
     "id": 17,
     "created_at": "2026-09-09T08:56:40.809Z",
     "address": "Москва, улица Лобачевского, 92Ас1",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Розовая пена\",\"Желтая пена\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/ac5505eef4b00fd193720383625b32af"
+    "photo_url": "/uploads/objects/ac5505eef4b00fd193720383625b32af",
+    "chemical_ids": [
+      4,
+      15,
+      13,
+      14
+    ],
+    "name": "Москва, улица Лобачевского, 92Ас1"
   },
   {
     "id": 18,
     "created_at": "2026-09-09T09:25:03.686Z",
     "address": "Москва, Рублёвское шоссе, 91Ас1",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Сенатов К.",
     "manager_phone": "+79581831542",
     "drainage": "",
-    "photo_url": "/uploads/objects/504cbfa0592ba675fed58de7c2c8d7e5"
+    "photo_url": "/uploads/objects/504cbfa0592ba675fed58de7c2c8d7e5",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Рублёвское шоссе, 91Ас1"
   },
   {
     "id": 19,
     "created_at": "2026-09-09T09:50:26.097Z",
     "address": "Москва, Шереметьевская улица, 22с2",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/ce1a72650f175cdec0ed3c2bd8c48e90"
+    "photo_url": "/uploads/objects/ce1a72650f175cdec0ed3c2bd8c48e90",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Шереметьевская улица, 22с2"
   },
   {
     "id": 20,
     "created_at": "2026-09-09T09:51:31.209Z",
     "address": "Москва, Дмитровское шоссе д.107е",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/8edb2e8d7dc199608995cd182eb79dba"
+    "photo_url": "/uploads/objects/8edb2e8d7dc199608995cd182eb79dba",
+    "chemical_ids": [
+      16,
+      14,
+      13,
+      15
+    ],
+    "name": "Москва, Дмитровское шоссе д.107е"
   },
   {
     "id": 21,
     "created_at": "2026-09-09T09:53:13.575Z",
     "address": "Москва, Правобережная улица, 2Бс1",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\",\"Желтая пена\",\"Голубая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/cc3f2e333a6b08653b4272d9b02078cf"
+    "photo_url": "/uploads/objects/cc3f2e333a6b08653b4272d9b02078cf",
+    "chemical_ids": [
+      16,
+      14,
+      15,
+      13
+    ],
+    "name": "Москва, Правобережная улица, 2Бс1"
   },
   {
     "id": 22,
     "created_at": "2026-09-09T09:54:10.279Z",
     "address": "Москва, Пятницкое шоссе, вл 27",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/76ded1827110f9097573d063273b4de7"
+    "photo_url": "/uploads/objects/76ded1827110f9097573d063273b4de7",
+    "chemical_ids": [
+      16,
+      14,
+      13,
+      15
+    ],
+    "name": "Москва, Пятницкое шоссе, вл 27"
   },
   {
     "id": 23,
     "created_at": "2026-09-09T09:54:58.376Z",
     "address": "Москва, Пятницкое шоссе, вл. 20",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\",\"Розовая пена\",\"Желтая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/e7471c4596365366ab0fff20c33ef279"
+    "photo_url": "/uploads/objects/e7471c4596365366ab0fff20c33ef279",
+    "chemical_ids": [
+      16,
+      13,
+      14,
+      15
+    ],
+    "name": "Москва, Пятницкое шоссе, вл. 20"
   },
   {
     "id": 24,
     "created_at": "2026-09-09T09:55:43.726Z",
     "address": "г. Химки, Ленинградское шоссе 24Б",
     "boxes": 2,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\"]",
+    "robots": [],
     "manager": "Козубенко Д.",
     "manager_phone": "+79678567907",
     "drainage": "",
-    "photo_url": "/uploads/objects/a65e32c3cf51876f9140d0ae8dbf06c3"
+    "photo_url": "/uploads/objects/a65e32c3cf51876f9140d0ae8dbf06c3",
+    "chemical_ids": [
+      16
+    ],
+    "name": "г. Химки, Ленинградское шоссе 24Б"
   },
   {
     "id": 25,
     "created_at": "2026-09-09T10:01:12.009Z",
     "address": "Дзержинский, Угрешская улица, 5В",
     "boxes": 2,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Розовая пена\",\"Желтая пена\"]",
+    "robots": [],
     "manager": "Мозговой Ф.",
     "manager_phone": "+79104742847",
     "drainage": "",
-    "photo_url": "/uploads/objects/42c2c24e65444d50a1ba72ca503c6f7f"
+    "photo_url": "/uploads/objects/42c2c24e65444d50a1ba72ca503c6f7f",
+    "chemical_ids": [
+      4,
+      15,
+      13,
+      14
+    ],
+    "name": "Дзержинский, Угрешская улица, 5В"
   },
   {
     "id": 26,
     "created_at": "2026-09-09T10:02:21.264Z",
     "address": "Москва, микрорайон Северное Чертаново, 1А",
     "boxes": 4,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\"]",
+    "robots": [],
     "manager": "Мозговой Ф.",
     "manager_phone": "+79104742847",
     "drainage": "",
-    "photo_url": "/uploads/objects/5ea71ad08953f1baef68aa6e70158535"
+    "photo_url": "/uploads/objects/5ea71ad08953f1baef68aa6e70158535",
+    "chemical_ids": [
+      4,
+      14,
+      13,
+      15
+    ],
+    "name": "Москва, микрорайон Северное Чертаново, 1А"
   },
   {
     "id": 27,
     "created_at": "2026-09-09T10:03:14.585Z",
     "address": "Москва, Новоясеневский проспект, 12А, стр. 2",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Мозговой Ф.",
     "manager_phone": "+79104742847",
     "drainage": "",
-    "photo_url": "/uploads/objects/fd0bc0dbe87f9f18462af04e7b3beb00"
+    "photo_url": "/uploads/objects/fd0bc0dbe87f9f18462af04e7b3beb00",
+    "chemical_ids": [
+      4,
+      15,
+      14,
+      13
+    ],
+    "name": "Москва, Новоясеневский проспект, 12А, стр. 2"
   },
   {
     "id": 28,
     "created_at": "2026-09-09T10:04:11.866Z",
     "address": "Москва, проспект Вернадского 86Д",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\",\"Гидрофоб\"]",
+    "robots": [],
     "manager": "Мозговой Ф.",
     "manager_phone": "+79104742847",
     "drainage": "",
-    "photo_url": "/uploads/objects/3959fc8457693fce9042b42c947fad9a"
+    "photo_url": "/uploads/objects/3959fc8457693fce9042b42c947fad9a",
+    "chemical_ids": [
+      4,
+      14,
+      13,
+      15,
+      6
+    ],
+    "name": "Москва, проспект Вернадского 86Д"
   },
   {
     "id": 29,
     "created_at": "2026-09-09T10:06:16.575Z",
     "address": "Москва, ул. Профсоюзная д.67а, стр.2",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Голубая пена\",\"Гидрофоб\",\"Желтая пена\",\"Розовая пена\"]",
+    "robots": [],
     "manager": "Мозговой Ф.",
     "manager_phone": "+79104742847",
     "drainage": "",
-    "photo_url": "/uploads/objects/d6268633f008f3111fa38376277aa2b2"
+    "photo_url": "/uploads/objects/d6268633f008f3111fa38376277aa2b2",
+    "chemical_ids": [
+      4,
+      15,
+      6,
+      14,
+      13
+    ],
+    "name": "Москва, ул. Профсоюзная д.67а, стр.2"
   },
   {
     "id": 30,
     "created_at": "2026-09-09T13:33:57.964Z",
     "address": "Москва, Новорижское шоссе, 22-й километр, вл1с1",
     "boxes": 4,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Розовая пена\",\"Голубая пена\",\"Гидрофоб\"]",
+    "robots": [],
     "manager": "Дмитрий Семенкович",
     "manager_phone": "79100007978",
     "drainage": "",
-    "photo_url": "/uploads/objects/8216a7f34dcc8fdaeb1b69d4472de3dd"
+    "photo_url": "/uploads/objects/8216a7f34dcc8fdaeb1b69d4472de3dd",
+    "chemical_ids": [
+      4,
+      13,
+      15,
+      6
+    ],
+    "name": "Москва, Новорижское шоссе, 22-й километр, вл1с1"
   },
   {
     "id": 31,
     "created_at": "2026-09-09T13:36:43.812Z",
     "address": "Москва, ул.Мичуринский Проспект, Олимпийская Деревня, 4к32",
     "boxes": 4,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Желтая пена\",\"Розовая пена\",\"Голубая пена\",\"Гидроблок\"]",
+    "robots": [],
     "manager": "Роман Давидян",
     "manager_phone": "79260733227",
     "drainage": "",
-    "photo_url": "/uploads/objects/abfd66d3b00ac8286db62732fb39ec2d"
+    "photo_url": "/uploads/objects/abfd66d3b00ac8286db62732fb39ec2d",
+    "chemical_ids": [
+      4,
+      14,
+      13,
+      15,
+      17
+    ],
+    "name": "Москва, ул.Мичуринский Проспект, Олимпийская Деревня, 4к32"
   },
   {
     "id": 32,
     "created_at": "2026-09-10T07:28:28.371Z",
     "address": "Новосибирск, ул. Широкая, д. 38, к. 4",
     "boxes": 1,
-    "robots": "[]",
-    "chemistry": "[\"Джей Ди 1%\",\"Гидрофоб\",\"Голубая пена\",\"Розовая пена\",\"Желтая пена\"]",
+    "robots": [],
     "manager": "Тимофей Хамов",
     "manager_phone": "+7 913 904 11 37",
     "drainage": "",
-    "photo_url": "/uploads/objects/1a9c4a725d64d5e712096af5e4438263"
+    "photo_url": "/uploads/objects/1a9c4a725d64d5e712096af5e4438263",
+    "chemical_ids": [
+      16,
+      6,
+      15,
+      13,
+      14
+    ],
+    "name": "Новосибирск, ул. Широкая, д. 38, к. 4"
   },
   {
     "id": 33,
     "created_at": "2026-09-10T07:33:19.153Z",
     "address": "Ростов-на-Дону, ул.Таганрогская 134Б",
     "boxes": 3,
-    "robots": "[]",
-    "chemistry": "[\"365\",\"Гидрофоб\",\"Голубая пена\",\"Розовая пена\",\"Желтая пена\"]",
+    "robots": [],
     "manager": "Рустам",
     "manager_phone": "+7 918 555 7679",
     "drainage": "",
-    "photo_url": "/uploads/objects/c3ee82f4fe747a3bba75fbf8097ce8e7"
+    "photo_url": "/uploads/objects/c3ee82f4fe747a3bba75fbf8097ce8e7",
+    "chemical_ids": [
+      4,
+      6,
+      15,
+      13,
+      14
+    ],
+    "name": "Портал в Ростове-на-Дону"
   }
 ]

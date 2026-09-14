@@ -1,1 +1,0 @@
-const express=require('express');const path=require('path');const app=require('./app');const objectsRouter=require('./routes/objects');app.use('/uploads',express.static(path.join(__dirname,'../public/uploads')));app.use('/api/objects',objectsRouter);const PORT=process.env.PORT||3000;app.listen(PORT,()=>console.log(`PortalDash server listening on ${PORT}`));
