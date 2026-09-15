@@ -7,4 +7,5 @@ npm-debug.log*
 dist/
 
 # Runtime data / uploads (created by the app at runtime)
-/server/data/*.bak
+/server/data/
+/public/uploads/
