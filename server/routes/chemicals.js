@@ -67,7 +67,8 @@ const upload = multer({
 const chemUpload = upload.fields([
   { name: 'photos', maxCount: 10 },
   { name: 'doc_safety', maxCount: 1 },
-  { name: 'doc_registration', maxCount: 1 }
+  { name: 'doc_registration', maxCount: 1 },
+  { name: 'doc_other', maxCount: 10 }
 ]);
 const pickFile = (req, name) => (req.files && req.files[name] && req.files[name][0]) || null;
 const pickFiles = (req, name) => (req.files && req.files[name]) || [];
@@ -167,6 +168,77 @@ router.get('/:id', (req, res) => {
 });
 
 const CHEM_URL = f => '/uploads/chemicals/' + f.filename;
+const originalName = file => Buffer.from(file.originalname || file.filename, 'latin1').toString('utf8');
+
+function resolveOtherDocuments(raw, files, existing = []) {
+  let keep = existing;
+  if (raw != null && raw !== '') {
+    try { keep = JSON.parse(raw); } catch { return { error: 'Некорректный список прочей документации' }; }
+    if (!Array.isArray(keep)) return { error: 'Некорректный список прочей документации' };
+    const existingByUrl = new Map(existing.map(file => [file.url, file]));
+    if (keep.some(url => !existingByUrl.has(String(url)))) return { error: 'В списке прочей документации указан неизвестный файл' };
+    keep = [...new Set(keep.map(String))].map(url => existingByUrl.get(url));
+  }
+  const added = files.map(file => ({ url: CHEM_URL(file), name: originalName(file) }));
+  const documents = [...keep, ...added];
+  if (documents.length > 10) return { error: 'Можно загрузить не более 10 файлов прочей документации' };
+  return { documents };
+}
+
+function resolveOtherDocumentOrder(raw, files, existing = [], legacyKeep) {
+  if (raw == null || raw === '') return resolveOtherDocuments(legacyKeep, files, existing);
+  let order;
+  try { order = JSON.parse(raw); } catch { return { error: 'Некорректный порядок прочей документации' }; }
+  if (!Array.isArray(order)) return { error: 'Некорректный порядок прочей документации' };
+  const existingByUrl = new Map(existing.map(file => [file.url, file]));
+  const used = new Set();
+  const documents = [];
+  for (const token of order) {
+    const value = String(token || '');
+    let document;
+    if (value.startsWith('new:')) {
+      const index = Number(value.slice(4));
+      if (!Number.isInteger(index) || !files[index]) return { error: 'Некорректный порядок новых документов' };
+      document = { url: CHEM_URL(files[index]), name: originalName(files[index]) };
+    } else {
+      document = existingByUrl.get(value);
+      if (!document) return { error: 'В порядке прочей документации указан неизвестный файл' };
+    }
+    if (used.has(document.url)) return { error: 'Документ повторяется в порядке отображения' };
+    used.add(document.url);
+    documents.push(document);
+  }
+  if (files.some(file => !used.has(CHEM_URL(file)))) return { error: 'Не все новые документы добавлены в порядок' };
+  if (documents.length > 10) return { error: 'Можно загрузить не более 10 файлов прочей документации' };
+  return { documents };
+}
+
+function resolvePhotoOrder(raw, photos, existingUrls = []) {
+  if (raw == null || raw === '') return null;
+  let order;
+  try { order = JSON.parse(raw); } catch { return { error: 'Некорректный порядок фотографий' }; }
+  if (!Array.isArray(order)) return { error: 'Некорректный порядок фотографий' };
+  const existing = new Set(existingUrls);
+  const used = new Set();
+  const urls = [];
+  for (const token of order) {
+    const value = String(token || '');
+    let url = value;
+    if (value.startsWith('new:')) {
+      const index = Number(value.slice(4));
+      if (!Number.isInteger(index) || !photos[index]) return { error: 'Некорректный порядок новых фотографий' };
+      url = CHEM_URL(photos[index]);
+    } else if (!existing.has(value)) {
+      return { error: 'В порядке фотографий указан неизвестный файл' };
+    }
+    if (used.has(url)) return { error: 'Фотография повторяется в порядке отображения' };
+    used.add(url);
+    urls.push(url);
+  }
+  if (photos.some(file => !used.has(CHEM_URL(file)))) return { error: 'Не все новые фотографии добавлены в порядок' };
+  if (urls.length > 10) return { error: 'Можно загрузить не более 10 фотографий' };
+  return { urls };
+}
 
 router.post('/', chemUpload, (req, res) => {
   const parsed = parseChemicalBody(req.body);
@@ -182,9 +254,21 @@ router.post('/', chemUpload, (req, res) => {
     cleanupFiles(req);
     return res.status(409).json({ error: 'Химия с таким наименованием уже существует' });
   }
-  const data = { ...parsed.data, doc_safety_url: '', doc_registration_url: '' };
+  const data = { ...parsed.data, doc_safety_url: '', doc_registration_url: '', other_documents: [] };
   const photos = pickFiles(req, 'photos');
-  data.photo_urls = photos.map(CHEM_URL);
+  const orderedPhotos = resolvePhotoOrder(req.body.photo_order, photos);
+  if (orderedPhotos && orderedPhotos.error) {
+    cleanupFiles(req);
+    return res.status(400).json({ error: orderedPhotos.error });
+  }
+  data.photo_urls = orderedPhotos ? orderedPhotos.urls : photos.map(CHEM_URL);
+  const otherFiles = pickFiles(req, 'doc_other');
+  const otherDocuments = resolveOtherDocumentOrder(req.body.doc_other_order, otherFiles, [], req.body.doc_other_keep);
+  if (otherDocuments.error) {
+    cleanupFiles(req);
+    return res.status(400).json({ error: otherDocuments.error });
+  }
+  data.other_documents = otherDocuments.documents;
   if (data.has_docs) {
     const safety = pickFile(req, 'doc_safety');
     const reg = pickFile(req, 'doc_registration');
@@ -224,12 +308,24 @@ router.put('/:id', chemUpload, (req, res) => {
 
   const patch = { ...parsed.data };
   const photos = pickFiles(req, 'photos');
-  if (photos.length) patch.photo_urls = photos.map(CHEM_URL);
+  const orderedPhotos = resolvePhotoOrder(req.body.photo_order, photos, existing.photo_urls || []);
+  if (orderedPhotos && orderedPhotos.error) {
+    cleanupFiles(req);
+    return res.status(400).json({ error: orderedPhotos.error });
+  }
+  if (orderedPhotos) patch.photo_urls = orderedPhotos.urls;
+  else if (photos.length) patch.photo_urls = photos.map(CHEM_URL);
 
   const safety = pickFile(req, 'doc_safety');
   const reg = pickFile(req, 'doc_registration');
+  const otherFiles = pickFiles(req, 'doc_other');
   const removeSafety = truthy(req.body.doc_safety_remove);
   const removeReg = truthy(req.body.doc_registration_remove);
+  const otherDocuments = resolveOtherDocumentOrder(req.body.doc_other_order, otherFiles, existing.other_documents || [], req.body.doc_other_keep);
+  if (otherDocuments.error) {
+    cleanupFiles(req);
+    return res.status(400).json({ error: otherDocuments.error });
+  }
 
   if (!patch.has_docs) {
     patch.doc_safety_url = '';
@@ -240,20 +336,27 @@ router.put('/:id', chemUpload, (req, res) => {
     if (reg) patch.doc_registration_url = CHEM_URL(reg);
     else if (removeReg) patch.doc_registration_url = '';
   }
+  if (otherFiles.length || req.body.doc_other_order != null || req.body.doc_other_keep != null) patch.other_documents = otherDocuments.documents;
 
   const updated = db.updateChemical(req.params.id, patch);
-  if (photos.length) (existing.photo_urls || []).forEach(removeUpload);
+  if (patch.photo_urls) (existing.photo_urls || []).filter(url => !patch.photo_urls.includes(url)).forEach(removeUpload);
   if ((safety || removeSafety || !patch.has_docs) && existing.doc_safety_url) removeUpload(existing.doc_safety_url);
   if ((reg || removeReg || !patch.has_docs) && existing.doc_registration_url) removeUpload(existing.doc_registration_url);
+  if (patch.other_documents) {
+    const keptUrls = new Set(patch.other_documents.map(file => file.url));
+    (existing.other_documents || []).filter(file => !keptUrls.has(file.url)).forEach(file => removeUpload(file.url));
+  }
 
   const existingPresented = presentChemical(existing);
   const updatedPresented = presentChemical(updated);
   const changes = notifications.buildChanges(existingPresented, updatedPresented, CHEMICAL_FIELDS).concat(stageChanges(existingPresented, updatedPresented));
-  if (photos.length) changes.push({ field: 'photos', label: 'Фотографии', from: `${(existing.photo_urls || []).length}`, to: `${photos.length}` });
+  if (patch.photo_urls && JSON.stringify(existing.photo_urls || []) !== JSON.stringify(patch.photo_urls)) changes.push({ field: 'photos', label: 'Фотографии', from: `${(existing.photo_urls || []).length}`, to: `${patch.photo_urls.length}` });
   if (safety) changes.push({ field: 'doc_safety', label: 'Паспорт безопасности', from: '—', to: 'загружен' });
   if (reg) changes.push({ field: 'doc_registration', label: 'Свидетельство о гос. регистрации', from: '—', to: 'загружено' });
+  if (otherFiles.length) changes.push({ field: 'doc_other', label: 'Прочая документация', from: `${(existing.other_documents || []).length}`, to: `${updated.other_documents.length}` });
   if (removeSafety && !safety && existing.doc_safety_url) changes.push({ field: 'doc_safety', label: 'Паспорт безопасности', from: 'загружен', to: 'удалён' });
   if (removeReg && !reg && existing.doc_registration_url) changes.push({ field: 'doc_registration', label: 'Свидетельство о гос. регистрации', from: 'загружено', to: 'удалено' });
+  if (patch.other_documents && !otherFiles.length && patch.other_documents.length !== (existing.other_documents || []).length) changes.push({ field: 'doc_other', label: 'Прочая документация', from: `${(existing.other_documents || []).length}`, to: `${patch.other_documents.length}` });
   if (changes.length) {
     // Объекты тестирования, добавленные/убранные в этапах — уведомление появится и на их страницах.
     const stageObjects = stages => new Set((Array.isArray(stages) ? stages : []).map(s => s && s.object_id).filter(id => id != null));
@@ -278,6 +381,7 @@ router.delete('/:id', (req, res) => {
   (existing.photo_urls || []).forEach(removeUpload);
   if (existing.doc_safety_url) removeUpload(existing.doc_safety_url);
   if (existing.doc_registration_url) removeUpload(existing.doc_registration_url);
+  (existing.other_documents || []).forEach(file => removeUpload(file.url));
   notifications.record({ entity: 'chemical', entity_id: Number(req.params.id), entity_name: existing.name, action: 'delete', changes: [] });
   res.json({ ok: true });
 });

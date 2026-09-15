@@ -10,19 +10,26 @@ test('migration replaces chemical names and object addresses with immutable IDs'
     id: 11,
     name: 'Шампунь',
     photo_url: '/uploads/chemicals/old.jpg',
+    other_documents: [],
+    doc_other_url: '/uploads/chemicals/manual.pdf',
     stages: [{ stage: 'Полевой', date: '2026-09-14', object: 'Адрес' }]
   }];
 
-  const result = migrateData(objects, chemicals);
+  const result = migrateData(objects, chemicals, [{ id: 1, title: 'Вопрос', data: {} }]);
 
   assert.deepEqual(result.objects[0].chemical_ids, [11]);
   assert.equal(result.objects[0].name, 'Адрес');
-  assert.deepEqual(result.objects[0].robots, ['RCW']);
+  assert.equal(Object.hasOwn(result.objects[0], 'robots'), false);
+  assert.equal(Object.hasOwn(result.objects[0], 'drainage'), false);
+  assert.deepEqual(result.objects[0].events, []);
   assert.equal('chemistry' in result.objects[0], false);
   assert.equal(result.chemicals[0].stages[0].object_id, 7);
   assert.equal('object' in result.chemicals[0].stages[0], false);
   assert.deepEqual(result.chemicals[0].photo_urls, ['/uploads/chemicals/old.jpg']);
   assert.equal('photo_url' in result.chemicals[0], false);
+  assert.deepEqual(result.chemicals[0].other_documents, [{ url: '/uploads/chemicals/manual.pdf', name: 'Документ' }]);
+  assert.equal('doc_other_url' in result.chemicals[0], false);
+  assert.equal(result.faq[0].topic, 'Система работы');
 });
 
 test('migration stops before writing when a display-name relationship is ambiguous', () => {

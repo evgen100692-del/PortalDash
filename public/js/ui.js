@@ -44,4 +44,32 @@
       container.append(card);
     }
   };
+
+  const imageViewer = document.querySelector('#image-viewer-modal');
+  const imageViewerImage = document.querySelector('#image-viewer-image');
+  let previousOverflow = '';
+  const closeImageViewer = () => {
+    if (!imageViewer || imageViewer.hidden) return;
+    imageViewer.hidden = true;
+    imageViewerImage.removeAttribute('src');
+    document.body.style.overflow = previousOverflow;
+  };
+  window.openImageViewer = (src, alt = 'Фотография') => {
+    if (!imageViewer || !src) return;
+    imageViewerImage.src = src;
+    imageViewerImage.alt = alt;
+    previousOverflow = document.body.style.overflow;
+    imageViewer.hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+  document.querySelector('#image-viewer-close')?.addEventListener('click', closeImageViewer);
+  imageViewer?.addEventListener('click', event => { if (event.target === imageViewer) closeImageViewer(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeImageViewer(); });
+  document.addEventListener('click', event => {
+    const image = event.target.closest('img[data-full-image]');
+    if (!image || !image.currentSrc && !image.src) return;
+    event.preventDefault();
+    event.stopPropagation();
+    window.openImageViewer(image.currentSrc || image.src, image.alt);
+  }, true);
 })();

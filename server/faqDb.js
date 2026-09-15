@@ -1,6 +1,7 @@
 'use strict';
 const { JsonStore } = require('./jsonStore');
 const store = new JsonStore('faq.json');
+const FAQ_TOPICS = ['Система работы', 'Ситуации', 'Документы'];
 
 function normalizeFiles(arr) {
   if (!Array.isArray(arr)) return [];
@@ -13,10 +14,17 @@ function normalizeFiles(arr) {
     .filter(file => file.url);
 }
 
+function normalizeItem(item) {
+  const topic = FAQ_TOPICS.includes(item && item.topic) ? item.topic : FAQ_TOPICS[0];
+  const data = (item && item.data) || {};
+  return { ...item, topic, data: { answer: String(data.answer || ''), files: normalizeFiles(data.files) } };
+}
+
 module.exports = {
+  FAQ_TOPICS,
   health: () => store.health(),
-  list() { return store.read().sort((a, b) => a.id - b.id); },
-  get(id) { return store.read().find(item => Number(item.id) === Number(id)) || null; },
+  list() { return store.read().map(normalizeItem).sort((a, b) => a.id - b.id); },
+  get(id) { const item = store.read().find(item => Number(item.id) === Number(id)); return item ? normalizeItem(item) : null; },
   add(payload) {
     const items = store.read();
     const id = items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
@@ -24,6 +32,7 @@ module.exports = {
     const saved = {
       id,
       kind: 'text',
+      topic: FAQ_TOPICS.includes(payload && payload.topic) ? payload.topic : FAQ_TOPICS[0],
       title: String((payload && payload.title) || 'Новый вопрос').trim() || 'Новый вопрос',
       data: { answer: String(src.answer || ''), files: normalizeFiles(src.files) }
     };
@@ -35,13 +44,14 @@ module.exports = {
     const items = store.read();
     const index = items.findIndex(item => Number(item.id) === Number(id));
     if (index === -1) return null;
-    const current = items[index];
+    const current = normalizeItem(items[index]);
     const title = patch && patch.title != null ? String(patch.title).trim() || current.title : current.title;
     let data = current.data;
     if (patch && patch.data != null) {
       data = { answer: String(patch.data.answer || ''), files: normalizeFiles(patch.data.files) };
     }
-    items[index] = { ...current, title, data };
+    const topic = patch && patch.topic != null && FAQ_TOPICS.includes(patch.topic) ? patch.topic : current.topic;
+    items[index] = { ...current, title, topic, data };
     store.write(items);
     return items[index];
   },

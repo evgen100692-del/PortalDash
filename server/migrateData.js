@@ -22,7 +22,9 @@ function resolve(index, value, label) {
   return id;
 }
 
-function migrateData(objects, chemicals) {
+const FAQ_TOPICS = ['Система работы', 'Ситуации', 'Документы'];
+
+function migrateData(objects, chemicals, faq = []) {
   const objectIds = new Set(objects.map(item => Number(item.id)));
   const chemicalIdSet = new Set(chemicals.map(item => Number(item.id)));
   if (objectIds.size !== objects.length || [...objectIds].some(id => !Number.isInteger(id) || id <= 0)) {
@@ -46,10 +48,12 @@ function migrateData(objects, chemicals) {
     const migrated = {
       ...item,
       name: String(item.name || item.address || '').trim(),
-      robots: typeof item.robots === 'string' ? JSON.parse(item.robots) : (item.robots || []),
-      chemical_ids: [...new Set(chemicalIds)]
+      chemical_ids: [...new Set(chemicalIds)],
+      events: Array.isArray(item.events) ? item.events : []
     };
     delete migrated.chemistry;
+    delete migrated.robots;
+    delete migrated.drainage;
     return migrated;
   });
 
@@ -57,9 +61,16 @@ function migrateData(objects, chemicals) {
     const photoUrls = Array.isArray(item.photo_urls)
       ? item.photo_urls
       : (item.photo_url ? [item.photo_url] : []);
+    const otherDocuments = Array.isArray(item.other_documents) ? [...item.other_documents] : [];
+    if (item.doc_other_url && !otherDocuments.some(file => file && file.url === item.doc_other_url)) {
+      otherDocuments.push({ url: item.doc_other_url, name: 'Документ' });
+    }
     const migratedChemical = {
       ...item,
       photo_urls: [...new Set(photoUrls.filter(value => typeof value === 'string' && value.trim()))],
+      other_documents: otherDocuments
+        .map(file => ({ url: String((file && file.url) || '').trim(), name: String((file && file.name) || '').trim() || 'Документ' }))
+        .filter(file => file.url),
       stages: (Array.isArray(item.stages) ? item.stages : []).map(stage => {
       const objectId = stage.object_id != null
         ? Number(stage.object_id)
@@ -71,34 +82,47 @@ function migrateData(objects, chemicals) {
     })
     };
     delete migratedChemical.photo_url;
+    delete migratedChemical.doc_other_url;
     return migratedChemical;
   });
 
-  return { objects: migratedObjects, chemicals: migratedChemicals };
+  const migratedFaq = faq.map(item => ({
+    ...item,
+    topic: FAQ_TOPICS.includes(item.topic) ? item.topic : FAQ_TOPICS[0]
+  }));
+
+  return { objects: migratedObjects, chemicals: migratedChemicals, faq: migratedFaq };
 }
 
 function run(options = {}) {
   const dataDir = options.dataDir || process.env.PORTALDASH_DATA_DIR;
   const objectsStore = new JsonStore('objects.json', { dataDir });
   const chemicalsStore = new JsonStore('chemicals.json', { dataDir });
+  const faqStore = new JsonStore('faq.json', { dataDir });
   const currentObjects = objectsStore.read();
   const currentChemicals = chemicalsStore.read();
-  const migrated = migrateData(currentObjects, currentChemicals);
+  const currentFaq = faqStore.read();
+  const migrated = migrateData(currentObjects, currentChemicals, currentFaq);
   const changed = JSON.stringify(currentObjects) !== JSON.stringify(migrated.objects)
-    || JSON.stringify(currentChemicals) !== JSON.stringify(migrated.chemicals);
+    || JSON.stringify(currentChemicals) !== JSON.stringify(migrated.chemicals)
+    || JSON.stringify(currentFaq) !== JSON.stringify(migrated.faq);
 
   if (options.apply && changed) {
     objectsStore.write(migrated.objects);
     try {
       chemicalsStore.write(migrated.chemicals);
+      faqStore.write(migrated.faq);
     } catch (error) {
       if (fs.existsSync(objectsStore.backupFile)) {
         fs.copyFileSync(objectsStore.backupFile, objectsStore.file);
       }
+      if (fs.existsSync(chemicalsStore.backupFile)) {
+        fs.copyFileSync(chemicalsStore.backupFile, chemicalsStore.file);
+      }
       throw error;
     }
   }
-  return { changed, applied: Boolean(options.apply && changed), objects: migrated.objects.length, chemicals: migrated.chemicals.length };
+  return { changed, applied: Boolean(options.apply && changed), objects: migrated.objects.length, chemicals: migrated.chemicals.length, faq: migrated.faq.length };
 }
 
 if (require.main === module) {

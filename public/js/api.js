@@ -4,6 +4,8 @@ async function getObject(id) { return request('/api/objects/' + encodeURICompone
 async function createObject(formData) { return request('/api/objects', { method: 'POST', body: formData }); }
 async function updateObject(id, formData) { return request('/api/objects/' + encodeURIComponent(id), { method: 'PUT', body: formData }); }
 async function deleteObject(id) { return request('/api/objects/' + encodeURIComponent(id), { method: 'DELETE' }); }
+async function addObjectEvent(id, formData) { return request('/api/objects/' + encodeURIComponent(id) + '/events', { method: 'POST', body: formData }); }
+async function deleteObjectEvent(id, eventId) { return request('/api/objects/' + encodeURIComponent(id) + '/events/' + encodeURIComponent(eventId), { method: 'DELETE' }); }
 async function getChemicals() { return request('/api/chemicals'); }
 async function getChemical(id) { return request('/api/chemicals/' + encodeURIComponent(id)); }
 async function createChemical(formData) { return request('/api/chemicals', { method: 'POST', body: formData }); }

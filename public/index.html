@@ -32,10 +32,10 @@
         </div>
         <div id="object-filters" class="card-filters" hidden>
           <label class="card-filter card-filter--search">Поиск по наименованию<input id="object-search" type="search" placeholder="Введите наименование" autocomplete="off"></label>
-          <label class="card-filter">Установленные роботы<select data-filter="robots"><option value="">Все</option></select></label>
+          <label class="card-filter">Количество боксов<select data-filter="boxes"><option value="">Все</option></select></label>
           <label class="card-filter">Установленная химия<select data-filter="chemistry"><option value="">Все</option></select></label>
           <label class="card-filter">Управляющий<select data-filter="manager"><option value="">Все</option></select></label>
-          <label class="card-filter">Водоотведение<select data-filter="drainage"><option value="">Все</option></select></label>
+          <label class="card-filter">Жалобы<select data-filter="has_complaints"><option value="">Все</option><option value="true">Есть жалобы</option><option value="false">Без жалоб</option></select></label>
           <label class="card-filter">Вид химии<select data-filter="test_chem"><option value="">Все</option><option value="Действующая">Действующая</option><option value="Тестовая">Тестовая</option><option value="Отказ">Отказ</option></select></label>
           <button type="button" id="object-filters-reset" class="button button-secondary filters-reset">Сбросить</button>
         </div>
@@ -74,11 +74,15 @@
         </div>
         <div class="object-detail">
           <div class="object-detail__side">
-            <img id="detail-photo" class="object-detail__photo" alt="Фотография объекта">
+            <img id="detail-photo" class="object-detail__photo" alt="Фотография объекта" data-full-image>
             <button id="detail-tests" class="button button-secondary object-detail__tests" type="button">Тестирования</button>
           </div>
           <dl id="detail-fields" class="object-detail__fields"></dl>
         </div>
+        <section class="object-events">
+          <div class="object-events__head"><h3>События</h3><button id="add-object-event" class="button button-primary" type="button">+ Добавить событие</button></div>
+          <div id="object-events-list" class="object-events__list"></div>
+        </section>
       </section>
 
       <section id="page-objectTests" class="page" hidden>
@@ -120,6 +124,9 @@
         <div class="section-heading">
           <h2 class="page-title">Часто задаваемые вопросы</h2>
           <button id="add-faq-button" class="button button-primary" type="button">+ Добавить вопрос</button>
+        </div>
+        <div id="faq-filters" class="card-filters">
+          <label class="card-filter">Тема<select id="faq-topic-filter"><option value="">Все темы</option><option>Система работы</option><option>Ситуации</option><option>Документы</option></select></label>
         </div>
         <div id="faq-list" class="faq-list"></div>
       </section>
@@ -185,15 +192,13 @@
     <label class="field field-full"><span class="field-title">Фотография объекта</span><input id="object-photo" name="photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><img id="photo-preview" class="photo-preview" alt="Предпросмотр фотографии" hidden><small class="field-error">Файл должен быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="photo-edit-hint" hidden>Оставьте поле пустым, чтобы не менять фотографию.</small></label>
     <label class="field field-full"><span class="field-title">Наименование объекта</span><input name="name" type="text" autocomplete="organization" required></label>
     <label class="field field-full"><span class="field-title">Адрес объекта</span><input name="address" type="text" autocomplete="street-address" required></label>
-    <label class="field"><span class="field-title">Количество боксов/роботов</span><input name="boxes" type="number" min="0" step="1"></label>
+    <label class="field"><span class="field-title">Количество боксов</span><input name="boxes" type="number" min="0" step="1"></label>
     <label class="field"><span class="field-title">Управляющий</span><input name="manager" type="text"></label>
     <label class="field"><span class="field-title">Номер телефона управляющего</span><input name="manager_phone" type="tel" autocomplete="tel"></label>
-    <div class="field field-full"><span class="field-title">Роботы</span><div id="robots-fields" class="repeatable-fields"></div><button class="add-field" data-target="robots-fields" data-name="robots" type="button">+ Добавить модель</button></div>
     <div class="field field-full"><span class="field-title">Химия</span><div id="chemistry-fields" class="repeatable-fields"></div><button class="add-field" data-target="chemistry-fields" data-name="chemical_ids" type="button">+ Добавить вид химии</button></div>
-    <label class="field"><span class="field-title">Водоотведение</span><select name="drainage"><option value="">Не выбрано</option><option>Нет</option><option>Есть</option><option>УКО</option></select></label>
   </div><div class="modal-actions"><button id="cancel-object" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="chemical-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="chemical-modal-title"><div class="modal-header"><h2 id="chemical-modal-title">Добавить химию</h2><button id="chemical-modal-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="chemical-form" novalidate><div class="form-grid">
-    <label class="field field-full"><span class="field-title">Фотографии (до 10 файлов)</span><input id="chemical-photo" name="photos" type="file" multiple accept=".png,.jpg,.jpeg,image/png,image/jpeg"><span id="chemical-photo-preview" class="photo-preview-list" hidden></span><small class="field-error">Все файлы должны быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint" hidden>Новые фотографии заменят текущий набор. Оставьте поле пустым, чтобы ничего не менять.</small></label>
+    <label class="field field-full"><span class="field-title">Фотографии (до 10)</span><input id="chemical-photo" name="photos" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><span id="chemical-photo-preview" class="photo-preview-list photo-sortable" hidden></span><small class="field-error">Файл должен быть в формате PNG, JPG или JPEG.</small><small class="field-hint" id="chemical-photo-edit-hint">Добавляйте фотографии по одной. Перетащите карточки, чтобы изменить порядок.</small></label>
     <label class="field field-full"><span class="field-title">Наименование</span><input name="name" type="text" required></label>
     <label class="field"><span class="field-title">Цена</span><input name="price" type="number" min="0" step="0.01"></label>
     <label class="field"><span class="field-title">Объём</span><input name="volume" type="number" min="0" step="any"></label>
@@ -208,6 +213,8 @@
       <input type="hidden" name="doc_safety_remove">
       <input type="hidden" name="doc_registration_remove">
     </div>
+    <div class="field field-full"><label class="field-title" for="chemical-other-documents">Прочая документация (до 10 файлов)</label><input id="chemical-other-documents" name="doc_other" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"><small class="field-hint">Добавляйте документы по одному. Перетащите строки, чтобы изменить порядок.</small><span class="chem-doc-current chem-doc-current-list" data-doc="other" hidden></span></div>
+    <input type="hidden" name="doc_other_order" value="[]">
     <label class="field field-full"><span class="field-title">Результат тестирования</span><select name="result"><option value="">Не выбрано</option><option>Одобрено</option><option>Тестирование не проводилось</option><option>Пройден 1 этап тестирования</option><option>Пройден 2 этап тестирования</option><option>Отправлено на доработку</option><option>Отказ</option></select></label>
 
     <div class="field field-full test-stage" data-stage="1"><span class="field-title">Дата тестирования «Этап №1 - Лабораторный»</span><select name="stage1_mode" class="stage-mode"><option value="none">Тестирование не проводилось</option><option value="date">Указать дату</option></select><input name="stage1_date" type="date" class="stage-date" hidden></div>
@@ -235,7 +242,16 @@
     <label class="field field-full"><span class="field-title">Комментарий</span><textarea name="comment" rows="3"></textarea></label>
   </div><div class="modal-actions"><button id="complaint-cancel" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
   <div id="complaint-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="complaint-delete-title"><h2 id="complaint-delete-title">Удалить эту жалобу?</h2><div class="modal-actions"><button id="complaint-delete-no" class="button button-secondary" type="button">Нет</button><button id="complaint-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
+  <div id="object-event-modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="object-event-title"><div class="modal-header"><h2 id="object-event-title">Добавить событие</h2><button id="object-event-close" class="icon-button" type="button" aria-label="Закрыть">×</button></div><form id="object-event-form" novalidate><div class="form-grid">
+    <label class="field"><span class="field-title">Дата события</span><input name="date" type="date" required></label>
+    <label class="field field-full"><span class="field-title">Фотографии</span><input id="object-event-photo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"><span id="object-event-photo-list" class="attachment-list"></span><small class="field-hint">Добавляйте фотографии по одной.</small></label>
+    <label class="field field-full"><span class="field-title">Документы</span><input id="object-event-documents" name="documents" type="file" multiple><small class="field-hint">Можно выбрать несколько документов.</small></label>
+    <label class="field field-full"><span class="field-title">Комментарий</span><textarea name="comment" rows="4"></textarea></label>
+  </div><div class="modal-actions"><button id="object-event-cancel" class="button button-secondary" type="button">Отмена</button><button class="button button-primary" type="submit">Сохранить</button></div></form></section></div>
+  <div id="object-event-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="object-event-delete-title"><h2 id="object-event-delete-title">Удалить это событие?</h2><p>Фотографии и документы события также будут удалены.</p><div class="modal-actions"><button id="object-event-delete-no" class="button button-secondary" type="button">Нет</button><button id="object-event-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
   <div id="chemical-delete-modal" class="modal-backdrop" hidden><section class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="chemical-delete-title"><h2 id="chemical-delete-title">Вы уверены что хотите удалить химию?</h2><div class="modal-actions"><button id="chemical-delete-no" class="button button-secondary" type="button">Нет</button><button id="chemical-delete-yes" class="button button-primary" type="button">Да</button></div></section></div>
+
+  <div id="image-viewer-modal" class="image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр фотографии" hidden><button id="image-viewer-close" class="image-viewer__close" type="button" aria-label="Закрыть">×</button><img id="image-viewer-image" alt=""></div>
 
   <script src="/js/api.js"></script>
   <script src="/js/ui.js"></script>

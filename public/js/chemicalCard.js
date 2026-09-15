@@ -9,7 +9,8 @@
   const preview = document.querySelector('#chemical-photo-preview');
   const hasDocsBox = document.querySelector('#chemical-has-docs');
   const docsBlock = document.querySelector('#chemical-docs');
-  const docCurrents = [...docsBlock.querySelectorAll('.chem-doc-current')];
+  const importantDocCurrents = [...docsBlock.querySelectorAll('.chem-doc-current')];
+  const otherDocsCurrent = form.querySelector('.chem-doc-current[data-doc="other"]');
   const formEl = name => form.elements[name];
   const cards = document.querySelector('#chemical-cards');
   const emptyState = document.querySelector('#chemicals-empty');
@@ -26,12 +27,16 @@
   const detailFields = document.querySelector('#chemical-detail-fields');
 
   const imageTypeRe = /^image\/(png|jpe?g)$/;
-  let previewUrls = [];
+  const documentTypeRe = /^(image\/(png|jpe?g)|application\/pdf)$/;
+  let photoItems = [];
+  let photoSequence = 0;
   let chemicalsById = {};
   let allChemicals = [];
   let allObjectsData = [];   // объекты (для блока «Применяется на объектах»)
   let editingId = null;
   let currentDetailChemical = null;
+  let otherDocumentItems = [];
+  let otherDocumentSequence = 0;
 
   const asList = value => {
     if (Array.isArray(value)) return value;
@@ -112,21 +117,58 @@
   });
 
   const clearPreview = () => {
-    previewUrls.forEach(url => URL.revokeObjectURL(url));
-    previewUrls = [];
+    photoItems.filter(item => item.file).forEach(item => URL.revokeObjectURL(item.url));
+    photoItems = [];
     preview.hidden = true;
     preview.innerHTML = '';
   };
 
-  const showPhotoPreview = urls => {
+  const showPhotoPreview = () => {
     preview.innerHTML = '';
-    urls.forEach((url, index) => {
+    photoItems.forEach((item, index) => {
+      const card = document.createElement('span');
+      card.className = 'photo-preview-item';
+      card.draggable = true;
+      card.dataset.key = item.key;
       const img = document.createElement('img');
-      img.src = url;
+      img.src = item.url;
       img.alt = `Фото ${index + 1}`;
-      preview.append(img);
+      const order = document.createElement('span');
+      order.className = 'photo-preview-item__order';
+      order.textContent = String(index + 1);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'photo-preview-item__remove';
+      remove.setAttribute('aria-label', `Удалить фотографию ${index + 1}`);
+      remove.textContent = '×';
+      remove.onclick = () => {
+        if (item.file) URL.revokeObjectURL(item.url);
+        photoItems = photoItems.filter(candidate => candidate.key !== item.key);
+        showPhotoPreview();
+      };
+      card.addEventListener('dragstart', () => card.classList.add('is-dragging'));
+      card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
+      card.addEventListener('dragover', event => event.preventDefault());
+      card.addEventListener('drop', event => {
+        event.preventDefault();
+        const dragging = preview.querySelector('.is-dragging');
+        if (!dragging || dragging === card) return;
+        const from = photoItems.findIndex(candidate => candidate.key === dragging.dataset.key);
+        const to = photoItems.findIndex(candidate => candidate.key === item.key);
+        const [moved] = photoItems.splice(from, 1);
+        photoItems.splice(to, 0, moved);
+        showPhotoPreview();
+      });
+      card.append(img, order, remove);
+      preview.append(card);
     });
-    preview.hidden = !urls.length;
+    preview.hidden = !photoItems.length;
+  };
+
+  const setExistingPhotos = urls => {
+    clearPreview();
+    photoItems = urls.map(url => ({ key: `existing:${url}`, token: url, url }));
+    showPhotoPreview();
   };
 
   // Показывает поля даты, комментария и объекта в зависимости от режима этапа.
@@ -150,6 +192,55 @@
     docsBlock.hidden = !hasDocsBox.checked;
   };
 
+  const renderOtherDocuments = () => {
+    otherDocsCurrent.innerHTML = '';
+    otherDocumentItems.forEach((file, index) => {
+      const row = document.createElement('span');
+      row.className = 'chem-doc-current-list__item';
+      row.draggable = true;
+      row.dataset.key = file.key;
+      const order = document.createElement('span');
+      order.className = 'chem-doc-current-list__order';
+      order.textContent = String(index + 1);
+      const link = document.createElement('a');
+      link.href = file.url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = file.name || 'Документ';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'link-danger';
+      remove.textContent = 'удалить';
+      remove.onclick = () => {
+        if (file.file) URL.revokeObjectURL(file.url);
+        otherDocumentItems = otherDocumentItems.filter(candidate => candidate.key !== file.key);
+        renderOtherDocuments();
+      };
+      row.addEventListener('dragstart', () => row.classList.add('is-dragging'));
+      row.addEventListener('dragend', () => row.classList.remove('is-dragging'));
+      row.addEventListener('dragover', event => event.preventDefault());
+      row.addEventListener('drop', event => {
+        event.preventDefault();
+        const dragging = otherDocsCurrent.querySelector('.is-dragging');
+        if (!dragging || dragging === row) return;
+        const from = otherDocumentItems.findIndex(candidate => candidate.key === dragging.dataset.key);
+        const to = otherDocumentItems.findIndex(candidate => candidate.key === file.key);
+        const [moved] = otherDocumentItems.splice(from, 1);
+        otherDocumentItems.splice(to, 0, moved);
+        renderOtherDocuments();
+      });
+      row.append(order, link, remove);
+      otherDocsCurrent.append(row);
+    });
+    otherDocsCurrent.hidden = !otherDocumentItems.length;
+  };
+
+  const clearOtherDocuments = () => {
+    otherDocumentItems.filter(item => item.file).forEach(item => URL.revokeObjectURL(item.url));
+    otherDocumentItems = [];
+    renderOtherDocuments();
+  };
+
   const resetForm = () => {
     form.reset();
     clearPreview();
@@ -158,11 +249,13 @@
       stageParts(stage).mode.value = 'none';
       syncStage(stage);
     });
-    docCurrents.forEach(el => { el.hidden = true; el.textContent = ''; });
+    importantDocCurrents.forEach(el => { el.hidden = true; el.textContent = ''; });
+    clearOtherDocuments();
+    formEl('doc_other_order').value = '[]';
     syncDocs();
     editingId = null;
     modalTitle.textContent = 'Добавить химию';
-    photoEditHint.hidden = true;
+    photoEditHint.hidden = false;
   };
 
   const closeForm = () => {
@@ -170,13 +263,15 @@
     confirmModal.hidden = true;
     document.body.style.overflow = '';
     editingId = null;
+    clearPreview();
+    clearOtherDocuments();
   };
 
   // Сервер проверяет обязательное название и связи; здесь отдельно проверяем фотографии.
   const checkField = field => {
     if (field.contains(photoInput)) {
-      const files = [...photoInput.files];
-      const bad = files.length > 10 || files.some(file => !imageTypeRe.test(file.type));
+      const file = photoInput.files[0];
+      const bad = photoItems.length > 10 || (!!file && !imageTypeRe.test(file.type));
       field.classList.toggle('invalid', bad);
       return !bad;
     }
@@ -200,7 +295,9 @@
       card.innerHTML = `<img alt=""><div class="chem-card__body"><div class="chem-card__name"></div><dl class="card-meta"></dl></div>`;
       const img = card.querySelector('img');
       const firstPhoto = asList(chemical.photo_urls)[0];
-      if (firstPhoto) img.src = firstPhoto;
+      if (firstPhoto) {
+        img.src = firstPhoto;
+      }
       img.alt = chemical.name;
       card.querySelector('.chem-card__name').textContent = chemical.name;
 
@@ -216,6 +313,8 @@
       addMeta('Поставщик', chemical.supplier);
       addMeta('Тип', chemical.chem_type);
       addMeta('Результат', chemical.result, chemical.result === 'Отказ');
+      const documentNames = asList(chemical.other_documents).map(file => file && file.name).filter(Boolean);
+      if (documentNames.length) addMeta('Прочие документы', documentNames.join(', '));
 
       const openThis = () => {
         try { sessionStorage.removeItem('chemBackTo'); } catch { /* нет доступа */ }
@@ -242,6 +341,7 @@
       const img = document.createElement('img');
       img.src = url;
       img.alt = `${chemical.name || 'Химия'} — фото ${index + 1}`;
+      img.dataset.fullImage = '';
       detailPhotos.append(img);
     });
 
@@ -305,6 +405,26 @@
         detailFields.append(dt, dd);
       });
     }
+    const otherDt = document.createElement('dt');
+    otherDt.textContent = 'Прочая документация';
+    const otherDd = document.createElement('dd');
+    if (asList(chemical.other_documents).length) {
+      const list = document.createElement('div');
+      list.className = 'chem-other-documents';
+      asList(chemical.other_documents).forEach(file => {
+        const link = document.createElement('a');
+        link.href = file.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.className = 'chem-link';
+        link.textContent = file.name || 'Документ';
+        list.append(link);
+      });
+      otherDd.append(list);
+    } else {
+      otherDd.textContent = '—';
+    }
+    detailFields.append(otherDt, otherDd);
 
     // Объекты, где применяется эта химия — обратная ссылка на раздел «Объекты».
     const relatedDt = document.createElement('dt');
@@ -377,7 +497,6 @@
     resetForm();
     editingId = chemical.id;
     modalTitle.textContent = 'Редактировать химию';
-    photoEditHint.hidden = false;
 
     formEl('name').value = chemical.name || '';
     formEl('price').value = chemical.price != null ? chemical.price : '';
@@ -390,7 +509,7 @@
     formEl('has_honest_sign').checked = !!chemical.has_honest_sign;
     syncDocs();
     const docMap = { safety: chemical.doc_safety_url, registration: chemical.doc_registration_url };
-    docCurrents.forEach(el => {
+    importantDocCurrents.forEach(el => {
       const key = el.dataset.doc;
       formEl(`doc_${key}_remove`).value = '';
       const url = docMap[key];
@@ -418,6 +537,8 @@
         el.hidden = true;
       }
     });
+    otherDocumentItems = asList(chemical.other_documents).map(file => ({ ...file, key: `existing:${file.url}`, token: file.url }));
+    renderOtherDocuments();
 
     (chemical.stages || []).forEach((stageData, index) => {
       const stage = index + 1;
@@ -436,7 +557,7 @@
       }
     });
 
-    showPhotoPreview(asList(chemical.photo_urls));
+    setExistingPhotos(asList(chemical.photo_urls));
 
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -552,10 +673,17 @@
 
   // ---------- Обработчики ----------
   photoInput.onchange = () => {
-    clearPreview();
-    const files = [...photoInput.files].filter(file => imageTypeRe.test(file.type));
-    previewUrls = files.map(file => URL.createObjectURL(file));
-    showPhotoPreview(previewUrls);
+    const file = photoInput.files[0];
+    if (file && imageTypeRe.test(file.type) && photoItems.length < 10) {
+      photoSequence += 1;
+      photoItems.push({ key: `new:${photoSequence}`, file, url: URL.createObjectURL(file) });
+      showPhotoPreview();
+    } else if (file && photoItems.length >= 10) {
+      window.toast('Можно добавить не более 10 фотографий', 'error');
+    } else if (file) {
+      window.toast('Фотография должна быть в формате PNG, JPG или JPEG', 'error');
+    }
+    photoInput.value = '';
     const field = photoInput.closest('.field');
     if (field.classList.contains('invalid')) checkField(field);
   };
@@ -577,6 +705,27 @@
   ['safety', 'registration'].forEach(key => {
     formEl(`doc_${key}`).addEventListener('change', () => { formEl(`doc_${key}_remove`).value = ''; });
   });
+  formEl('doc_other').addEventListener('change', () => {
+    const file = formEl('doc_other').files[0];
+    formEl('doc_other').value = '';
+    if (!file) return;
+    if (!documentTypeRe.test(file.type)) {
+      window.toast('Документ должен быть в формате PDF, PNG, JPG или JPEG', 'error');
+      return;
+    }
+    if (otherDocumentItems.length >= 10) {
+      window.toast('Можно добавить не более 10 файлов прочей документации', 'error');
+      return;
+    }
+    otherDocumentSequence += 1;
+    otherDocumentItems.push({
+      key: `new:${otherDocumentSequence}`,
+      file,
+      name: file.name,
+      url: URL.createObjectURL(file)
+    });
+    renderOtherDocuments();
+  });
 
   document.querySelector('#add-chemical-button').onclick = async () => {
     await loadObjectOptions();
@@ -597,9 +746,16 @@
     const data = new FormData(form);
     data.set('has_docs', formEl('has_docs').checked ? 'true' : 'false');
     data.set('has_honest_sign', formEl('has_honest_sign').checked ? 'true' : 'false');
-    if (!photoInput.files.length) data.delete('photos');
+    data.delete('photos');
+    const newPhotos = photoItems.filter(item => item.file);
+    newPhotos.forEach(item => data.append('photos', item.file, item.file.name));
+    data.set('photo_order', JSON.stringify(photoItems.map(item => item.file ? `new:${newPhotos.indexOf(item)}` : item.token)));
     if (!formEl('doc_safety').files.length) data.delete('doc_safety');
     if (!formEl('doc_registration').files.length) data.delete('doc_registration');
+    data.delete('doc_other');
+    const newDocuments = otherDocumentItems.filter(item => item.file);
+    newDocuments.forEach(item => data.append('doc_other', item.file, item.file.name));
+    data.set('doc_other_order', JSON.stringify(otherDocumentItems.map(item => item.file ? `new:${newDocuments.indexOf(item)}` : item.token)));
     const savingId = editingId;
     try {
       if (savingId != null) await updateChemical(savingId, data);

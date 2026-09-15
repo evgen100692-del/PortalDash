@@ -13,9 +13,17 @@ function read() {
 }
 
 function normalize(item) {
+  const otherDocuments = Array.isArray(item.other_documents) ? [...item.other_documents] : [];
+  if (item.doc_other_url && !otherDocuments.some(file => file && file.url === item.doc_other_url)) {
+    otherDocuments.push({ url: item.doc_other_url, name: 'Документ' });
+  }
   const normalized = {
     ...item,
     photo_urls: Array.isArray(item.photo_urls) ? [...new Set(item.photo_urls.filter(value => typeof value === 'string' && value.trim()))] : [],
+    other_documents: otherDocuments.map(file => ({
+      url: String((file && file.url) || '').trim(),
+      name: String((file && file.name) || '').trim() || 'Документ'
+    })).filter(file => file.url),
     stages: (Array.isArray(item.stages) ? item.stages : []).map(stage => {
       const normalized = { ...stage, object_id: stage.object_id == null || stage.object_id === '' ? null : Number(stage.object_id) };
       delete normalized.object;
@@ -23,6 +31,7 @@ function normalize(item) {
     })
   };
   delete normalized.photo_url;
+  delete normalized.doc_other_url;
   return normalized;
 }
 

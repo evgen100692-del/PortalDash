@@ -46,10 +46,16 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  if (req.body && req.body.topic != null && !db.FAQ_TOPICS.includes(req.body.topic)) {
+    return res.status(400).json({ error: 'Некорректная тема вопроса' });
+  }
   res.status(201).json(db.add(req.body || {}));
 });
 
 router.put('/:id', (req, res) => {
+  if (req.body && req.body.topic != null && !db.FAQ_TOPICS.includes(req.body.topic)) {
+    return res.status(400).json({ error: 'Некорректная тема вопроса' });
+  }
   const existing = db.get(req.params.id);
   const updated = db.update(req.params.id, req.body || {});
   if (!updated) return res.status(404).json({ error: 'Вопрос не найден' });

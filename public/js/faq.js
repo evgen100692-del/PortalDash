@@ -3,6 +3,8 @@
   const viewPage = document.querySelector('#page-faqView');
   const editPage = document.querySelector('#page-faqItem');
   const listBox = document.querySelector('#faq-list');
+  const topicFilter = document.querySelector('#faq-topic-filter');
+  const TOPICS = ['Система работы', 'Ситуации', 'Документы'];
 
   const viewTitle = document.querySelector('#faq-view-title');
   const viewBody = document.querySelector('#faq-view-body');
@@ -167,6 +169,21 @@
     titleField.append(titleInput);
     editBody.append(titleField);
 
+    const topicField = document.createElement('label');
+    topicField.className = 'faq-field';
+    topicField.innerHTML = '<span>Тема вопроса</span>';
+    const topicSelect = document.createElement('select');
+    topicSelect.id = 'faq-edit-topic';
+    TOPICS.forEach(topic => {
+      const option = document.createElement('option');
+      option.value = topic;
+      option.textContent = topic;
+      topicSelect.append(option);
+    });
+    topicSelect.value = TOPICS.includes(item.topic) ? item.topic : TOPICS[0];
+    topicField.append(topicSelect);
+    editBody.append(topicField);
+
     // Блок ответа — поле добавляется/убирается кнопкой.
     const answerGroup = document.createElement('div');
     answerGroup.className = 'faq-group';
@@ -238,6 +255,7 @@
     const answerEl = document.querySelector('#faq-edit-answer');
     return {
       title: document.querySelector('#faq-edit-title').value.trim(),
+      topic: document.querySelector('#faq-edit-topic').value,
       data: { answer: answerEl ? answerEl.value : '', files }
     };
   };
@@ -246,6 +264,11 @@
   const renderView = item => {
     viewTitle.textContent = item.title || 'Вопрос';
     viewBody.innerHTML = '';
+
+    const topic = document.createElement('div');
+    topic.className = 'faq-topic-badge';
+    topic.textContent = TOPICS.includes(item.topic) ? item.topic : TOPICS[0];
+    viewBody.append(topic);
 
     const answerText = (item.data && item.data.answer) || '';
     if (answerText.trim()) {
@@ -299,11 +322,31 @@
   };
 
   // ---------- Список ----------
-  const renderList = list => {
-    items = list;
-    itemsById = {};
+  const renderList = (list, replaceItems = true) => {
+    if (replaceItems) {
+      items = list;
+      itemsById = {};
+      list.forEach(item => { itemsById[item.id] = item; });
+    }
     listBox.innerHTML = '';
-    list.forEach(item => {
+    const selectedTopic = topicFilter.value;
+    const visible = items.filter(item => !selectedTopic || (item.topic || TOPICS[0]) === selectedTopic);
+    TOPICS.forEach(topicName => {
+      const topicItems = visible.filter(item => (item.topic || TOPICS[0]) === topicName);
+      if (!topicItems.length) return;
+      const section = document.createElement('section');
+      section.className = 'faq-topic-section';
+      const heading = document.createElement('div');
+      heading.className = 'faq-topic-section__heading';
+      const title = document.createElement('h3');
+      title.textContent = topicName;
+      const count = document.createElement('span');
+      count.textContent = String(topicItems.length);
+      heading.append(title, count);
+      section.append(heading);
+      const cards = document.createElement('div');
+      cards.className = 'faq-topic-section__cards';
+      topicItems.forEach(item => {
       itemsById[item.id] = item;
       const card = document.createElement('article');
       card.className = 'faq-card';
@@ -328,8 +371,17 @@
       card.onkeydown = event => {
         if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); }
       };
-      listBox.append(card);
+        cards.append(card);
+      });
+      section.append(cards);
+      listBox.append(section);
     });
+    if (!visible.length) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = items.length ? 'В выбранной теме вопросов пока нет.' : 'Вопросы пока не добавлены.';
+      listBox.append(empty);
+    }
   };
 
   const showPage = target => {
@@ -352,7 +404,7 @@
 
   const openEdit = async id => {
     if (id === 'new') {
-      currentItem = { id: null, title: '', data: { answer: '', files: [] } };
+      currentItem = { id: null, title: '', topic: TOPICS[0], data: { answer: '', files: [] } };
     } else {
       const item = await loadItem(id);
       if (!item) { location.hash = ''; return; }
@@ -379,6 +431,7 @@
 
   // ---------- Кнопки ----------
   document.querySelector('#add-faq-button').onclick = () => { location.hash = '#faq-new'; };
+  topicFilter.addEventListener('change', () => renderList(items, false));
 
   viewEditBtn.onclick = () => {
     if (currentItem && currentItem.id != null) location.hash = `#faq-${currentItem.id}-edit`;

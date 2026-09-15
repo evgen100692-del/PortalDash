@@ -161,7 +161,8 @@
     try {
       await createComplaint(payload);
       closeModal();
-      refresh();
+      await refresh();
+      document.dispatchEvent(new CustomEvent('complaints-changed', { detail: { objectId: currentObject.id } }));
       window.toast('Жалоба добавлена');
     } catch (error) {
       window.toast(error.message, 'error');
@@ -176,7 +177,8 @@
       await deleteComplaint(pendingDeleteId);
       deleteModal.hidden = true;
       pendingDeleteId = null;
-      refresh();
+      await refresh();
+      document.dispatchEvent(new CustomEvent('complaints-changed', { detail: { objectId: currentObject && currentObject.id } }));
       window.toast('Жалоба удалена');
     } catch (error) {
       deleteModal.hidden = true;

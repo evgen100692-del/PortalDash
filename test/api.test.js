@@ -49,7 +49,6 @@ function objectForm(address, chemicalIds = [], name = address) {
   const form = new FormData();
   form.set('name', name);
   form.set('address', address);
-  form.set('robots', '[]');
   form.set('chemical_ids', JSON.stringify(chemicalIds));
   return form;
 }
@@ -176,4 +175,95 @@ test('FAQ and chemical attachments are removed with their owning records', async
   assert.equal((await json(`/api/chemicals/${createdChemical.body.id}`, { method: 'DELETE' })).response.status, 200);
   await new Promise(resolve => setTimeout(resolve, 25));
   assert.equal(fs.existsSync(documentPath), false);
+});
+
+test('objects expose complaint state and accept and delete dated events with attachments', async () => {
+  const createdObject = await json('/api/objects', {
+    method: 'POST', body: objectForm('Событийный адрес', [], 'Событийный объект')
+  });
+  assert.equal(createdObject.response.status, 201);
+  assert.equal(createdObject.body.has_complaints, false);
+  assert.deepEqual(createdObject.body.events, []);
+  assert.equal(Object.hasOwn(createdObject.body, 'robots'), false);
+  assert.equal(Object.hasOwn(createdObject.body, 'drainage'), false);
+
+  const complaint = await json('/api/complaints', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ object_id: createdObject.body.id, subject: 'Замечание' })
+  });
+  assert.equal(complaint.response.status, 201);
+  const withComplaint = await json(`/api/objects/${createdObject.body.id}`);
+  assert.equal(withComplaint.body.has_complaints, true);
+
+  const event = new FormData();
+  event.set('date', '2026-09-15');
+  event.set('comment', 'Проведено обслуживание');
+  event.append('photos', new Blob(['event-photo'], { type: 'image/png' }), 'event.png');
+  event.append('documents', new Blob(['event-doc'], { type: 'text/plain' }), 'report.txt');
+  const added = await json(`/api/objects/${createdObject.body.id}/events`, { method: 'POST', body: event });
+  assert.equal(added.response.status, 201);
+  assert.equal(added.body.events.length, 1);
+  assert.equal(added.body.events[0].date, '2026-09-15');
+  assert.equal(added.body.events[0].photo_urls.length, 1);
+  assert.equal(added.body.events[0].documents[0].name, 'report.txt');
+
+  const eventPhotoPath = path.join(uploadDir, 'objects', path.basename(added.body.events[0].photo_urls[0]));
+  const eventDocumentPath = path.join(uploadDir, 'objects', path.basename(added.body.events[0].documents[0].url));
+  const removed = await json(`/api/objects/${createdObject.body.id}/events/${added.body.events[0].id}`, { method: 'DELETE' });
+  assert.equal(removed.response.status, 200);
+  assert.deepEqual(removed.body.events, []);
+  await new Promise(resolve => setTimeout(resolve, 25));
+  assert.equal(fs.existsSync(eventPhotoPath), false);
+  assert.equal(fs.existsSync(eventDocumentPath), false);
+
+  const missingEvent = await json(`/api/objects/${createdObject.body.id}/events/999`, { method: 'DELETE' });
+  assert.equal(missingEvent.response.status, 404);
+});
+
+test('FAQ topics are validated and returned with a default for old-compatible payloads', async () => {
+  const created = await json('/api/faq', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'Как работает?', topic: 'Система работы', data: { answer: 'Так' } })
+  });
+  assert.equal(created.response.status, 201);
+  assert.equal(created.body.topic, 'Система работы');
+
+  const invalid = await json('/api/faq', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'Ошибка', topic: 'Неизвестная тема', data: {} })
+  });
+  assert.equal(invalid.response.status, 400);
+});
+
+test('chemical photos can be retained, reordered and other documentation is independent from important documents', async () => {
+  const create = chemicalForm('Упорядоченная галерея', { has_docs: false });
+  create.append('photos', new Blob(['one'], { type: 'image/png' }), 'one.png');
+  create.append('photos', new Blob(['two'], { type: 'image/jpeg' }), 'two.jpg');
+  create.set('photo_order', JSON.stringify(['new:0', 'new:1']));
+  create.set('doc_other', new Blob(['%PDF-other'], { type: 'application/pdf' }), 'other.pdf');
+  create.append('doc_other', new Blob(['%PDF-guide'], { type: 'application/pdf' }), 'guide.pdf');
+  create.set('doc_other_order', JSON.stringify(['new:1', 'new:0']));
+  const created = await json('/api/chemicals', { method: 'POST', body: create });
+  assert.equal(created.response.status, 201);
+  assert.equal(created.body.photo_urls.length, 2);
+  assert.equal(created.body.has_docs, false);
+  assert.deepEqual(created.body.other_documents.map(file => file.name), ['guide.pdf', 'other.pdf']);
+
+  const update = chemicalForm('Упорядоченная галерея', { has_docs: false });
+  update.append('photos', new Blob(['three'], { type: 'image/png' }), 'three.png');
+  update.set('photo_order', JSON.stringify([created.body.photo_urls[1], 'new:0']));
+  update.set('doc_other_order', JSON.stringify([created.body.other_documents[1].url]));
+  const updated = await json(`/api/chemicals/${created.body.id}`, { method: 'PUT', body: update });
+  assert.equal(updated.response.status, 200);
+  assert.equal(updated.body.photo_urls[0], created.body.photo_urls[1]);
+  assert.equal(updated.body.photo_urls.length, 2);
+  assert.equal(updated.body.has_docs, false);
+  assert.deepEqual(updated.body.other_documents, [created.body.other_documents[1]]);
+
+  await new Promise(resolve => setTimeout(resolve, 25));
+  assert.equal(fs.existsSync(path.join(uploadDir, 'chemicals', path.basename(created.body.photo_urls[0]))), false);
+  assert.equal(fs.existsSync(path.join(uploadDir, 'chemicals', path.basename(created.body.other_documents[0].url))), false);
 });

@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 const router = express.Router();
 const db = require('../db');
@@ -12,58 +13,52 @@ const asJoined = value => (Array.isArray(value) ? value : []).join(', ');
 const OBJECT_FIELDS = [
   { key: 'name', label: 'Наименование объекта' },
   { key: 'address', label: 'Адрес объекта' },
-  { key: 'boxes', label: 'Количество боксов/роботов' },
-  { key: 'robots', label: 'Установленные роботы', format: asJoined },
+  { key: 'boxes', label: 'Количество боксов' },
   { key: 'chemistry', label: 'Установленная химия', format: asJoined },
   { key: 'manager', label: 'Управляющий' },
-  { key: 'manager_phone', label: 'Телефон управляющего' },
-  { key: 'drainage', label: 'Водоотведение' }
+  { key: 'manager_phone', label: 'Телефон управляющего' }
 ];
 
 const uploadDir = path.join(process.env.PORTALDASH_UPLOAD_DIR || path.join(__dirname, '../../public/uploads'), 'objects');
 fs.mkdirSync(uploadDir, { recursive: true });
 
-const upload = multer({
-  dest: uploadDir,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, /^image\/(png|jpe?g)$/.test(file.mimetype))
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = (path.extname(file.originalname || '').toLowerCase().match(/^\.[a-z0-9]{1,8}$/) || [''])[0];
+    cb(null, crypto.randomBytes(16).toString('hex') + ext);
+  }
 });
-
-const VALID_ROBOTS = ['Рязань', 'RCW'];
-const VALID_DRAINAGE = ['Нет', 'Есть', 'УКО'];
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'photo' || file.fieldname === 'photos') return cb(null, /^image\/(png|jpe?g)$/.test(file.mimetype));
+    return cb(null, true);
+  }
+});
+const eventUpload = upload.fields([{ name: 'photos', maxCount: 10 }, { name: 'documents', maxCount: 10 }]);
 
 // Разбирает поля формы объекта и проверяет ссылки на существующую химию.
 function parseObjectBody(body) {
-  let robots;
   let chemical_ids;
   try {
-    robots = JSON.parse(body.robots || '[]');
     chemical_ids = JSON.parse(body.chemical_ids || '[]');
   } catch {
-    return { error: 'Некорректные списки роботов или химии' };
+    return { error: 'Некорректный список химии' };
   }
-  robots = (Array.isArray(robots) ? robots : []).filter(value => typeof value === 'string' && value.trim());
   chemical_ids = [...new Set((Array.isArray(chemical_ids) ? chemical_ids : []).map(Number).filter(Number.isInteger))];
-
-  if (robots.some(value => !VALID_ROBOTS.includes(value))) {
-    return { error: 'Недопустимое значение робота' };
-  }
 
   const knownChemistry = new Set(chemicalsDb.listChemicals().map(item => Number(item.id)));
   if (chemical_ids.some(value => !knownChemistry.has(value))) {
     return { error: 'Выбранная химия отсутствует в разделе «Химия»' };
   }
 
-  const drainage = String(body.drainage || '').trim();
-  if (drainage && !VALID_DRAINAGE.includes(drainage)) {
-    return { error: 'Недопустимое значение водоотведения' };
-  }
-
   const boxesRaw = String(body.boxes || '').trim();
   let boxes = 0;
   if (boxesRaw) {
     boxes = Number(boxesRaw);
-    if (!Number.isFinite(boxes) || boxes < 0) return { error: 'Некорректное количество боксов/роботов' };
+    if (!Number.isInteger(boxes) || boxes < 0) return { error: 'Некорректное количество боксов' };
   }
 
   return {
@@ -71,21 +66,22 @@ function parseObjectBody(body) {
       name: String(body.name || '').trim(),
       address: String(body.address || '').trim(),
       boxes,
-      robots,
       chemical_ids,
       manager: String(body.manager || '').trim(),
-      manager_phone: String(body.manager_phone || '').trim(),
-      drainage
+      manager_phone: String(body.manager_phone || '').trim()
     }
   };
 }
 
-function presentObject(object) {
+function presentObject(object, complaintIds) {
   if (!object) return null;
   const names = new Map(chemicalsDb.listChemicals().map(item => [Number(item.id), item.name]));
   return {
     ...object,
-    chemistry: object.chemical_ids.map(id => names.get(Number(id))).filter(Boolean)
+    chemistry: object.chemical_ids.map(id => names.get(Number(id))).filter(Boolean),
+    has_complaints: complaintIds
+      ? complaintIds.has(Number(object.id))
+      : complaintsDb.hasForObject(object.id)
   };
 }
 
@@ -94,12 +90,59 @@ function removeUpload(fileName) {
   fs.unlink(path.join(uploadDir, path.basename(fileName)), () => {});
 }
 
-router.get('/', (req, res) => res.json(db.listObjects().map(presentObject)));
+router.get('/', (req, res) => {
+  const complaintIds = new Set(complaintsDb.list().map(item => Number(item.object_id)));
+  res.json(db.listObjects().map(object => presentObject(object, complaintIds)));
+});
 
 router.get('/:id', (req, res) => {
   const object = db.getObject(req.params.id);
   if (!object) return res.status(404).json({ error: 'Объект не найден' });
   res.json(presentObject(object));
+});
+
+router.post('/:id/events', eventUpload, (req, res) => {
+  const existing = db.getObject(req.params.id);
+  const files = Object.values(req.files || {}).flat();
+  if (!existing) {
+    files.forEach(file => removeUpload(file.filename));
+    return res.status(404).json({ error: 'Объект не найден' });
+  }
+  const date = String(req.body.date || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    files.forEach(file => removeUpload(file.filename));
+    return res.status(400).json({ error: 'Укажите дату события' });
+  }
+  const photos = (req.files && req.files.photos) || [];
+  const documents = (req.files && req.files.documents) || [];
+  const updated = db.addEvent(existing.id, {
+    date,
+    comment: String(req.body.comment || '').trim(),
+    photo_urls: photos.map(file => '/uploads/objects/' + file.filename),
+    documents: documents.map(file => ({
+      url: '/uploads/objects/' + file.filename,
+      name: Buffer.from(file.originalname || file.filename, 'latin1').toString('utf8')
+    }))
+  });
+  notifications.record({
+    entity: 'object', entity_id: updated.id, entity_name: updated.name,
+    action: 'update', changes: [{ field: 'events', label: 'События', from: '—', to: `добавлено событие от ${date}` }]
+  });
+  res.status(201).json(presentObject(updated));
+});
+
+router.delete('/:id/events/:eventId', (req, res) => {
+  const existing = db.getObject(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Объект не найден' });
+  const result = db.deleteEvent(existing.id, req.params.eventId);
+  if (!result) return res.status(404).json({ error: 'Событие не найдено' });
+  (result.event.photo_urls || []).forEach(removeUpload);
+  (result.event.documents || []).forEach(file => removeUpload(file.url));
+  notifications.record({
+    entity: 'object', entity_id: result.object.id, entity_name: result.object.name,
+    action: 'update', changes: [{ field: 'events', label: 'События', from: `событие от ${result.event.date}`, to: 'удалено' }]
+  });
+  res.json(presentObject(result.object));
 });
 
 router.post('/', upload.single('photo'), (req, res) => {
@@ -185,6 +228,10 @@ router.delete('/:id', (req, res) => {
   }
   db.deleteObject(req.params.id);
   if (existing.photo_url) removeUpload(existing.photo_url);
+  (existing.events || []).forEach(event => {
+    (event.photo_urls || []).forEach(removeUpload);
+    (event.documents || []).forEach(file => removeUpload(file.url));
+  });
   notifications.record({ entity: 'object', entity_id: Number(req.params.id), entity_name: existing.name || existing.address, action: 'delete', changes: [] });
   res.json({ ok: true });
 });
