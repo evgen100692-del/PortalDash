@@ -19,6 +19,7 @@
       <nav>
         <a data-page="objectCard" class="active">Объекты</a>
         <a data-page="chemicals">Химия</a>
+        <a data-page="analytics">Аналитика</a>
         <a data-page="faq">Часто задаваемые вопросы</a>
         <a data-page="alerts">Уведомления</a>
       </nav>
@@ -119,6 +120,74 @@
           <dl id="chemical-detail-fields" class="object-detail__fields"></dl>
         </div>
       </section>
+
+      <section id="page-analytics" class="page analytics-page" hidden>
+        <div class="section-heading analytics-heading">
+          <div class="page-heading-copy">
+            <h2 class="page-title">Аналитика</h2>
+            <p id="analytics-sync-status" class="page-count">Данные ещё не синхронизированы</p>
+          </div>
+          <button id="analytics-sync" class="button button-primary" type="button">Обновить сейчас</button>
+        </div>
+
+        <div class="card-filters analytics-filters">
+          <label class="card-filter">Объект<select id="analytics-object"><option value="">Все объекты</option></select></label>
+          <label class="card-filter">Дата с<input id="analytics-from" type="date"></label>
+          <label class="card-filter">Дата по<input id="analytics-to" type="date"></label>
+          <button id="analytics-reset" class="button button-secondary filters-reset" type="button">Сбросить</button>
+        </div>
+
+          <div id="analytics-error" class="analytics-error" hidden></div>
+          <div id="analytics-cards" class="analytics-cards"></div>
+
+          <div id="analytics-overview" class="analytics-overview">
+            <div class="analytics-grid analytics-grid--overview">
+              <section class="analytics-panel analytics-panel--primary">
+                <div class="analytics-panel__heading">
+                  <div><span class="analytics-eyebrow">Динамика</span><h3>Проверки по дням</h3></div>
+                  <span id="analytics-period-summary" class="analytics-panel__meta"></span>
+                </div>
+                <div id="analytics-inspections-chart" class="bar-chart bar-chart--activity"></div>
+              </section>
+              <section class="analytics-panel">
+                <div class="analytics-panel__heading">
+                  <div><span class="analytics-eyebrow">Приоритет</span><h3>Требуют внимания</h3></div>
+                </div>
+                <div id="analytics-attention" class="attention-list"></div>
+              </section>
+            </div>
+
+            <section class="analytics-drilldown">
+              <div>
+                <span class="analytics-eyebrow">Подробные данные</span>
+                <h3>Выберите объект для детального анализа</h3>
+                <p>Остатки химии, состояние оборудования, технические показатели и журнал проверок откроются только для выбранного объекта.</p>
+              </div>
+              <label class="analytics-drilldown__select">Объект<select id="analytics-object-shortcut"><option value="">Выберите объект</option></select></label>
+            </section>
+          </div>
+
+          <div id="analytics-detail" class="analytics-detail" hidden>
+            <div class="analytics-detail__heading">
+              <div><span class="analytics-eyebrow">Карточка объекта</span><h3 id="analytics-detail-title">Объект</h3></div>
+              <button id="analytics-back-overview" class="button button-secondary" type="button">← Общий обзор</button>
+            </div>
+            <section class="analytics-panel analytics-panel--primary">
+              <div class="analytics-panel__heading"><div><span class="analytics-eyebrow">Динамика</span><h3>Проверки по дням</h3></div></div>
+              <div id="analytics-detail-chart" class="bar-chart bar-chart--activity"></div>
+            </section>
+            <div class="analytics-tabs" role="tablist" aria-label="Разделы аналитики объекта">
+              <button class="analytics-tab is-active" type="button" role="tab" aria-selected="true" data-analytics-tab="chemistry">Химия</button>
+              <button class="analytics-tab" type="button" role="tab" aria-selected="false" data-analytics-tab="issues">Оборудование</button>
+              <button class="analytics-tab" type="button" role="tab" aria-selected="false" data-analytics-tab="technical">Технические показатели</button>
+              <button class="analytics-tab" type="button" role="tab" aria-selected="false" data-analytics-tab="checks">Проверки</button>
+            </div>
+            <section class="analytics-panel analytics-tab-panel" data-analytics-panel="chemistry"><h3>Химия — последние остатки</h3><div id="analytics-chemistry" class="analytics-table-wrap"></div></section>
+            <section class="analytics-panel analytics-tab-panel" data-analytics-panel="issues" hidden><h3>Оборудование — последние неисправности</h3><div id="analytics-issues" class="analytics-table-wrap"></div></section>
+            <section class="analytics-panel analytics-tab-panel" data-analytics-panel="technical" hidden><h3>Технические показатели</h3><div id="analytics-technical" class="analytics-table-wrap"></div></section>
+            <section class="analytics-panel analytics-tab-panel" data-analytics-panel="checks" hidden><h3>Проверки</h3><div id="analytics-checks" class="analytics-table-wrap"></div></section>
+          </div>
+        </section>
 
       <section id="page-faq" class="page" hidden>
         <div class="section-heading">
@@ -260,6 +329,7 @@
   <script src="/js/chemicalCard.js"></script>
   <script src="/js/faq.js"></script>
   <script src="/js/notifications.js"></script>
+  <script src="/js/analytics.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>

@@ -57,9 +57,13 @@ test('health checks storage and retired APIs return JSON 404', async () => {
   const health = await json('/api/health');
   assert.equal(health.response.status, 200);
   assert.equal(health.body.status, 'ok');
-  assert.equal(health.body.storage.length, 5);
+  assert.equal(health.body.storage.length, 6);
 
-  for (const pathname of ['/api/analytics/summary', '/api/heatmap', '/api/finance/summary', '/api/export/pdf']) {
+  const analytics = await json('/api/analytics/summary');
+  assert.equal(analytics.response.status, 200);
+  assert.equal(analytics.body.cards.objects, 0);
+
+  for (const pathname of ['/api/heatmap', '/api/finance/summary', '/api/export/pdf']) {
     const result = await json(pathname);
     assert.equal(result.response.status, 404, pathname);
     assert.equal(result.body.error, 'API-метод не найден');

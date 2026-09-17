@@ -5,6 +5,7 @@
 const REAL_PAGES = {
   objectCard: 'page-objectCard',
   chemicals: 'page-chemicals',
+  analytics: 'page-analytics',
   faq: 'page-faq',
   alerts: 'page-alerts'
 };

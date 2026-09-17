@@ -25,3 +25,8 @@ async function getEntityNotifications(entity, id) {
 async function getComplaints(objectId) { return request('/api/complaints?object_id=' + encodeURIComponent(objectId)); }
 async function createComplaint(payload) { return request('/api/complaints', jsonInit('POST', payload)); }
 async function deleteComplaint(id) { return request('/api/complaints/' + encodeURIComponent(id), { method: 'DELETE' }); }
+async function getAnalyticsSummary(params = {}) {
+  const query = new URLSearchParams(Object.entries(params).filter(([, value]) => value));
+  return request('/api/analytics/summary' + (query.size ? '?' + query.toString() : ''));
+}
+async function syncAnalytics() { return request('/api/analytics/sync', { method: 'POST' }); }
